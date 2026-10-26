@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Sidhu @ Indra Heights — Renovation Command Center</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+              800: '#166534',
+              900: '#14532d',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <!-- Supabase JS Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    /* Custom scrollbars */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    .card-ghost { opacity: 0.35; transform: scale(0.98); }
+    .drag-over { background-color: rgba(241, 245, 249, 0.95); border: 2px dashed #22c55e !important; }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col font-sans antialiased selection:bg-brand-500 selection:text-white pb-16 md:pb-0">
+
+  <!-- ======================================================== -->
+  <!-- TOP NAVIGATION HEADER                                    -->
+  <!-- ======================================================== -->
+  <header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-30 shadow-md">
+    <div class="max-w-[1700px] mx-auto px-4 py-2.5 flex items-center justify-between gap-3">
+      <!-- Branding & Mode Badge -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-emerald-400 flex items-center justify-center shadow-lg shadow-brand-500/20 text-white font-bold">
+          <i data-lucide="home" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base md:text-lg font-bold tracking-tight text-white leading-none">Sidhu @ Indra Heights</h1>
+            <span id="backend-status-pill" onclick="openConfigModal()" class="cursor-pointer text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1 hover:bg-amber-500/30 transition">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+              <span id="backend-status-text">Local Sandbox</span>
+            </span>
+          </div>
+          <p class="text-xs text-slate-400 mt-0.5">2BHK 30-Day Sprint • Epics, Tasks, Media Vault & Vendor CRM</p>
+        </div>
+      </div>
+
+      <!-- Quick Metrics Ribbon (Desktop) -->
+      <div class="hidden xl:flex items-center gap-5 bg-slate-800/80 px-4 py-1.5 rounded-xl border border-slate-700/60 text-xs">
+        <div>
+          <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Sprint Progress</span>
+          <div class="flex items-center gap-2 mt-0.5">
+            <div class="w-24 bg-slate-700 h-2 rounded-full overflow-hidden">
+              <div id="stat-progress-bar" class="bg-brand-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+            <span id="stat-progress-percent" class="font-bold text-white text-xs">0%</span>
+          </div>
+        </div>
+        <div class="h-6 w-px bg-slate-700"></div>
+        <div>
+          <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Subtasks</span>
+          <span id="stat-subtasks-count" class="font-bold text-white">0 / 0</span>
+        </div>
+        <div class="h-6 w-px bg-slate-700"></div>
+        <div>
+          <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Media Files</span>
+          <span id="stat-media-count" class="font-bold text-white">0</span>
+        </div>
+      </div>
+
+      <!-- Global Actions -->
+      <div class="flex items-center gap-2">
+        <button onclick="openMediaUploadModal()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg shadow-sm transition">
+          <i data-lucide="camera" class="w-3.5 h-3.5"></i>
+          <span>Add Photo / Video</span>
+        </button>
+        <button onclick="openCardModal(null)" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white rounded-lg shadow-sm transition">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+          <span class="hidden sm:inline">New Task</span>
+        </button>
+        <button onclick="openConfigModal()" class="p-1.5 text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg transition" title="Supabase Cloud Configuration">
+          <i data-lucide="settings" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Navigation Tabs -->
+    <div class="bg-slate-950 border-t border-slate-800 px-4 py-1.5 overflow-x-auto">
+      <div class="max-w-[1700px] mx-auto flex items-center justify-between gap-4 text-xs">
+        <nav class="flex items-center gap-1.5" id="nav-tab-list">
+          <button onclick="switchTab('board')" id="tab-btn-board" class="tab-btn active px-3.5 py-1.5 rounded-lg font-bold text-white bg-slate-800 flex items-center gap-1.5 transition">
+            <i data-lucide="trello" class="w-3.5 h-3.5 text-brand-400"></i>
+            <span>Jira Board</span>
+          </button>
+          <button onclick="switchTab('media')" id="tab-btn-media" class="tab-btn px-3.5 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-slate-200 flex items-center gap-1.5 transition">
+            <i data-lucide="images" class="w-3.5 h-3.5 text-blue-400"></i>
+            <span>Media Vault (Pre/Post)</span>
+            <span id="tab-badge-media-count" class="px-1.5 py-0.2 bg-slate-800 rounded-full text-[10px] text-slate-300">0</span>
+          </button>
+          <button onclick="switchTab('epics')" id="tab-btn-epics" class="tab-btn px-3.5 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-slate-200 flex items-center gap-1.5 transition">
+            <i data-lucide="layers" class="w-3.5 h-3.5 text-purple-400"></i>
+            <span>Epics & Rooms</span>
+          </button>
+          <button onclick="switchTab('contacts')" id="tab-btn-contacts" class="tab-btn px-3.5 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-slate-200 flex items-center gap-1.5 transition">
+            <i data-lucide="phone-call" class="w-3.5 h-3.5 text-amber-400"></i>
+            <span>Vendor CRM</span>
+          </button>
+        </nav>
+
+        <!-- Secondary Search -->
+        <div class="relative hidden md:block w-56">
+          <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5 pointer-events-none"></i>
+          <input type="text" id="global-search" oninput="handleSearch(this.value)" placeholder="Search tasks, contractor..." class="w-full pl-8 pr-3 py-1 text-xs bg-slate-900 border border-slate-800 rounded-lg text-slate-200 placeholder-slate-500 focus:outline-none focus:border-brand-500">
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ======================================================== -->
+  <!-- TAB 1: JIRA-STYLE KANBAN BOARD VIEW                      -->
+  <!-- ======================================================== -->
+  <section id="tab-content-board" class="tab-content flex-1 flex flex-col p-4 md:p-6 max-w-[1700px] w-full mx-auto">
+    <!-- Sub-Filter Strip -->
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-4 bg-white p-3 rounded-xl border border-slate-200 shadow-sm text-xs">
+      <!-- View Mode: Agile Status vs Timeline Phase -->
+      <div class="flex items-center gap-2">
+        <span class="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Grouping:</span>
+        <div class="bg-slate-100 p-0.5 rounded-lg flex items-center border border-slate-200">
+          <button onclick="setBoardGrouping('status')" id="group-status-btn" class="px-2.5 py-1 rounded-md font-bold text-slate-800 bg-white shadow-xs">Status (Jira)</button>
+          <button onclick="setBoardGrouping('phase')" id="group-phase-btn" class="px-2.5 py-1 rounded-md font-medium text-slate-500 hover:text-slate-800">Timeline / Phase</button>
+        </div>
+      </div>
+
+      <!-- Filter by Epic / Room -->
+      <div class="flex items-center gap-2 overflow-x-auto">
+        <span class="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Room / Epic:</span>
+        <select id="board-epic-filter" onchange="renderBoard()" class="px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-medium">
+          <option value="ALL">All Rooms</option>
+          <option value="Kitchen">Kitchen</option>
+          <option value="Bathroom & WC">Bathroom & WC</option>
+          <option value="Master Bedroom">Master Bedroom</option>
+          <option value="2nd Bedroom">2nd Bedroom</option>
+          <option value="Hall">Hall (Living/Dining)</option>
+          <option value="Balcony">Open Balcony</option>
+          <option value="Entire Flat">Entire Flat / Logistics</option>
+        </select>
+      </div>
+
+      <!-- Filter by Assigned Contractor -->
+      <div class="flex items-center gap-2">
+        <span class="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Contractor:</span>
+        <select id="board-contact-filter" onchange="renderBoard()" class="px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-medium">
+          <option value="ALL">All Vendors</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Columns Container -->
+    <div id="board-columns-container" class="flex gap-4 items-start overflow-x-auto pb-10 flex-1">
+      <!-- Rendered dynamically -->
+    </div>
+  </section>
+
+  <!-- ======================================================== -->
+  <!-- TAB 2: MEDIA VAULT (PRE / IN-PROGRESS / POST)            -->
+  <!-- ======================================================== -->
+  <section id="tab-content-media" class="tab-content hidden flex-1 p-4 md:p-6 max-w-[1700px] w-full mx-auto space-y-5">
+    <!-- Media Header Controls -->
+    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+          <i data-lucide="image" class="w-5 h-5 text-blue-600"></i>
+          Indra Heights Media Vault
+        </h2>
+        <p class="text-xs text-slate-500">Record baseline pre-demolition photos, in-progress plumbing/wiring proof, and final handover shots.</p>
+      </div>
+
+      <!-- Stage Filters -->
+      <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl text-xs font-semibold">
+        <button onclick="setMediaStageFilter('ALL')" class="media-stage-btn active px-3 py-1.5 rounded-lg bg-white shadow-xs text-slate-900" data-stage="ALL">All Media</button>
+        <button onclick="setMediaStageFilter('pre')" class="media-stage-btn px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900" data-stage="pre">Pre-Demolition (Before)</button>
+        <button onclick="setMediaStageFilter('in_progress')" class="media-stage-btn px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900" data-stage="in_progress">In-Progress (Pipes & Walls)</button>
+        <button onclick="setMediaStageFilter('post')" class="media-stage-btn px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900" data-stage="post">Post-Finish (After)</button>
+      </div>
+
+      <!-- Direct Add Media Button -->
+      <button onclick="openMediaUploadModal()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl shadow-sm transition flex items-center gap-2">
+        <i data-lucide="camera" class="w-4 h-4"></i>
+        <span>Take Photo or Upload</span>
+      </button>
+    </div>
+
+    <!-- Media Gallery Grid -->
+    <div id="media-gallery-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <!-- Media Cards rendered dynamically -->
+    </div>
+  </section>
+
+  <!-- ======================================================== -->
+  <!-- TAB 3: EPICS & SPACES ROADMAP                            -->
+  <!-- ======================================================== -->
+  <section id="tab-content-epics" class="tab-content hidden flex-1 p-4 md:p-6 max-w-[1700px] w-full mx-auto space-y-4">
+    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+      <div>
+        <h2 class="text-base font-bold text-slate-900">Epics & Space Breakdown</h2>
+        <p class="text-xs text-slate-500">Track progress by rooms and major scopes of the 2BHK flat.</p>
+      </div>
+      <button onclick="openEpicModal(null)" class="px-3.5 py-2 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs rounded-xl transition flex items-center gap-1.5">
+        <i data-lucide="plus" class="w-4 h-4"></i> New Epic
+      </button>
+    </div>
+
+    <div id="epics-list-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <!-- Epics rendered dynamically -->
+    </div>
+  </section>
+
+  <!-- ======================================================== -->
+  <!-- TAB 4: VENDOR & CONTRACTOR CRM DIRECTORY                 -->
+  <!-- ======================================================== -->
+  <section id="tab-content-contacts" class="tab-content hidden flex-1 p-4 md:p-6 max-w-[1700px] w-full mx-auto space-y-4">
+    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+      <div>
+        <h2 class="text-base font-bold text-slate-900">Contractor & Vendor Directory</h2>
+        <p class="text-xs text-slate-500">Direct one-tap WhatsApp and calling access for all on-site tradesmen and society contacts.</p>
+      </div>
+      <button onclick="openContactModal(null)" class="px-3.5 py-2 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs rounded-xl transition flex items-center gap-1.5">
+        <i data-lucide="user-plus" class="w-4 h-4"></i> Add Vendor
+      </button>
+    </div>
+
+    <div id="contacts-list-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <!-- Contacts rendered dynamically -->
+    </div>
+  </section>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: UPLOAD MEDIA (PHOTO / VIDEO)                      -->
+  <!-- ======================================================== -->
+  <div id="media-upload-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
+      <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i data-lucide="camera" class="w-5 h-5 text-emerald-400"></i>
+          <h3 class="text-base font-bold">Upload Site Photo or Video</h3>
+        </div>
+        <button onclick="closeMediaUploadModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <form id="media-upload-form" onsubmit="handleMediaUpload(event)" class="p-6 space-y-4 text-xs">
+        <!-- File Picker / Camera Trigger -->
+        <div>
+          <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Select File (Photos or Video)</label>
+          <input type="file" id="media-file-input" accept="image/*,video/*" capture="environment" required class="w-full text-slate-600 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100 cursor-pointer border border-slate-200 rounded-xl p-2 bg-slate-50">
+          <p class="text-[11px] text-slate-400 mt-1">Supports camera snap on mobile. Images (JPEG/PNG) or MP4 video clips.</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Stage</label>
+            <select id="media-stage-select" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800">
+              <option value="in_progress">In-Progress (Plumbing / Wiring)</option>
+              <option value="pre">Pre-Demolition (Before)</option>
+              <option value="post">Post-Finish (After)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Room / Space</label>
+            <select id="media-room-select" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800">
+              <option value="Kitchen">Kitchen</option>
+              <option value="Bathroom & WC">Bathroom & WC</option>
+              <option value="Master Bedroom">Master Bedroom</option>
+              <option value="2nd Bedroom">2nd Bedroom</option>
+              <option value="Hall">Hall</option>
+              <option value="Balcony">Balcony</option>
+              <option value="Entire Flat">Entire Flat / Building</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Link to Task (Optional)</label>
+          <select id="media-task-select" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800">
+            <option value="">-- None / General Space Photo --</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Caption / Inspection Notes</label>
+          <input type="text" id="media-caption-input" placeholder="e.g. Wall grooves in kitchen before plaster; 6-inch core cut drilled" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-slate-800">
+        </div>
+
+        <div class="pt-3 border-t border-slate-200 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeMediaUploadModal()" class="px-4 py-2 font-semibold text-slate-600 hover:bg-slate-100 rounded-xl">Cancel</button>
+          <button type="submit" id="media-upload-submit-btn" class="px-5 py-2 font-bold bg-brand-600 hover:bg-brand-500 text-white rounded-xl shadow-sm flex items-center gap-1.5">
+            <i data-lucide="upload-cloud" class="w-4 h-4"></i> Upload Media
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: TASK / EPIC DETAIL MODAL                          -->
+  <!-- ======================================================== -->
+  <div id="card-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-slate-200">
+      <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-start justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span id="modal-epic-badge" class="px-2 py-0.5 text-[10px] font-bold rounded-md bg-purple-100 text-purple-700 border border-purple-200">Epic</span>
+            <span id="modal-status-badge" class="px-2 py-0.5 text-[10px] font-bold rounded-md bg-slate-200 text-slate-700">Status</span>
+          </div>
+          <h2 id="modal-card-title-display" class="text-base font-bold text-slate-900">Task Details</h2>
+        </div>
+        <button onclick="closeCardModal()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-200">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-6 overflow-y-auto flex-1 space-y-4 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Task Title</label>
+          <input type="text" id="modal-title-input" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 text-slate-800">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Epic / Space</label>
+            <select id="modal-epic-select" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800"></select>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Assigned Vendor</label>
+            <select id="modal-contact-select" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800"></select>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Status</label>
+            <select id="modal-status-select" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800">
+              <option value="todo">To Do</option>
+              <option value="in_progress">In Progress</option>
+              <option value="blocked">Blocked / Waiting</option>
+              <option value="done">Completed</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Timeline / Days</label>
+            <input type="text" id="modal-days-input" placeholder="e.g. Days 1–3" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-slate-800">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Priority</label>
+            <select id="modal-priority-select" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800">
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+              <option value="critical">Critical (Sprint Blocker)</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Scope / Contractor Instructions</label>
+          <textarea id="modal-notes-input" rows="2" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-slate-800"></textarea>
+        </div>
+
+        <!-- Subtask Checklist -->
+        <div class="border-t border-slate-200 pt-3">
+          <div class="flex items-center justify-between mb-2">
+            <h4 class="font-bold text-slate-800 flex items-center gap-1.5">
+              <i data-lucide="check-square" class="w-4 h-4 text-brand-600"></i>
+              Subtasks & Checklists
+            </h4>
+            <span id="modal-subtask-progress-label" class="text-slate-500 font-medium">0/0</span>
+          </div>
+          <div id="modal-subtasks-list" class="space-y-1.5 max-h-48 overflow-y-auto pr-1"></div>
+          <div class="flex gap-2 mt-2.5">
+            <input type="text" id="modal-new-subtask-input" placeholder="Add checklist item..." class="flex-1 px-3 py-1.5 border border-slate-300 rounded-xl text-xs" onkeydown="if(event.key==='Enter'){event.preventDefault();addNewSubtask();}">
+            <button onclick="addNewSubtask()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold flex items-center gap-1">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add
+            </button>
+          </div>
+        </div>
+
+        <!-- Attached Media for this Task -->
+        <div class="border-t border-slate-200 pt-3" id="task-media-section">
+          <h4 class="font-bold text-slate-800 mb-2 flex items-center gap-1.5">
+            <i data-lucide="image" class="w-4 h-4 text-blue-600"></i>
+            Attached Photos & Videos
+          </h4>
+          <div id="task-media-thumbnails" class="flex items-center gap-2 overflow-x-auto py-1"></div>
+        </div>
+      </div>
+
+      <div class="px-6 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs">
+        <button onclick="deleteCurrentCard()" id="modal-delete-btn" class="font-semibold text-rose-600 hover:bg-rose-50 px-3 py-1.5 rounded-lg flex items-center gap-1">
+          <i data-lucide="trash-2" class="w-4 h-4"></i> Delete
+        </button>
+        <div class="flex gap-2">
+          <button onclick="closeCardModal()" class="px-4 py-2 font-semibold text-slate-600 hover:bg-slate-200 rounded-xl">Cancel</button>
+          <button onclick="saveCardFromModal()" class="px-5 py-2 font-bold bg-brand-600 hover:bg-brand-500 text-white rounded-xl shadow flex items-center gap-1.5">
+            <i data-lucide="save" class="w-4 h-4"></i> Save
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: SUPABASE CLOUD CONNECTION SETTINGS                -->
+  <!-- ======================================================== -->
+  <div id="config-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
+      <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i data-lucide="cloud" class="w-5 h-5 text-emerald-400"></i>
+          <h3 class="text-base font-bold">Supabase Cloud Connection</h3>
+        </div>
+        <button onclick="closeConfigModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div class="p-6 space-y-4 text-xs">
+        <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800">
+          <p class="font-bold">✨ Real Cloud Sync + Photo/Video Storage</p>
+          <p class="mt-0.5 text-[11px] leading-relaxed">Enter your project credentials from your free Supabase Dashboard (Settings → API). Once connected, photos taken on your phone will sync live to your laptop.</p>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Project URL</label>
+          <input type="text" id="supabase-url-input" placeholder="https://your-project.supabase.co" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-slate-800 font-mono text-xs">
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Anon / Public API Key</label>
+          <input type="password" id="supabase-key-input" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." class="w-full px-3 py-2 border border-slate-300 rounded-xl text-slate-800 font-mono text-xs">
+        </div>
+
+        <div class="pt-2 flex items-center justify-between">
+          <button onclick="disconnectSupabase()" class="text-rose-600 hover:underline font-semibold">Clear & Use Sandbox</button>
+          <button onclick="saveSupabaseConfig()" class="px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl transition flex items-center gap-1.5">
+            <i data-lucide="save" class="w-4 h-4 text-emerald-400"></i> Connect & Sync
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- APPLICATION JAVASCRIPT STATE & LOGIC                     -->
+  <!-- ======================================================== -->
+  <script>
+    const CONFIG_KEY = 'sidhu_indra_supabase_config';
+    const LOCAL_DATA_KEY = 'sidhu_indra_local_store_v2';
+
+    // State
+    let epics = [];
+    let contacts = [];
+    let tasks = [];
+    let media = [];
+    let currentTab = 'board';
+    let boardGrouping = 'status'; // 'status' or 'phase'
+    let currentMediaStageFilter = 'ALL';
+    let currentEditingTaskId = null;
+    let supabaseClient = null;
+
+    // Default Seed Data
+    const SEED_CONTACTS = [
+      { id: 'c1', name: 'Indra Heights Society Office', role: 'Society Manager', phone: '+919800000001', whatsapp: '919800000001', notes: 'Noisy work hours: 10AM–5PM' },
+      { id: 'c2', name: 'Ramesh Sharma', role: 'Mason/Civil', phone: '+919800000002', whatsapp: '919800000002', notes: 'Demolition & plaster' },
+      { id: 'c3', name: 'Vijay Kumar', role: 'Plumber', phone: '+919800000003', whatsapp: '919800000003', notes: 'CPVC pipes, diverters & ponding' },
+      { id: 'c4', name: 'Suresh Electrician', role: 'Electrician', phone: '+919800000004', whatsapp: '919800000004', notes: 'FRLS wires, 16A points, ceiling' },
+      { id: 'c5', name: 'Anil Carpenter', role: 'Carpenter/Modular', phone: '+919800000005', whatsapp: '919800000005', notes: 'Modular kitchen & 2 wardrobes' },
+      { id: 'c6', name: 'Deepak Painter', role: 'Painter', phone: '+919800000006', whatsapp: '919800000006', notes: 'Putty, primer, emulsion' }
+    ];
+
+    const SEED_EPICS = [
+      { id: 'e1', title: 'Site Approvals & Pre-Orders', space: 'Entire Flat', target_week: 'Pre-Reno', status: 'completed' },
+      { id: 'e2', title: 'Kitchen Transformation (Civil & Modular)', space: 'Kitchen', target_week: 'Week 1', status: 'in_progress' },
+      { id: 'e3', title: '1 Bathroom & 1 WC Overhaul', space: 'Bathroom & WC', target_week: 'Week 1', status: 'in_progress' },
+      { id: 'e4', title: 'Living Hall (Ceiling & Flooring)', space: 'Hall', target_week: 'Week 2', status: 'planning' },
+      { id: 'e5', title: 'Master Bedroom & Wardrobe', space: 'Master Bedroom', target_week: 'Week 3', status: 'planning' },
+      { id: 'e6', title: '2nd Bedroom & Wardrobe', space: '2nd Bedroom', target_week: 'Week 3', status: 'planning' },
+      { id: 'e7', title: 'Open Balcony Refresh', space: 'Balcony', target_week: 'Week 4', status: 'planning' }
+    ];
+
+    const SEED_TASKS = [
+      {
+        id: 't1', epic_id: 'e1', contact_id: 'c1', title: 'Society NOC & Working Hours', days_label: 'Pre-Reno', phase: 'pre-reno', status: 'done', priority: 'high', notes: 'Pasted on main door',
+        subtasks: [{ id: 's1', title: 'Society NOC pasted on door', is_completed: true }, { id: 's2', title: 'Pad lift & lobby walls with sheets', is_completed: true }, { id: 's3', title: 'Downstairs neighbor ceiling baseline photos taken', is_completed: true }]
+      },
+      {
+        id: 't2', epic_id: 'e1', contact_id: 'c5', title: '100% Factory Modular Order Placed', days_label: 'Pre-Reno', phase: 'pre-reno', status: 'done', priority: 'critical', notes: 'Trigger factory 15-20 days before Day 1',
+        subtasks: [{ id: 's4', title: 'Kitchen modular designs finalized', is_completed: true }, { id: 's5', title: '2 Bedroom wardrobes production started', is_completed: true }, { id: 's6', title: 'FFL (+15mm) locked for cabinets', is_completed: true }]
+      },
+      {
+        id: 't3', epic_id: 'e3', contact_id: 'c2', title: 'Demolition & Debris Evacuation', days_label: 'Days 1–3', phase: 'week-1', status: 'in_progress', priority: 'high', notes: 'Bag debris into cement sacks daily',
+        subtasks: [{ id: 's7', title: 'Strip kitchen platform and wall tiles', is_completed: true }, { id: 's8', title: 'Strip bathroom and washroom floor/wall tiles', is_completed: true }, { id: 's9', title: 'Evacuate debris (malba) from flat', is_completed: false }]
+      },
+      {
+        id: 't4', epic_id: 'e2', contact_id: 'c3', title: 'Plumbing First Fix & Kitchen Core-Cut', days_label: 'Days 4–6', phase: 'week-1', status: 'todo', priority: 'critical', notes: 'Replace old metal pipes with CPVC',
+        subtasks: [{ id: 's10', title: 'New CPVC pipes in kitchen & bathroom', is_completed: false }, { id: 's11', title: 'Install concealed wall mixer bodies', is_completed: false }, { id: 's12', title: 'Drill 6-inch core cut for chimney exhaust', is_completed: false }]
+      },
+      {
+        id: 't5', epic_id: 'e4', contact_id: 'c4', title: 'Electrical First Fix (Concealed Wires)', days_label: 'Days 5–7', phase: 'week-1', status: 'todo', priority: 'high', notes: 'Photograph all open grooves before plaster',
+        subtasks: [{ id: 's13', title: 'Pull FRLS wires across all 4 rooms', is_completed: false }, { id: 's14', title: 'Cut 16A appliance points in kitchen', is_completed: false }, { id: 's15', title: 'Upgrade MCB Distribution Board', is_completed: false }]
+      },
+      {
+        id: 't6', epic_id: 'e3', contact_id: 'c3', title: 'Fast-Cure Waterproofing & Ponding Test', days_label: 'Days 8–10', phase: 'week-2', status: 'todo', priority: 'critical', notes: 'Flood test for 24-36 hrs. Check ceiling below.',
+        subtasks: [{ id: 's16', title: 'Plaster wall grooves with chicken mesh', is_completed: false }, { id: 's17', title: 'Apply 2 coats polymer waterproofing in wet areas', is_completed: false }, { id: 's18', title: '24-hour ponding test verified downstairs', is_completed: false }]
+      },
+      {
+        id: 't7', epic_id: 'e2', contact_id: 'c5', title: 'Modular Kitchen & Wardrobe Assembly', days_label: 'Days 22–26', phase: 'week-4', status: 'todo', priority: 'critical', notes: 'Zero on-site carpentry cutting.',
+        subtasks: [{ id: 's19', title: 'Deliver factory carcasses and shutters', is_completed: false }, { id: 's20', title: 'Assemble kitchen tandem drawers and overheads', is_completed: false }, { id: 's21', title: 'Assemble 2 bedroom wardrobes with lofts', is_completed: false }]
+      }
+    ];
+
+    const SEED_MEDIA = [
+      {
+        id: 'm1', task_id: 't1', room_tag: 'Hall', stage: 'pre', file_type: 'image',
+        file_url: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=800&q=80',
+        caption: 'Baseline hall and ceiling condition before demolition began.'
+      },
+      {
+        id: 'm2', task_id: 't3', room_tag: 'Bathroom & WC', stage: 'in_progress', file_type: 'image',
+        file_url: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=800&q=80',
+        caption: 'Tiles stripped down to brickwork for concealed CPVC piping.'
+      }
+    ];
+
+    // --- INITIALIZATION ---
+    async function initApp() {
+      setupSupabase();
+      await loadData();
+      populateDropdowns();
+      renderAllViews();
+      lucide.createIcons();
+    }
+
+    // --- SUPABASE SETUP ---
+    function setupSupabase() {
+      const config = getSupabaseConfig();
+      const statusPill = document.getElementById('backend-status-pill');
+      const statusText = document.getElementById('backend-status-text');
+
+      if (config.url && config.key && window.supabase) {
+        try {
+          supabaseClient = window.supabase.createClient(config.url, config.key);
+          statusPill.className = 'cursor-pointer text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1 hover:bg-emerald-500/30 transition';
+          statusText.textContent = 'Supabase Cloud';
+        } catch (e) {
+          console.warn('Supabase init error, fallback to sandbox:', e);
+          supabaseClient = null;
+        }
+      } else {
+        statusPill.className = 'cursor-pointer text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1 hover:bg-amber-500/30 transition';
+        statusText.textContent = 'Local Sandbox';
+      }
+    }
+
+    function getSupabaseConfig() {
+      try {
+        return JSON.parse(localStorage.getItem(CONFIG_KEY)) || {};
+      } catch (e) {
+        return {};
+      }
+    }
+
+    function saveSupabaseConfig() {
+      const url = document.getElementById('supabase-url-input').value.trim();
+      const key = document.getElementById('supabase-key-input').value.trim();
+      if (!url || !key) {
+        alert('Please provide both Project URL and Anon Key.');
+        return;
+      }
+      localStorage.setItem(CONFIG_KEY, JSON.stringify({ url, key }));
+      closeConfigModal();
+      location.reload();
+    }
+
+    function disconnectSupabase() {
+      localStorage.removeItem(CONFIG_KEY);
+      closeConfigModal();
+      location.reload();
+    }
+
+    // --- DATA LOADING & PERSISTENCE ---
+    async function loadData() {
+      if (supabaseClient) {
+        try {
+          const [epicsRes, contactsRes, tasksRes, mediaRes] = await Promise.all([
+            supabaseClient.from('epics').select('*').order('sort_order'),
+            supabaseClient.from('contacts').select('*'),
+            supabaseClient.from('tasks').select('*, subtasks(*)').order('sort_order'),
+            supabaseClient.from('media').select('*').order('uploaded_at', { ascending: false })
+          ]);
+
+          if (!epicsRes.error && epicsRes.data.length > 0) {
+            epics = epicsRes.data;
+            contacts = contactsRes.data || [];
+            tasks = tasksRes.data || [];
+            media = mediaRes.data || [];
+            return;
+          }
+        } catch (err) {
+          console.warn('Supabase fetch failed, falling back to local storage:', err);
+        }
+      }
+
+      // Local storage fallback
+      const saved = localStorage.getItem(LOCAL_DATA_KEY);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          epics = parsed.epics || SEED_EPICS;
+          contacts = parsed.contacts || SEED_CONTACTS;
+          tasks = parsed.tasks || SEED_TASKS;
+          media = parsed.media || SEED_MEDIA;
+          return;
+        } catch (e) {}
+      }
+
+      epics = JSON.parse(JSON.stringify(SEED_EPICS));
+      contacts = JSON.parse(JSON.stringify(SEED_CONTACTS));
+      tasks = JSON.parse(JSON.stringify(SEED_TASKS));
+      media = JSON.parse(JSON.stringify(SEED_MEDIA));
+      saveLocalData();
+    }
+
+    function saveLocalData() {
+      if (!supabaseClient) {
+        localStorage.setItem(LOCAL_DATA_KEY, JSON.stringify({ epics, contacts, tasks, media }));
+      }
+      updateMetrics();
+    }
+
+    // --- TAB SWITCHING ---
+    function switchTab(tabId) {
+      currentTab = tabId;
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active', 'bg-slate-800', 'text-white');
+        btn.classList.add('text-slate-400');
+      });
+
+      const activeSection = document.getElementById(`tab-content-${tabId}`);
+      if (activeSection) activeSection.classList.remove('hidden');
+
+      const activeBtn = document.getElementById(`tab-btn-${tabId}`);
+      if (activeBtn) {
+        activeBtn.classList.add('active', 'bg-slate-800', 'text-white');
+        activeBtn.classList.remove('text-slate-400');
+      }
+
+      renderAllViews();
+      lucide.createIcons();
+    }
+
+    function renderAllViews() {
+      renderBoard();
+      renderMediaGallery();
+      renderEpics();
+      renderContacts();
+      updateMetrics();
+    }
+
+    // --- JIRA BOARD RENDERING ---
+    function setBoardGrouping(mode) {
+      boardGrouping = mode;
+      document.getElementById('group-status-btn').className = mode === 'status' ? 'px-2.5 py-1 rounded-md font-bold text-slate-800 bg-white shadow-xs' : 'px-2.5 py-1 rounded-md font-medium text-slate-500 hover:text-slate-800';
+      document.getElementById('group-phase-btn').className = mode === 'phase' ? 'px-2.5 py-1 rounded-md font-bold text-slate-800 bg-white shadow-xs' : 'px-2.5 py-1 rounded-md font-medium text-slate-500 hover:text-slate-800';
+      renderBoard();
+    }
+
+    function renderBoard() {
+      const container = document.getElementById('board-columns-container');
+      container.innerHTML = '';
+
+      const epicFilter = document.getElementById('board-epic-filter')?.value || 'ALL';
+      const contactFilter = document.getElementById('board-contact-filter')?.value || 'ALL';
+      const search = (document.getElementById('global-search')?.value || '').toLowerCase();
+
+      const columns = boardGrouping === 'status' ? [
+        { id: 'todo', title: 'To Do', color: 'slate' },
+        { id: 'in_progress', title: 'In Progress', color: 'blue' },
+        { id: 'blocked', title: 'Blocked / Waiting', color: 'rose' },
+        { id: 'done', title: 'Completed', color: 'emerald' }
+      ] : [
+        { id: 'pre-reno', title: 'Pre-Renovation Prep', color: 'indigo' },
+        { id: 'week-1', title: 'Week 1 (Demolition & Pipes)', color: 'blue' },
+        { id: 'week-2', title: 'Week 2 (Waterproofing & Tiles)', color: 'amber' },
+        { id: 'week-3', title: 'Week 3 (Flooring & Putty)', color: 'teal' },
+        { id: 'week-4', title: 'Week 4 (Modular & Finish)', color: 'emerald' }
+      ];
+
+      columns.forEach(col => {
+        const colTasks = tasks.filter(task => {
+          const inCol = boardGrouping === 'status' ? task.status === col.id : task.phase === col.id;
+          if (!inCol) return false;
+
+          // Epic space filter
+          if (epicFilter !== 'ALL') {
+            const taskEpic = epics.find(e => e.id === task.epic_id);
+            if (!taskEpic || taskEpic.space !== epicFilter) return false;
+          }
+
+          // Contact filter
+          if (contactFilter !== 'ALL' && task.contact_id !== contactFilter) return false;
+
+          // Search
+          if (search) {
+            const str = `${task.title} ${task.notes || ''} ${task.days_label || ''}`.toLowerCase();
+            if (!str.includes(search)) return false;
+          }
+
+          return true;
+        });
+
+        const colEl = document.createElement('div');
+        colEl.className = 'flex-1 min-w-[280px] max-w-[340px] bg-slate-200/70 rounded-2xl p-3 border border-slate-300/80 flex flex-col max-h-[80vh] transition';
+        colEl.setAttribute('data-col-id', col.id);
+
+        colEl.addEventListener('dragover', e => { e.preventDefault(); colEl.classList.add('drag-over'); });
+        colEl.addEventListener('dragleave', () => colEl.classList.remove('drag-over'));
+        colEl.addEventListener('drop', handleDrop);
+
+        colEl.innerHTML = `
+          <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-300/60 px-1">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-${col.color}-500"></span>
+              <h3 class="font-bold text-xs text-slate-800 uppercase tracking-wider">${col.title}</h3>
+              <span class="text-[11px] px-2 py-0.2 bg-slate-300 text-slate-700 font-bold rounded-full">${colTasks.length}</span>
+            </div>
+            <button onclick="openCardModal(null, '${col.id}')" class="text-slate-400 hover:text-slate-700 p-1 rounded-lg">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+            </button>
+          </div>
+          <div class="cards-list flex-1 overflow-y-auto space-y-2.5 pr-1 py-1"></div>
+        `;
+
+        const list = colEl.querySelector('.cards-list');
+        if (colTasks.length === 0) {
+          list.innerHTML = `<div class="py-6 text-center text-slate-400 text-xs border border-dashed border-slate-300 rounded-xl">No tasks</div>`;
+        } else {
+          colTasks.forEach(task => list.appendChild(createTaskCardElement(task)));
+        }
+
+        container.appendChild(colEl);
+      });
+
+      lucide.createIcons();
+    }
+
+    function createTaskCardElement(task) {
+      const cardEl = document.createElement('div');
+      cardEl.className = 'bg-white rounded-xl p-3 shadow-xs hover:shadow-md border border-slate-200 transition cursor-pointer select-none group';
+      cardEl.setAttribute('draggable', 'true');
+      cardEl.setAttribute('data-task-id', task.id);
+
+      cardEl.addEventListener('dragstart', function(e) {
+        this.classList.add('card-ghost');
+        e.dataTransfer.setData('text/plain', task.id);
+      });
+      cardEl.addEventListener('dragend', function() {
+        this.classList.remove('card-ghost');
+      });
+      cardEl.addEventListener('click', () => openCardModal(task.id));
+
+      const epic = epics.find(e => e.id === task.epic_id);
+      const contact = contacts.find(c => c.id === task.contact_id);
+      const totalSub = (task.subtasks || []).length;
+      const doneSub = (task.subtasks || []).filter(s => s.is_completed).length;
+      const percent = totalSub > 0 ? Math.round((doneSub / totalSub) * 100) : 0;
+
+      // Attached media count
+      const taskMediaCount = media.filter(m => m.task_id === task.id).length;
+
+      cardEl.innerHTML = `
+        <div class="flex items-start justify-between gap-1.5 mb-1.5">
+          <div class="flex items-center gap-1 flex-wrap">
+            ${task.days_label ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">${task.days_label}</span>` : ''}
+            <span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-purple-50 text-purple-700 border border-purple-200">${epic ? epic.space : 'General'}</span>
+          </div>
+          ${task.priority === 'critical' ? `<span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-rose-100 text-rose-700">CRITICAL</span>` : ''}
+        </div>
+
+        <h4 class="font-bold text-slate-800 text-xs mb-1 group-hover:text-brand-700 transition leading-snug">${task.title}</h4>
+
+        ${contact ? `
+          <div class="flex items-center gap-1 text-[11px] text-slate-500 mb-2">
+            <i data-lucide="user" class="w-3 h-3 text-slate-400"></i>
+            <span>${contact.name} (${contact.role})</span>
+          </div>
+        ` : ''}
+
+        <div class="flex items-center justify-between text-[11px] text-slate-500 pt-2 border-t border-slate-100">
+          <span class="flex items-center gap-1">
+            <i data-lucide="check-square" class="w-3 h-3 text-${percent === 100 ? 'emerald' : 'slate'}-500"></i>
+            ${doneSub}/${totalSub} subtasks
+          </span>
+          ${taskMediaCount > 0 ? `
+            <span class="flex items-center gap-1 font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">
+              <i data-lucide="image" class="w-3 h-3"></i> ${taskMediaCount}
+            </span>
+          ` : ''}
+        </div>
+      `;
+
+      return cardEl;
+    }
+
+    function handleDrop(e) {
+      e.preventDefault();
+      this.classList.remove('drag-over');
+      const targetColId = this.getAttribute('data-col-id');
+      const taskId = e.dataTransfer.getData('text/plain');
+
+      const task = tasks.find(t => t.id === taskId);
+      if (task) {
+        if (boardGrouping === 'status') {
+          task.status = targetColId;
+          if (targetColId === 'done') {
+            confetti({ particleCount: 50, spread: 60, origin: { y: 0.8 } });
+          }
+        } else {
+          task.phase = targetColId;
+        }
+        saveLocalData();
+        renderBoard();
+      }
+    }
+
+    // --- MEDIA GALLERY RENDERING ---
+    function setMediaStageFilter(stage) {
+      currentMediaStageFilter = stage;
+      document.querySelectorAll('.media-stage-btn').forEach(btn => {
+        if (btn.getAttribute('data-stage') === stage) {
+          btn.className = 'media-stage-btn active px-3 py-1.5 rounded-lg bg-white shadow-xs text-slate-900 font-bold';
+        } else {
+          btn.className = 'media-stage-btn px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900';
+        }
+      });
+      renderMediaGallery();
+    }
+
+    function renderMediaGallery() {
+      const container = document.getElementById('media-gallery-grid');
+      container.innerHTML = '';
+
+      const filtered = media.filter(m => {
+        if (currentMediaStageFilter !== 'ALL' && m.stage !== currentMediaStageFilter) return false;
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full py-16 text-center text-slate-400 border border-dashed border-slate-300 rounded-2xl">
+            <i data-lucide="image" class="w-8 h-8 mx-auto mb-2 text-slate-300"></i>
+            <p class="font-bold text-sm text-slate-600">No photos or videos recorded yet</p>
+            <p class="text-xs text-slate-400 mt-1">Tap "Take Photo or Upload" to document your Indra Heights renovation.</p>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      filtered.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-xs hover:shadow-md transition flex flex-col group';
+
+        let stageBadge = 'bg-slate-100 text-slate-700';
+        let stageLabel = 'In-Progress';
+        if (item.stage === 'pre') { stageBadge = 'bg-amber-100 text-amber-800 border-amber-200'; stageLabel = 'Pre-Demolition (Before)'; }
+        else if (item.stage === 'post') { stageBadge = 'bg-emerald-100 text-emerald-800 border-emerald-200'; stageLabel = 'Post-Finish (After)'; }
+        else { stageBadge = 'bg-blue-100 text-blue-800 border-blue-200'; stageLabel = 'In-Progress'; }
+
+        card.innerHTML = `
+          <div class="relative aspect-video bg-slate-900 overflow-hidden flex items-center justify-center">
+            ${item.file_type === 'video' ? `
+              <video src="${item.file_url}" controls class="w-full h-full object-cover"></video>
+            ` : `
+              <img src="${item.file_url}" alt="${item.caption || 'Renovation photo'}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" loading="lazy">
+            `}
+            <span class="absolute top-2 left-2 px-2 py-0.5 rounded-md text-[10px] font-bold border ${stageBadge}">
+              ${stageLabel}
+            </span>
+            <span class="absolute top-2 right-2 px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-900/80 text-white backdrop-blur-xs">
+              ${item.room_tag || 'Flat'}
+            </span>
+          </div>
+
+          <div class="p-3 flex-1 flex flex-col justify-between text-xs">
+            <p class="font-medium text-slate-800 mb-2 leading-snug">${item.caption || 'No caption provided'}</p>
+            <div class="flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-slate-100">
+              <span>${item.uploaded_at ? new Date(item.uploaded_at).toLocaleDateString() : 'Recent'}</span>
+              <button onclick="deleteMedia('${item.id}')" class="text-rose-500 hover:text-rose-700 font-semibold">Delete</button>
+            </div>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+
+      lucide.createIcons();
+    }
+
+    async function handleMediaUpload(event) {
+      event.preventDefault();
+      const fileInput = document.getElementById('media-file-input');
+      const stage = document.getElementById('media-stage-select').value;
+      const room = document.getElementById('media-room-select').value;
+      const taskId = document.getElementById('media-task-select').value;
+      const caption = document.getElementById('media-caption-input').value.trim();
+
+      const file = fileInput.files[0];
+      if (!file) {
+        alert('Please select an image or video file.');
+        return;
+      }
+
+      const isVideo = file.type.startsWith('video');
+      const submitBtn = document.getElementById('media-upload-submit-btn');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = 'Uploading...';
+
+      let fileUrl = '';
+
+      if (supabaseClient) {
+        try {
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 7)}.${fileExt}`;
+          const filePath = `${room.toLowerCase().replace(/\s+/g, '_')}/${fileName}`;
+
+          const { error: uploadError } = await supabaseClient.storage
+            .from('renovation-media')
+            .upload(filePath, file);
+
+          if (uploadError) throw uploadError;
+
+          const { data: { publicUrl } } = supabaseClient.storage
+            .from('renovation-media')
+            .getPublicUrl(filePath);
+
+          fileUrl = publicUrl;
+
+          // Save record in database
+          await supabaseClient.from('media').insert([{
+            task_id: taskId || null,
+            file_url: fileUrl,
+            storage_path: filePath,
+            file_type: isVideo ? 'video' : 'image',
+            stage: stage,
+            caption: caption,
+            room_tag: room
+          }]);
+        } catch (err) {
+          alert('Supabase upload failed: ' + err.message + '\nFalling back to local preview.');
+          fileUrl = URL.createObjectURL(file);
+        }
+      } else {
+        // Local FileReader URL preview
+        fileUrl = await new Promise(resolve => {
+          const reader = new FileReader();
+          reader.onload = e => resolve(e.target.result);
+          reader.readAsDataURL(file);
+        });
+      }
+
+      const newMediaItem = {
+        id: 'm-' + Date.now(),
+        task_id: taskId || null,
+        file_url: fileUrl,
+        file_type: isVideo ? 'video' : 'image',
+        stage: stage,
+        caption: caption,
+        room_tag: room,
+        uploaded_at: new Date().toISOString()
+      };
+
+      media.unshift(newMediaItem);
+      saveLocalData();
+      renderMediaGallery();
+      closeMediaUploadModal();
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<i data-lucide="upload-cloud" class="w-4 h-4"></i> Upload Media';
+      confetti({ particleCount: 30, spread: 45 });
+    }
+
+    function deleteMedia(mediaId) {
+      if (confirm('Delete this photo/video?')) {
+        media = media.filter(m => m.id !== mediaId);
+        saveLocalData();
+        renderMediaGallery();
+      }
+    }
+
+    // --- EPICS & ROOMS ROADMAP ---
+    function renderEpics() {
+      const container = document.getElementById('epics-list-grid');
+      container.innerHTML = '';
+
+      epics.forEach(epic => {
+        const epicTasks = tasks.filter(t => t.epic_id === epic.id);
+        const total = epicTasks.length;
+        const completed = epicTasks.filter(t => t.status === 'done').length;
+        const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+        const epicMediaCount = media.filter(m => m.room_tag === epic.space || epicTasks.some(t => t.id === m.task_id)).length;
+
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-2xl p-4 border border-slate-200 shadow-xs hover:shadow-md transition flex flex-col justify-between';
+
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-800 border border-purple-200">
+                ${epic.space}
+              </span>
+              <span class="text-xs font-semibold text-slate-500">${epic.target_week}</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-sm mb-1">${epic.title}</h3>
+            <p class="text-xs text-slate-500 mb-3">${epic.description || 'Major renovation stream'}</p>
+          </div>
+
+          <div class="pt-3 border-t border-slate-100 space-y-2 text-xs">
+            <div class="flex items-center justify-between font-medium">
+              <span class="text-slate-500">${completed}/${total} Tasks Completed</span>
+              <span class="font-bold text-slate-800">${pct}%</span>
+            </div>
+            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+              <div class="bg-brand-500 h-full rounded-full transition-all duration-300" style="width: ${pct}%"></div>
+            </div>
+            <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1">
+              <span>Attached Media: <strong>${epicMediaCount} files</strong></span>
+              <button onclick="filterBoardByEpic('${epic.space}')" class="text-brand-600 hover:underline font-bold">View Tasks →</button>
+            </div>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    function filterBoardByEpic(space) {
+      switchTab('board');
+      const select = document.getElementById('board-epic-filter');
+      if (select) {
+        select.value = space;
+        renderBoard();
+      }
+    }
+
+    // --- VENDORS & CONTACTS CRM ---
+    function renderContacts() {
+      const container = document.getElementById('contacts-list-grid');
+      container.innerHTML = '';
+
+      contacts.forEach(contact => {
+        const assignedTasks = tasks.filter(t => t.contact_id === contact.id);
+
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-2xl p-4 border border-slate-200 shadow-xs hover:shadow-md transition flex flex-col justify-between';
+
+        const cleanPhone = (contact.whatsapp || contact.phone || '').replace(/[^0-9]/g, '');
+
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                ${contact.role}
+              </span>
+              <span class="text-[11px] font-semibold text-slate-400">${assignedTasks.length} active tasks</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-sm">${contact.name}</h3>
+            ${contact.company ? `<p class="text-xs text-slate-500 mb-1">${contact.company}</p>` : ''}
+            ${contact.notes ? `<p class="text-xs text-slate-400 mt-2 bg-slate-50 p-2 rounded-lg border border-slate-100 italic">${contact.notes}</p>` : ''}
+          </div>
+
+          <div class="pt-3 border-t border-slate-100 flex items-center gap-2 mt-4">
+            <a href="tel:${contact.phone}" class="flex-1 py-1.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold text-center flex items-center justify-center gap-1.5 transition">
+              <i data-lucide="phone" class="w-3.5 h-3.5 text-slate-600"></i> Call
+            </a>
+            ${cleanPhone ? `
+              <a href="https://wa.me/${cleanPhone}" target="_blank" class="flex-1 py-1.5 px-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold text-center flex items-center justify-center gap-1.5 transition shadow-xs">
+                <i data-lucide="message-circle" class="w-3.5 h-3.5"></i> WhatsApp
+              </a>
+            ` : ''}
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+
+      lucide.createIcons();
+    }
+
+    // --- MODAL CONTROLS & DROPDOWNS ---
+    function populateDropdowns() {
+      // Board contact filter
+      const contactSelect = document.getElementById('board-contact-filter');
+      if (contactSelect) {
+        contactSelect.innerHTML = `<option value="ALL">All Vendors</option>`;
+        contacts.forEach(c => {
+          contactSelect.innerHTML += `<option value="${c.id}">${c.name} (${c.role})</option>`;
+        });
+      }
+
+      // Modal Epics & Contacts
+      const modalEpicSelect = document.getElementById('modal-epic-select');
+      if (modalEpicSelect) {
+        modalEpicSelect.innerHTML = '';
+        epics.forEach(e => {
+          modalEpicSelect.innerHTML += `<option value="${e.id}">${e.space} — ${e.title}</option>`;
+        });
+      }
+
+      const modalContactSelect = document.getElementById('modal-contact-select');
+      if (modalContactSelect) {
+        modalContactSelect.innerHTML = `<option value="">-- Unassigned --</option>`;
+        contacts.forEach(c => {
+          modalContactSelect.innerHTML += `<option value="${c.id}">${c.name} (${c.role})</option>`;
+        });
+      }
+
+      // Media Task select
+      const mediaTaskSelect = document.getElementById('media-task-select');
+      if (mediaTaskSelect) {
+        mediaTaskSelect.innerHTML = `<option value="">-- None / General Space Photo --</option>`;
+        tasks.forEach(t => {
+          mediaTaskSelect.innerHTML += `<option value="${t.id}">${t.title}</option>`;
+        });
+      }
+    }
+
+    function openMediaUploadModal() {
+      populateDropdowns();
+      document.getElementById('media-upload-modal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeMediaUploadModal() {
+      document.getElementById('media-upload-modal').classList.add('hidden');
+    }
+
+    function openConfigModal() {
+      const cfg = getSupabaseConfig();
+      document.getElementById('supabase-url-input').value = cfg.url || '';
+      document.getElementById('supabase-key-input').value = cfg.key || '';
+      document.getElementById('config-modal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeConfigModal() {
+      document.getElementById('config-modal').classList.add('hidden');
+    }
+
+    function openCardModal(taskId, defaultColId) {
+      currentEditingTaskId = taskId;
+      populateDropdowns();
+      const modal = document.getElementById('card-modal');
+      const deleteBtn = document.getElementById('modal-delete-btn');
+
+      if (taskId) {
+        const task = tasks.find(t => t.id === taskId);
+        if (!task) return;
+
+        document.getElementById('modal-card-title-display').textContent = task.title;
+        document.getElementById('modal-title-input').value = task.title;
+        document.getElementById('modal-days-input').value = task.days_label || '';
+        document.getElementById('modal-epic-select').value = task.epic_id || '';
+        document.getElementById('modal-contact-select').value = task.contact_id || '';
+        document.getElementById('modal-status-select').value = task.status || 'todo';
+        document.getElementById('modal-priority-select').value = task.priority || 'medium';
+        document.getElementById('modal-notes-input').value = task.notes || '';
+
+        deleteBtn.classList.remove('hidden');
+        renderModalSubtasks(task.subtasks || []);
+        renderTaskMediaThumbnails(task.id);
+      } else {
+        document.getElementById('modal-card-title-display').textContent = 'Create New Task';
+        document.getElementById('modal-title-input').value = '';
+        document.getElementById('modal-days-input').value = '';
+        document.getElementById('modal-notes-input').value = '';
+        document.getElementById('modal-status-select').value = defaultColId || 'todo';
+
+        deleteBtn.classList.add('hidden');
+        renderModalSubtasks([]);
+        renderTaskMediaThumbnails(null);
+      }
+
+      modal.classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeCardModal() {
+      document.getElementById('card-modal').classList.add('hidden');
+      currentEditingTaskId = null;
+    }
+
+    function renderModalSubtasks(subtasks) {
+      const list = document.getElementById('modal-subtasks-list');
+      list.innerHTML = '';
+
+      const total = subtasks.length;
+      const completed = subtasks.filter(s => s.is_completed).length;
+      document.getElementById('modal-subtask-progress-label').textContent = `${completed}/${total} completed`;
+
+      if (subtasks.length === 0) {
+        list.innerHTML = `<p class="text-xs text-slate-400 italic py-1">No checklist subtasks added yet.</p>`;
+        return;
+      }
+
+      subtasks.forEach((sub, idx) => {
+        const item = document.createElement('div');
+        item.className = 'flex items-center justify-between gap-2 p-2 rounded-lg bg-slate-50 border border-slate-200';
+        item.innerHTML = `
+          <label class="flex items-center gap-2 cursor-pointer flex-1">
+            <input type="checkbox" ${sub.is_completed ? 'checked' : ''} onchange="toggleSubtask(${idx})" class="w-4 h-4 text-brand-600 rounded">
+            <span class="${sub.is_completed ? 'line-through text-slate-400' : 'text-slate-800'} font-medium">${sub.title}</span>
+          </label>
+          <button onclick="removeSubtask(${idx})" class="text-slate-400 hover:text-rose-500 p-1">
+            <i data-lucide="trash" class="w-3.5 h-3.5"></i>
+          </button>
+        `;
+        list.appendChild(item);
+      });
+
+      lucide.createIcons();
+    }
+
+    function renderTaskMediaThumbnails(taskId) {
+      const container = document.getElementById('task-media-thumbnails');
+      container.innerHTML = '';
+      if (!taskId) {
+        container.innerHTML = '<span class="text-xs text-slate-400">Save task first to link photos.</span>';
+        return;
+      }
+
+      const taskMedia = media.filter(m => m.task_id === taskId);
+      if (taskMedia.length === 0) {
+        container.innerHTML = '<span class="text-xs text-slate-400">No photos tagged to this task yet.</span>';
+        return;
+      }
+
+      taskMedia.forEach(m => {
+        container.innerHTML += `
+          <img src="${m.file_url}" alt="${m.caption}" class="w-14 h-14 object-cover rounded-lg border border-slate-200 shadow-xs" title="${m.caption}">
+        `;
+      });
+    }
+
+    function toggleSubtask(index) {
+      if (!currentEditingTaskId) return;
+      const task = tasks.find(t => t.id === currentEditingTaskId);
+      if (task && task.subtasks && task.subtasks[index]) {
+        task.subtasks[index].is_completed = !task.subtasks[index].is_completed;
+        saveLocalData();
+        renderModalSubtasks(task.subtasks);
+        renderBoard();
+      }
+    }
+
+    function removeSubtask(index) {
+      if (!currentEditingTaskId) return;
+      const task = tasks.find(t => t.id === currentEditingTaskId);
+      if (task && task.subtasks) {
+        task.subtasks.splice(index, 1);
+        saveLocalData();
+        renderModalSubtasks(task.subtasks);
+        renderBoard();
+      }
+    }
+
+    function addNewSubtask() {
+      const input = document.getElementById('modal-new-subtask-input');
+      const text = input.value.trim();
+      if (!text) return;
+
+      if (currentEditingTaskId) {
+        const task = tasks.find(t => t.id === currentEditingTaskId);
+        if (task) {
+          if (!task.subtasks) task.subtasks = [];
+          task.subtasks.push({ id: 's-' + Date.now(), title: text, is_completed: false });
+          saveLocalData();
+          renderModalSubtasks(task.subtasks);
+          renderBoard();
+        }
+      }
+      input.value = '';
+      input.focus();
+    }
+
+    function saveCardFromModal() {
+      const title = document.getElementById('modal-title-input').value.trim();
+      if (!title) {
+        alert('Please provide a task title.');
+        return;
+      }
+
+      const days = document.getElementById('modal-days-input').value.trim();
+      const epicId = document.getElementById('modal-epic-select').value;
+      const contactId = document.getElementById('modal-contact-select').value;
+      const status = document.getElementById('modal-status-select').value;
+      const priority = document.getElementById('modal-priority-select').value;
+      const notes = document.getElementById('modal-notes-input').value.trim();
+
+      if (currentEditingTaskId) {
+        const task = tasks.find(t => t.id === currentEditingTaskId);
+        if (task) {
+          task.title = title;
+          task.days_label = days;
+          task.epic_id = epicId;
+          task.contact_id = contactId;
+          task.status = status;
+          task.priority = priority;
+          task.notes = notes;
+        }
+      } else {
+        const newTask = {
+          id: 't-' + Date.now(),
+          title: title,
+          days_label: days,
+          epic_id: epicId,
+          contact_id: contactId,
+          status: status,
+          priority: priority,
+          notes: notes,
+          phase: 'week-1',
+          subtasks: []
+        };
+        tasks.push(newTask);
+      }
+
+      saveLocalData();
+      renderAllViews();
+      closeCardModal();
+    }
+
+    function deleteCurrentCard() {
+      if (!currentEditingTaskId) return;
+      if (confirm('Delete this task?')) {
+        tasks = tasks.filter(t => t.id !== currentEditingTaskId);
+        saveLocalData();
+        renderAllViews();
+        closeCardModal();
+      }
+    }
+
+    function updateMetrics() {
+      let totalSub = 0;
+      let doneSub = 0;
+
+      tasks.forEach(t => {
+        (t.subtasks || []).forEach(s => {
+          totalSub++;
+          if (s.is_completed) doneSub++;
+        });
+      });
+
+      const pct = totalSub > 0 ? Math.round((doneSub / totalSub) * 100) : 0;
+      const bar = document.getElementById('stat-progress-bar');
+      if (bar) bar.style.width = `${pct}%`;
+      const pctText = document.getElementById('stat-progress-percent');
+      if (pctText) pctText.textContent = `${pct}%`;
+      const subText = document.getElementById('stat-subtasks-count');
+      if (subText) subText.textContent = `${doneSub} / ${totalSub}`;
+      const mediaBadge = document.getElementById('tab-badge-media-count');
+      if (mediaBadge) mediaBadge.textContent = media.length;
+      const statMedia = document.getElementById('stat-media-count');
+      if (statMedia) statMedia.textContent = media.length;
+    }
+
+    function handleSearch(val) {
+      renderBoard();
+    }
+
+    window.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>
