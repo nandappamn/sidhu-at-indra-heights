@@ -20,6 +20,11 @@
   <!-- Runtime Environment from GitHub Actions Secrets (injected at deploy time) -->
   <script>window.__ENV__ = window.__ENV__ || {};</script>
   <script src="env.js" onerror="/* env.js is optional in local development */"></script>
+  <!-- Google Fonts: Inter & JetBrains Mono for crisp typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -27,6 +32,10 @@
       darkMode: 'class',
       theme: {
         extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace']
+          },
           colors: {
             slate: {
               850: '#111827',
@@ -62,52 +71,76 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
-    /* Custom scrollbars (Shadcn Dark) */
+    /* Custom scrollbars (Light & Dark high-contrast) */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #020617; }
-    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 9999px; }
-    ::-webkit-scrollbar-thumb:hover { background: #334155; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    .dark ::-webkit-scrollbar-track { background: #020617; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+    .dark ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    .dark ::-webkit-scrollbar-thumb:hover { background: #334155; }
+    
     .card-ghost { opacity: 0.35; transform: scale(0.98); }
     .drag-over { background-color: rgba(16, 185, 129, 0.08) !important; border: 2px dashed #10b981 !important; }
+
     /* ======================================================== */
-    /* CRISP TYPOGRAPHY FOR INDRA AI CHATBOT (MARKED.JS)        */
+    /* HIGH-CONTRAST DUAL-THEME TYPOGRAPHY FOR INDRA AI CHATBOT */
     /* ======================================================== */
     .chat-prose {
-      color: #e2e8f0;
+      color: #1e293b;
       font-size: 0.8125rem;
       line-height: 1.6;
       word-break: break-word;
+    }
+    .dark .chat-prose {
+      color: #e2e8f0;
     }
     .chat-prose p { margin-bottom: 0.5rem; }
     .chat-prose p:last-child { margin-bottom: 0; }
     .chat-prose ul { list-style-type: disc; padding-left: 1.25rem; margin-bottom: 0.5rem; }
     .chat-prose ol { list-style-type: decimal; padding-left: 1.25rem; margin-bottom: 0.5rem; }
     .chat-prose li { margin-bottom: 0.25rem; }
-    .chat-prose li::marker { color: #10b981; }
-    .chat-prose strong { color: #ffffff; font-weight: 700; }
-    .chat-prose em { color: #cbd5e1; font-style: italic; }
-    .chat-prose hr { border-color: #334155; margin: 0.75rem 0; }
+    .chat-prose li::marker { color: #059669; }
+    .dark .chat-prose li::marker { color: #10b981; }
+    .chat-prose strong { color: #0f172a; font-weight: 700; }
+    .dark .chat-prose strong { color: #ffffff; }
+    .chat-prose em { color: #334155; font-style: italic; }
+    .dark .chat-prose em { color: #cbd5e1; }
+    .chat-prose hr { border-color: #e2e8f0; margin: 0.75rem 0; }
+    .dark .chat-prose hr { border-color: #334155; }
     .chat-prose code {
-      background: #090d16;
-      color: #86efac;
+      background: #f1f5f9;
+      color: #047857;
       padding: 0.15rem 0.4rem;
       border-radius: 0.375rem;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
       font-size: 0.75rem;
+      border: 1px solid #e2e8f0;
+    }
+    .dark .chat-prose code {
+      background: #090d16;
+      color: #86efac;
       border: 1px solid #1e293b;
     }
     .chat-prose pre {
-      background: #090d16;
+      background: #f8fafc;
       padding: 0.75rem;
       border-radius: 0.75rem;
       overflow-x: auto;
       margin: 0.5rem 0;
+      border: 1px solid #e2e8f0;
+    }
+    .dark .chat-prose pre {
+      background: #090d16;
       border: 1px solid #1e293b;
     }
     .chat-prose pre code {
       background: transparent;
       padding: 0;
       border: none;
+      color: #1e293b;
+    }
+    .dark .chat-prose pre code {
       color: #cbd5e1;
     }
     .chat-prose blockquote {
@@ -115,19 +148,28 @@
       background: rgba(16, 185, 129, 0.08);
       padding: 0.4rem 0.75rem;
       border-radius: 0 0.5rem 0.5rem 0;
-      color: #94a3b8;
+      color: #475569;
       margin: 0.5rem 0;
     }
+    .dark .chat-prose blockquote {
+      color: #94a3b8;
+    }
     .chat-prose h1, .chat-prose h2, .chat-prose h3, .chat-prose h4 {
-      color: #ffffff;
+      color: #0f172a;
       font-weight: 700;
       margin-top: 0.75rem;
       margin-bottom: 0.35rem;
       line-height: 1.3;
     }
-    .chat-prose h1 { font-size: 1.05rem; color: #a7f3d0; border-bottom: 1px solid #334155; padding-bottom: 0.25rem; }
-    .chat-prose h2 { font-size: 0.95rem; color: #86efac; }
-    .chat-prose h3 { font-size: 0.875rem; color: #e2e8f0; }
+    .dark .chat-prose h1, .dark .chat-prose h2, .dark .chat-prose h3, .dark .chat-prose h4 {
+      color: #ffffff;
+    }
+    .chat-prose h1 { font-size: 1.05rem; color: #065f46; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.25rem; }
+    .dark .chat-prose h1 { color: #a7f3d0; border-bottom: 1px solid #334155; }
+    .chat-prose h2 { font-size: 0.95rem; color: #047857; }
+    .dark .chat-prose h2 { color: #86efac; }
+    .chat-prose h3 { font-size: 0.875rem; color: #0f172a; }
+    .dark .chat-prose h3 { color: #e2e8f0; }
     .chat-prose table {
       width: 100%;
       border-collapse: collapse;
@@ -135,20 +177,41 @@
       font-size: 0.75rem;
       border-radius: 0.5rem;
       overflow: hidden;
+      border: 1px solid #e2e8f0;
+    }
+    .dark .chat-prose table {
       border: 1px solid #334155;
     }
     .chat-prose th, .chat-prose td {
-      border: 1px solid #334155;
+      border: 1px solid #e2e8f0;
       padding: 0.4rem 0.6rem;
       text-align: left;
     }
+    .dark .chat-prose th, .dark .chat-prose td {
+      border: 1px solid #334155;
+    }
     .chat-prose th {
-      background: #0f172a;
-      color: #f1f5f9;
+      background: #f1f5f9;
+      color: #0f172a;
       font-weight: 700;
     }
+    .dark .chat-prose th {
+      background: #0f172a;
+      color: #f1f5f9;
+    }
     .chat-prose tr:nth-child(even) {
+      background: #f8fafc;
+    }
+    .dark .chat-prose tr:nth-child(even) {
       background: rgba(15, 23, 42, 0.4);
+    }
+    .user-chat-bubble .chat-prose,
+    .user-chat-bubble .chat-prose p,
+    .user-chat-bubble .chat-prose span,
+    .user-chat-bubble .chat-prose strong,
+    .user-chat-bubble .chat-prose em,
+    .user-chat-bubble .chat-prose li {
+      color: #ffffff !important;
     }
   </style>
 </head>
@@ -175,16 +238,16 @@
           <i data-lucide="home" class="w-7 h-7"></i>
         </div>
         <h1 class="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Sidhu @ Indra Heights</h1>
-        <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[10px] font-bold uppercase tracking-wider mt-2">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+        <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-[10px] font-bold uppercase tracking-wider mt-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
           Family Renovation Portal
         </div>
-        <p class="text-xs text-slate-400 mt-2.5 leading-relaxed">Sign in to access tasks, checklists, contractor contacts & site media.</p>
+        <p class="text-xs text-slate-600 dark:text-slate-400 mt-2.5 leading-relaxed">Sign in to access tasks, checklists, contractor contacts & site media.</p>
       </div>
 
       <!-- Error banner on failed login -->
-      <div id="login-error-banner" class="hidden mb-4 p-3 bg-rose-950/80 border border-rose-800/80 rounded-xl text-rose-200 text-xs flex items-center gap-2">
-        <i data-lucide="alert-circle" class="w-4 h-4 text-rose-400 shrink-0"></i>
+      <div id="login-error-banner" class="hidden mb-4 p-3 bg-rose-50 dark:bg-rose-950/80 border border-rose-200 dark:border-rose-800/80 rounded-xl text-rose-700 dark:text-rose-200 text-xs flex items-center gap-2">
+        <i data-lucide="alert-circle" class="w-4 h-4 text-rose-500 dark:text-rose-400 shrink-0"></i>
         <span id="login-error-text">Incorrect password. Please verify and try again.</span>
       </div>
 
@@ -192,7 +255,7 @@
         <div>
           <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Family Member / User</label>
           <div class="relative">
-            <i data-lucide="user" class="w-4 h-4 text-slate-500 absolute left-3 top-3 pointer-events-none"></i>
+            <i data-lucide="user" class="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3 top-3 pointer-events-none"></i>
             <input type="text" id="login-username-input" value="family" required class="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition">
           </div>
         </div>
@@ -200,20 +263,20 @@
         <div>
           <div class="flex items-center justify-between mb-1.5">
             <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Family Password</label>
-            <span class="text-[10px] text-slate-500 font-mono">Default: indra2026</span>
+            <span class="text-[10px] text-slate-500 dark:text-slate-400 font-mono">Default: indra2026</span>
           </div>
           <div class="relative">
-            <i data-lucide="lock" class="w-4 h-4 text-slate-500 absolute left-3 top-3 pointer-events-none"></i>
+            <i data-lucide="lock" class="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3 top-3 pointer-events-none"></i>
             <input type="password" id="login-password-input" required placeholder="Enter password..." class="w-full pl-9 pr-10 py-2 text-xs bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition">
-            <button type="button" onclick="togglePasswordVisibility('login-password-input', 'login-eye-icon')" class="absolute right-3 top-2.5 text-slate-400 hover:text-slate-200">
+            <button type="button" onclick="togglePasswordVisibility('login-password-input', 'login-eye-icon')" class="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
               <i data-lucide="eye" id="login-eye-icon" class="w-4 h-4"></i>
             </button>
           </div>
         </div>
 
         <div class="flex items-center justify-between text-xs pt-1">
-          <label class="flex items-center gap-2 cursor-pointer text-slate-400 hover:text-slate-300">
-            <input type="checkbox" id="login-remember-me" checked class="w-4 h-4 rounded border-slate-700 bg-slate-950 text-emerald-500 focus:ring-0">
+          <label class="flex items-center gap-2 cursor-pointer text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-300">
+            <input type="checkbox" id="login-remember-me" checked class="w-4 h-4 rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-emerald-500 focus:ring-0">
             <span>Remember this device</span>
           </label>
         </div>
@@ -225,7 +288,7 @@
       </form>
 
       <div class="mt-6 pt-4 border-t border-slate-200 dark:border-slate-800 text-center">
-        <p class="text-[11px] text-slate-500">
+        <p class="text-[11px] text-slate-500 dark:text-slate-400">
           Protected Family Portal • Password can be changed anytime from the profile menu.
         </p>
       </div>
@@ -248,19 +311,19 @@
           <div>
             <div class="flex items-center gap-2">
               <h1 class="text-base md:text-lg font-bold tracking-tight text-slate-900 dark:text-white leading-none">Sidhu @ Indra Heights</h1>
-              <span id="backend-status-pill" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 flex items-center gap-1" title="Supabase Cloud Connection Status">
-                <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+              <span id="backend-status-pill" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 flex items-center gap-1" title="Supabase Cloud Connection Status">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
                 <span id="backend-status-text">Local Sandbox</span>
               </span>
             </div>
-            <p class="text-xs text-slate-400 mt-0.5">Renovation Command Center • Tasks, Epics, Media Vault & Vendor CRM</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Renovation Command Center • Tasks, Epics, Media Vault & Vendor CRM</p>
           </div>
         </div>
 
         <!-- Quick Metrics Ribbon (Desktop Tremor-Style KPI Cards) -->
-        <div class="hidden xl:flex items-center gap-4 bg-slate-100 dark:bg-slate-900/70 px-4 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 text-xs text-slate-800 dark:text-white">
+        <div class="hidden xl:flex items-center gap-4 bg-slate-50 dark:bg-slate-900/70 px-4 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 text-xs text-slate-800 dark:text-white shadow-xs">
           <div>
-            <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Overall Progress</span>
+            <span class="text-slate-500 dark:text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Overall Progress</span>
             <div class="flex items-center gap-2 mt-0.5">
               <div class="w-24 bg-slate-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                 <div id="stat-progress-bar" class="bg-emerald-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
@@ -268,19 +331,19 @@
               <span id="stat-progress-percent" class="font-bold text-slate-900 dark:text-white text-xs">0%</span>
             </div>
           </div>
-          <div class="h-6 w-px bg-slate-800"></div>
+          <div class="h-6 w-px bg-slate-200 dark:bg-slate-800"></div>
           <div>
-            <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Tasks</span>
+            <span class="text-slate-500 dark:text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Tasks</span>
             <span id="stat-tasks-count" class="font-bold text-slate-900 dark:text-white">0</span>
           </div>
-          <div class="h-6 w-px bg-slate-800"></div>
+          <div class="h-6 w-px bg-slate-200 dark:bg-slate-800"></div>
           <div>
-            <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Checklist Items</span>
+            <span class="text-slate-500 dark:text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Checklist Items</span>
             <span id="stat-subtasks-count" class="font-bold text-slate-900 dark:text-white">0 / 0</span>
           </div>
-          <div class="h-6 w-px bg-slate-800"></div>
+          <div class="h-6 w-px bg-slate-200 dark:bg-slate-800"></div>
           <div>
-            <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Media Vault</span>
+            <span class="text-slate-500 dark:text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Media Vault</span>
             <span id="stat-media-count" class="font-bold text-slate-900 dark:text-white">0</span>
           </div>
         </div>
@@ -300,19 +363,19 @@
           </button>
 
           <!-- Add Photo/Video Button -->
-          <button onclick="openMediaUploadModal()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm transition">
+          <button onclick="openMediaUploadModal()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-white hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-lg shadow-xs transition">
             <i data-lucide="camera" class="w-3.5 h-3.5 text-emerald-500"></i>
             <span class="hidden sm:inline">Add Media</span>
           </button>
 
           <!-- Theme Toggle Button (Light Normal / Dark) -->
-          <button onclick="toggleTheme()" class="theme-toggle-btn p-2 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition" title="Toggle theme">
+          <button onclick="toggleTheme()" class="theme-toggle-btn p-2 rounded-lg bg-white hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 shadow-xs transition" title="Toggle theme">
             <i data-lucide="moon" class="theme-toggle-icon w-4 h-4"></i>
           </button>
 
           <!-- Family Profile Dropdown -->
           <div class="relative" id="family-profile-container">
-            <button onclick="toggleFamilyProfileDropdown()" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-850 border border-slate-200 dark:border-slate-800 text-xs text-slate-800 dark:text-white transition">
+            <button onclick="toggleFamilyProfileDropdown()" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-850 border border-slate-200 dark:border-slate-800 text-xs text-slate-800 dark:text-white shadow-xs transition">
               <div class="w-5 h-5 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 flex items-center justify-center text-[10px] font-bold text-white shadow-xs">
                 👨‍👩‍👧
               </div>
@@ -324,22 +387,22 @@
             <div id="family-profile-dropdown" class="hidden absolute right-0 mt-2 w-56 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl dark:shadow-2xl p-1.5 z-50 text-xs text-slate-800 dark:text-slate-100">
               <div class="px-3 py-2 border-b border-slate-100 dark:border-slate-800/80">
                 <p class="font-bold text-slate-900 dark:text-white text-xs" id="dropdown-user-name">Family Access</p>
-                <p class="text-[10px] text-emerald-400 font-medium">Sidhu @ Indra Heights</p>
+                <p class="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">Sidhu @ Indra Heights</p>
               </div>
               <div class="py-1">
                 <button onclick="openChangePasswordModal()" class="w-full text-left px-3 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-850 flex items-center gap-2 transition">
-                  <i data-lucide="key" class="w-3.5 h-3.5 text-amber-400"></i>
+                  <i data-lucide="key" class="w-3.5 h-3.5 text-amber-500"></i>
                   <span>Change Password</span>
                 </button>
               </div>
               <div class="border-t border-slate-100 dark:border-slate-800/80 pt-1">
-          <button onclick="toggleTheme()" class="w-full text-left px-3 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-850 flex items-center gap-2 transition">
-            <i data-lucide="moon" class="theme-toggle-icon w-3.5 h-3.5 text-amber-500"></i>
-            <span class="theme-toggle-text">Dark Mode</span>
-          </button>
-        </div>
-        <div class="border-t border-slate-100 dark:border-slate-800/80 pt-1">
-                <button onclick="handleFamilyLogout()" class="w-full text-left px-3 py-2 rounded-lg text-rose-400 hover:text-rose-300 hover:bg-rose-950/40 flex items-center gap-2 transition">
+                <button onclick="toggleTheme()" class="w-full text-left px-3 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-850 flex items-center gap-2 transition">
+                  <i data-lucide="moon" class="theme-toggle-icon w-3.5 h-3.5 text-amber-500"></i>
+                  <span class="theme-toggle-text">Dark Mode</span>
+                </button>
+              </div>
+              <div class="border-t border-slate-100 dark:border-slate-800/80 pt-1">
+                <button onclick="handleFamilyLogout()" class="w-full text-left px-3 py-2 rounded-lg text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center gap-2 transition">
                   <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
                   <span>Sign Out</span>
                 </button>
@@ -354,32 +417,32 @@
         <div class="max-w-[1700px] mx-auto flex items-center justify-between gap-4 text-xs">
           <nav class="flex items-center gap-1.5" id="nav-tab-list">
             <button onclick="switchTab('board')" id="tab-btn-board" class="tab-btn active px-3.5 py-1.5 rounded-lg font-bold text-slate-900 dark:text-white bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 shadow-xs flex items-center gap-1.5 transition">
-              <i data-lucide="kanban" class="w-3.5 h-3.5 text-emerald-400"></i>
+              <i data-lucide="kanban" class="w-3.5 h-3.5 text-emerald-500"></i>
               <span>Jira Board</span>
-              <span id="tab-badge-tasks-count" class="px-1.5 py-0.2 bg-slate-800 rounded-full text-[10px] text-slate-300">0</span>
+              <span id="tab-badge-tasks-count" class="px-1.5 py-0.2 bg-slate-200 dark:bg-slate-800 rounded-full text-[10px] text-slate-700 dark:text-slate-300 font-bold">0</span>
             </button>
-            <button onclick="switchTab('epics')" id="tab-btn-epics" class="tab-btn px-3.5 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-slate-200 flex items-center gap-1.5 transition">
-              <i data-lucide="layers" class="w-3.5 h-3.5 text-purple-400"></i>
+            <button onclick="switchTab('epics')" id="tab-btn-epics" class="tab-btn px-3.5 py-1.5 rounded-lg font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 flex items-center gap-1.5 transition">
+              <i data-lucide="layers" class="w-3.5 h-3.5 text-purple-500"></i>
               <span>Epics & Rooms</span>
-              <span id="tab-badge-epics-count" class="px-1.5 py-0.2 bg-slate-900 rounded-full text-[10px] text-slate-400">0</span>
+              <span id="tab-badge-epics-count" class="px-1.5 py-0.2 bg-slate-200 dark:bg-slate-900 rounded-full text-[10px] text-slate-700 dark:text-slate-400 font-bold">0</span>
             </button>
-            <button onclick="switchTab('contacts')" id="tab-btn-contacts" class="tab-btn px-3.5 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-slate-200 flex items-center gap-1.5 transition">
-              <i data-lucide="phone-call" class="w-3.5 h-3.5 text-amber-400"></i>
+            <button onclick="switchTab('contacts')" id="tab-btn-contacts" class="tab-btn px-3.5 py-1.5 rounded-lg font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 flex items-center gap-1.5 transition">
+              <i data-lucide="phone-call" class="w-3.5 h-3.5 text-amber-500"></i>
               <span>Vendor CRM</span>
-              <span id="tab-badge-contacts-count" class="px-1.5 py-0.2 bg-slate-900 rounded-full text-[10px] text-slate-400">0</span>
+              <span id="tab-badge-contacts-count" class="px-1.5 py-0.2 bg-slate-200 dark:bg-slate-900 rounded-full text-[10px] text-slate-700 dark:text-slate-400 font-bold">0</span>
             </button>
-            <button onclick="switchTab('media')" id="tab-btn-media" class="tab-btn px-3.5 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-slate-200 flex items-center gap-1.5 transition">
-              <i data-lucide="images" class="w-3.5 h-3.5 text-blue-400"></i>
+            <button onclick="switchTab('media')" id="tab-btn-media" class="tab-btn px-3.5 py-1.5 rounded-lg font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 flex items-center gap-1.5 transition">
+              <i data-lucide="images" class="w-3.5 h-3.5 text-blue-500"></i>
               <span>Media Vault</span>
-              <span id="tab-badge-media-count" class="px-1.5 py-0.2 bg-slate-900 rounded-full text-[10px] text-slate-400">0</span>
+              <span id="tab-badge-media-count" class="px-1.5 py-0.2 bg-slate-200 dark:bg-slate-900 rounded-full text-[10px] text-slate-700 dark:text-slate-400 font-bold">0</span>
             </button>
           </nav>
 
           <!-- Search Bar with Keyboard Tooltip -->
           <div class="relative hidden md:block w-72">
-            <i data-lucide="search" class="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-2.5 pointer-events-none"></i>
-            <input type="text" id="global-search" oninput="handleSearch(this.value)" placeholder="Search tasks, items, contractors..." class="w-full pl-8 pr-8 py-1 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500">
-            <span class="absolute right-2.5 top-1.5 text-[10px] text-slate-600 border border-slate-800 px-1 rounded font-mono">/</span>
+            <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 absolute left-2.5 top-2.5 pointer-events-none"></i>
+            <input type="text" id="global-search" oninput="handleSearch(this.value)" placeholder="Search tasks, items, contractors..." class="w-full pl-8 pr-8 py-1 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500 shadow-xs">
+            <span class="absolute right-2.5 top-1.5 text-[10px] text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-800 px-1 rounded font-mono">/</span>
           </div>
         </div>
       </div>
@@ -390,39 +453,39 @@
   <!-- ======================================================== -->
   <section id="tab-content-board" class="tab-content flex-1 flex flex-col p-4 md:p-6 max-w-[1700px] w-full mx-auto">
     <!-- Sub-Filter & Board Controls Strip -->
-    <div class="flex flex-wrap items-center justify-between gap-3 mb-4 bg-slate-900/60 p-3 rounded-xl border border-slate-800/80 shadow-sm text-xs backdrop-blur-md">
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-4 bg-white dark:bg-slate-900/60 p-3 rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-xs text-xs backdrop-blur-md">
       <div class="flex items-center gap-3 flex-wrap">
         <!-- Grouping: Agile Status vs By Epic/Room -->
         <div class="flex items-center gap-2">
-          <span class="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Grouping:</span>
-          <div class="bg-slate-950 p-0.5 rounded-lg flex items-center border border-slate-800">
-            <button onclick="setBoardGrouping('status')" id="group-status-btn" class="px-2.5 py-1 rounded-md font-bold text-white bg-slate-850 shadow-xs">By Status</button>
-            <button onclick="setBoardGrouping('epic')" id="group-epic-btn" class="px-2.5 py-1 rounded-md font-medium text-slate-400 hover:text-white">By Room / Epic</button>
+          <span class="text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider text-[10px]">Grouping:</span>
+          <div class="bg-slate-100 dark:bg-slate-950 p-0.5 rounded-lg flex items-center border border-slate-200 dark:border-slate-800">
+            <button onclick="setBoardGrouping('status')" id="group-status-btn" class="px-2.5 py-1 rounded-md font-bold text-slate-900 dark:text-white bg-white dark:bg-slate-800 shadow-xs">By Status</button>
+            <button onclick="setBoardGrouping('epic')" id="group-epic-btn" class="px-2.5 py-1 rounded-md font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white">By Room / Epic</button>
           </div>
         </div>
 
-        <div class="h-4 w-px bg-slate-800 hidden sm:block"></div>
+        <div class="h-4 w-px bg-slate-200 dark:bg-slate-800 hidden sm:block"></div>
 
         <!-- Filter by Epic / Room -->
         <div class="flex items-center gap-1.5">
-          <span class="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Room:</span>
-          <select id="board-epic-filter" onchange="renderBoard()" class="px-2.5 py-1 bg-slate-950 border border-slate-800 rounded-lg text-slate-200 font-medium focus:border-emerald-500 focus:outline-none">
+          <span class="text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider text-[10px]">Room:</span>
+          <select id="board-epic-filter" onchange="renderBoard()" class="px-2.5 py-1 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-800 dark:text-slate-200 font-medium focus:border-emerald-500 focus:outline-none">
             <option value="ALL">All Rooms</option>
           </select>
         </div>
 
         <!-- Filter by Assigned Contractor -->
         <div class="flex items-center gap-1.5">
-          <span class="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Vendor:</span>
-          <select id="board-contact-filter" onchange="renderBoard()" class="px-2.5 py-1 bg-slate-950 border border-slate-800 rounded-lg text-slate-200 font-medium focus:border-emerald-500 focus:outline-none">
+          <span class="text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider text-[10px]">Vendor:</span>
+          <select id="board-contact-filter" onchange="renderBoard()" class="px-2.5 py-1 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-800 dark:text-slate-200 font-medium focus:border-emerald-500 focus:outline-none">
             <option value="ALL">All Vendors</option>
           </select>
         </div>
 
         <!-- Filter by Priority -->
         <div class="flex items-center gap-1.5">
-          <span class="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Priority:</span>
-          <select id="board-priority-filter" onchange="renderBoard()" class="px-2.5 py-1 bg-slate-950 border border-slate-800 rounded-lg text-slate-200 font-medium focus:border-emerald-500 focus:outline-none">
+          <span class="text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider text-[10px]">Priority:</span>
+          <select id="board-priority-filter" onchange="renderBoard()" class="px-2.5 py-1 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-800 dark:text-slate-200 font-medium focus:border-emerald-500 focus:outline-none">
             <option value="ALL">All Priorities</option>
             <option value="critical">Critical</option>
             <option value="high">High</option>
@@ -434,7 +497,7 @@
 
       <!-- Quick Add Task Trigger -->
       <div class="flex items-center gap-2">
-        <button onclick="openCardModal(null)" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg transition flex items-center gap-1.5 shadow-sm text-xs">
+        <button onclick="openCardModal(null)" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg transition flex items-center gap-1.5 shadow-xs text-xs">
           <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Task
         </button>
       </div>
@@ -450,13 +513,13 @@
   <!-- TAB 2: EPICS & SPACES ROADMAP                            -->
   <!-- ======================================================== -->
   <section id="tab-content-epics" class="tab-content hidden flex-1 p-4 md:p-6 max-w-[1700px] w-full mx-auto space-y-4">
-    <div class="bg-slate-900/70 p-4 rounded-2xl border border-slate-800 shadow-sm flex flex-wrap items-center justify-between gap-3">
+    <div class="bg-white dark:bg-slate-900/70 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs flex flex-wrap items-center justify-between gap-3">
       <div>
-        <h2 class="text-base font-bold text-white flex items-center gap-2">
-          <i data-lucide="layers" class="w-5 h-5 text-purple-400"></i>
+        <h2 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <i data-lucide="layers" class="w-5 h-5 text-purple-500"></i>
           Epics & Renovation Rooms
         </h2>
-        <p class="text-xs text-slate-400">Organize and monitor tasks by renovation zone (Kitchen, Bathrooms, Bedrooms, Living Hall).</p>
+        <p class="text-xs text-slate-600 dark:text-slate-400">Organize and monitor tasks by renovation zone (Kitchen, Bathrooms, Bedrooms, Living Hall).</p>
       </div>
       <button onclick="openEpicModal(null)" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs rounded-xl transition flex items-center gap-1.5 shadow-xs">
         <i data-lucide="plus" class="w-4 h-4"></i> New Epic / Room
@@ -472,13 +535,13 @@
   <!-- TAB 3: VENDOR & CONTRACTOR CRM DIRECTORY                 -->
   <!-- ======================================================== -->
   <section id="tab-content-contacts" class="tab-content hidden flex-1 p-4 md:p-6 max-w-[1700px] w-full mx-auto space-y-4">
-    <div class="bg-slate-900/70 p-4 rounded-2xl border border-slate-800 shadow-sm flex flex-wrap items-center justify-between gap-3">
+    <div class="bg-white dark:bg-slate-900/70 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs flex flex-wrap items-center justify-between gap-3">
       <div>
-        <h2 class="text-base font-bold text-white flex items-center gap-2">
-          <i data-lucide="phone-call" class="w-5 h-5 text-amber-400"></i>
+        <h2 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <i data-lucide="phone-call" class="w-5 h-5 text-amber-500"></i>
           Contractor & Vendor Directory
         </h2>
-        <p class="text-xs text-slate-400">Direct one-tap WhatsApp and calling access for tradesmen, plumbers, electricians, carpenters & society management.</p>
+        <p class="text-xs text-slate-600 dark:text-slate-400">Direct one-tap WhatsApp and calling access for tradesmen, plumbers, electricians, carpenters & society management.</p>
       </div>
       <button onclick="openContactModal(null)" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs rounded-xl transition flex items-center gap-1.5 shadow-xs">
         <i data-lucide="user-plus" class="w-4 h-4"></i> Add Vendor
@@ -494,25 +557,25 @@
   <!-- TAB 4: MEDIA VAULT (PRE / IN-PROGRESS / POST)            -->
   <!-- ======================================================== -->
   <section id="tab-content-media" class="tab-content hidden flex-1 p-4 md:p-6 max-w-[1700px] w-full mx-auto space-y-5">
-    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-4">
+    <div class="bg-white dark:bg-slate-900/70 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs flex flex-wrap items-center justify-between gap-4">
       <div>
-        <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
-          <i data-lucide="image" class="w-5 h-5 text-blue-600"></i>
+        <h2 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <i data-lucide="image" class="w-5 h-5 text-blue-500"></i>
           Indra Heights Media Vault
         </h2>
-        <p class="text-xs text-slate-500">Record baseline pre-demolition photos, in-progress concealed plumbing/wiring proof, and final handover shots.</p>
+        <p class="text-xs text-slate-600 dark:text-slate-400">Record baseline pre-demolition photos, in-progress concealed plumbing/wiring proof, and final handover shots.</p>
       </div>
 
       <!-- Stage Filters -->
-      <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl text-xs font-semibold flex-wrap">
-        <button onclick="setMediaStageFilter('ALL')" class="media-stage-btn active px-3 py-1.5 rounded-lg bg-white shadow-xs text-slate-900" data-stage="ALL">All Media</button>
-        <button onclick="setMediaStageFilter('pre')" class="media-stage-btn px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900" data-stage="pre">Pre-Demolition (Before)</button>
-        <button onclick="setMediaStageFilter('in_progress')" class="media-stage-btn px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900" data-stage="in_progress">In-Progress (Pipes & Walls)</button>
-        <button onclick="setMediaStageFilter('post')" class="media-stage-btn px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900" data-stage="post">Post-Finish (After)</button>
+      <div class="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-950 p-1 rounded-xl text-xs font-semibold flex-wrap border border-slate-200 dark:border-slate-800">
+        <button onclick="setMediaStageFilter('ALL')" class="media-stage-btn active px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 shadow-xs text-slate-900 dark:text-white font-bold" data-stage="ALL">All Media</button>
+        <button onclick="setMediaStageFilter('pre')" class="media-stage-btn px-3 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium" data-stage="pre">Pre-Demolition (Before)</button>
+        <button onclick="setMediaStageFilter('in_progress')" class="media-stage-btn px-3 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium" data-stage="in_progress">In-Progress (Pipes & Walls)</button>
+        <button onclick="setMediaStageFilter('post')" class="media-stage-btn px-3 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium" data-stage="post">Post-Finish (After)</button>
       </div>
 
       <!-- Direct Add Media Button -->
-      <button onclick="openMediaUploadModal()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl shadow-sm transition flex items-center gap-2">
+      <button onclick="openMediaUploadModal()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-2">
         <i data-lucide="camera" class="w-4 h-4"></i>
         <span>Take Photo or Upload</span>
       </button>
@@ -532,11 +595,11 @@
       <!-- Modal Header -->
       <div class="px-6 py-4 bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
         <div class="flex items-center gap-2">
-          <span id="modal-epic-badge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">General</span>
-          <span id="modal-status-badge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-300">TODO</span>
+          <span id="modal-epic-badge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-100 dark:bg-purple-950/70 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60">General</span>
+          <span id="modal-status-badge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">TODO</span>
           <h3 id="modal-card-title-display" class="text-sm font-bold text-slate-900 dark:text-white truncate max-w-xs">Create New Task</h3>
         </div>
-        <button onclick="closeCardModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">
+        <button onclick="closeCardModal()" class="text-slate-400 hover:text-slate-700 dark:hover:text-white p-1 rounded-lg">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
@@ -594,31 +657,31 @@
         </div>
 
         <!-- Subtask Checklist / Items Section -->
-        <div class="border-t border-slate-800 pt-3">
+        <div class="border-t border-slate-200 dark:border-slate-800 pt-3">
           <div class="flex items-center justify-between mb-2">
-            <h4 class="font-bold text-slate-200 flex items-center gap-1.5">
-              <i data-lucide="check-square" class="w-4 h-4 text-emerald-400"></i>
+            <h4 class="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+              <i data-lucide="check-square" class="w-4 h-4 text-emerald-500 dark:text-emerald-400"></i>
               Checklist Items & Milestones
             </h4>
-            <span id="modal-subtask-progress-label" class="text-slate-400 font-medium">0/0</span>
+            <span id="modal-subtask-progress-label" class="text-slate-500 dark:text-slate-400 font-medium">0/0</span>
           </div>
           <div id="modal-subtasks-list" class="space-y-1.5 max-h-48 overflow-y-auto pr-1"></div>
           <div class="flex gap-2 mt-2.5">
-            <input type="text" id="modal-new-subtask-input" placeholder="Type a step or civil checklist item and press Enter..." class="flex-1 px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500" onkeydown="if(event.key==='Enter'){event.preventDefault();addNewSubtask();}">
-            <button type="button" onclick="addNewSubtask()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold flex items-center gap-1 transition">
+            <input type="text" id="modal-new-subtask-input" placeholder="Type a step or civil checklist item and press Enter..." class="flex-1 px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500" onkeydown="if(event.key==='Enter'){event.preventDefault();addNewSubtask();}">
+            <button type="button" onclick="addNewSubtask()" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-white border border-slate-300 dark:border-slate-700 rounded-xl font-bold flex items-center gap-1 transition shadow-xs">
               <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Item
             </button>
           </div>
         </div>
 
         <!-- Attached Media for this Task -->
-        <div class="border-t border-slate-800 pt-3" id="task-media-section">
+        <div class="border-t border-slate-200 dark:border-slate-800 pt-3" id="task-media-section">
           <div class="flex items-center justify-between mb-2">
-            <h4 class="font-bold text-slate-200 flex items-center gap-1.5">
-              <i data-lucide="image" class="w-4 h-4 text-blue-400"></i>
+            <h4 class="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+              <i data-lucide="image" class="w-4 h-4 text-blue-500 dark:text-blue-400"></i>
               Attached Photos & Videos
             </h4>
-            <button type="button" onclick="openMediaUploadModalWithTask()" class="text-[11px] text-emerald-400 hover:underline font-semibold flex items-center gap-1">
+            <button type="button" onclick="openMediaUploadModalWithTask()" class="text-[11px] text-emerald-600 dark:text-emerald-400 hover:underline font-semibold flex items-center gap-1">
               <i data-lucide="camera" class="w-3 h-3"></i> Attach Media
             </button>
           </div>
@@ -627,11 +690,11 @@
       </div>
 
       <div class="px-6 py-3 bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs">
-        <button onclick="deleteCurrentCard()" id="modal-delete-btn" class="font-semibold text-rose-400 hover:bg-rose-950/40 px-3 py-1.5 rounded-lg flex items-center gap-1 transition">
+        <button onclick="deleteCurrentCard()" id="modal-delete-btn" class="font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 px-3 py-1.5 rounded-lg flex items-center gap-1 transition">
           <i data-lucide="trash-2" class="w-4 h-4"></i> Delete Task
         </button>
         <div class="flex gap-2 ml-auto">
-          <button onclick="closeCardModal()" class="px-4 py-2 font-semibold text-slate-400 hover:text-white rounded-xl transition">Cancel</button>
+          <button onclick="closeCardModal()" class="px-4 py-2 font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white rounded-xl transition">Cancel</button>
           <button onclick="saveCardFromModal()" class="px-5 py-2 font-bold bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl shadow flex items-center gap-1.5 transition">
             <i data-lucide="save" class="w-4 h-4"></i> Save Task
           </button>
@@ -647,27 +710,27 @@
     <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden text-slate-900 dark:text-slate-100 animate-in fade-in zoom-in-95 duration-150">
       <div class="px-6 py-4 bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
         <div class="flex items-center gap-2">
-          <i data-lucide="layers" class="w-5 h-5 text-purple-400"></i>
-          <h3 id="modal-epic-title-header" class="text-base font-bold text-white">New Epic / Renovation Room</h3>
+          <i data-lucide="layers" class="w-5 h-5 text-purple-500"></i>
+          <h3 id="modal-epic-title-header" class="text-base font-bold text-slate-900 dark:text-white">New Epic / Renovation Room</h3>
         </div>
-        <button onclick="closeEpicModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">
+        <button onclick="closeEpicModal()" class="text-slate-400 hover:text-slate-700 dark:hover:text-white p-1 rounded-lg">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
       <form onsubmit="handleEpicSubmit(event)" class="p-6 space-y-4 text-xs">
         <div>
-          <label class="block font-bold text-slate-300 uppercase tracking-wider mb-1">Epic Title <span class="text-rose-500">*</span></label>
-          <input type="text" id="epic-title-input" required placeholder="e.g. Master Bedroom & Wardrobe" class="w-full px-3 py-2 text-sm bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-purple-500">
+          <label class="block font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Epic Title <span class="text-rose-500">*</span></label>
+          <input type="text" id="epic-title-input" required placeholder="e.g. Master Bedroom & Wardrobe" class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-purple-500">
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block font-bold text-slate-300 uppercase tracking-wider mb-1">Space / Room Name</label>
-            <input type="text" id="epic-space-input" required placeholder="e.g. Master Bedroom" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white">
+            <label class="block font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Space / Room Name</label>
+            <input type="text" id="epic-space-input" required placeholder="e.g. Master Bedroom" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500">
           </div>
           <div>
-            <label class="block font-bold text-slate-300 uppercase tracking-wider mb-1">Status</label>
-            <select id="epic-status-select" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white">
+            <label class="block font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Status</label>
+            <select id="epic-status-select" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-800 dark:text-slate-200">
               <option value="planning">Planning</option>
               <option value="in_progress">In Progress</option>
               <option value="completed">Completed</option>
@@ -677,21 +740,21 @@
         </div>
 
         <div>
-          <label class="block font-bold text-slate-300 uppercase tracking-wider mb-1">Target Timeline / Notes</label>
-          <input type="text" id="epic-timeline-input" placeholder="e.g. Phase 1, Week 2, or Nov 1–15" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white">
+          <label class="block font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Target Timeline / Notes</label>
+          <input type="text" id="epic-timeline-input" placeholder="e.g. Phase 1, Week 2, or Nov 1–15" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500">
         </div>
 
         <div>
-          <label class="block font-bold text-slate-300 uppercase tracking-wider mb-1">Scope Description</label>
-          <textarea id="epic-desc-input" rows="2" placeholder="Civil work, tiles, modular furniture, electrical points..." class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white"></textarea>
+          <label class="block font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Scope Description</label>
+          <textarea id="epic-desc-input" rows="2" placeholder="Civil work, tiles, modular furniture, electrical points..." class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500"></textarea>
         </div>
 
         <div class="pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
-          <button type="button" onclick="deleteCurrentEpic()" id="epic-delete-btn" class="font-semibold text-rose-400 hover:bg-rose-950/40 px-3 py-1.5 rounded-lg flex items-center gap-1 transition hidden">
+          <button type="button" onclick="deleteCurrentEpic()" id="epic-delete-btn" class="font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 px-3 py-1.5 rounded-lg flex items-center gap-1 transition hidden">
             <i data-lucide="trash-2" class="w-4 h-4"></i> Delete
           </button>
           <div class="flex gap-2 ml-auto">
-            <button type="button" onclick="closeEpicModal()" class="px-4 py-2 font-semibold text-slate-400 hover:text-white rounded-xl">Cancel</button>
+            <button type="button" onclick="closeEpicModal()" class="px-4 py-2 font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white rounded-xl">Cancel</button>
             <button type="submit" class="px-5 py-2 font-bold bg-purple-600 hover:bg-purple-500 text-white rounded-xl shadow flex items-center gap-1.5">
               <i data-lucide="save" class="w-4 h-4"></i> Save Epic
             </button>
@@ -708,52 +771,52 @@
     <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden text-slate-900 dark:text-slate-100 animate-in fade-in zoom-in-95 duration-150">
       <div class="px-6 py-4 bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
         <div class="flex items-center gap-2">
-          <i data-lucide="user-plus" class="w-5 h-5 text-amber-400"></i>
-          <h3 id="modal-contact-title-header" class="text-base font-bold text-white">Add Contractor / Vendor</h3>
+          <i data-lucide="user-plus" class="w-5 h-5 text-amber-500"></i>
+          <h3 id="modal-contact-title-header" class="text-base font-bold text-slate-900 dark:text-white">Add Contractor / Vendor</h3>
         </div>
-        <button onclick="closeContactModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">
+        <button onclick="closeContactModal()" class="text-slate-400 hover:text-slate-700 dark:hover:text-white p-1 rounded-lg">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
       <form onsubmit="handleContactSubmit(event)" class="p-6 space-y-4 text-xs">
         <div>
-          <label class="block font-bold text-slate-300 uppercase tracking-wider mb-1">Contractor / Contact Name <span class="text-rose-500">*</span></label>
-          <input type="text" id="contact-name-input" required placeholder="e.g. Ramesh Sharma" class="w-full px-3 py-2 text-sm bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-amber-400">
+          <label class="block font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Contractor / Contact Name <span class="text-rose-500">*</span></label>
+          <input type="text" id="contact-name-input" required placeholder="e.g. Ramesh Sharma" class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-amber-400">
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block font-bold text-slate-300 uppercase tracking-wider mb-1">Trade / Role <span class="text-rose-500">*</span></label>
-            <input type="text" id="contact-role-input" required placeholder="e.g. Plumber, Electrician, Carpenter" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white">
+            <label class="block font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Trade / Role <span class="text-rose-500">*</span></label>
+            <input type="text" id="contact-role-input" required placeholder="e.g. Plumber, Electrician, Carpenter" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500">
           </div>
           <div>
-            <label class="block font-bold text-slate-300 uppercase tracking-wider mb-1">Agency / Company</label>
-            <input type="text" id="contact-company-input" placeholder="e.g. Sharma Plumbing" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white">
+            <label class="block font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Agency / Company</label>
+            <input type="text" id="contact-company-input" placeholder="e.g. Sharma Plumbing" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500">
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block font-bold text-slate-300 uppercase tracking-wider mb-1">Phone Number</label>
-            <input type="tel" id="contact-phone-input" placeholder="+91 98765 43210" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white">
+            <label class="block font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Phone Number</label>
+            <input type="tel" id="contact-phone-input" placeholder="+91 98765 43210" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500">
           </div>
           <div>
-            <label class="block font-bold text-slate-300 uppercase tracking-wider mb-1">WhatsApp Number</label>
-            <input type="tel" id="contact-whatsapp-input" placeholder="e.g. 9876543210 (digits only)" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white">
+            <label class="block font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">WhatsApp Number</label>
+            <input type="tel" id="contact-whatsapp-input" placeholder="e.g. 9876543210 (digits only)" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500">
           </div>
         </div>
 
         <div>
-          <label class="block font-bold text-slate-300 uppercase tracking-wider mb-1">Notes & Scope</label>
-          <textarea id="contact-notes-input" rows="2" placeholder="Rates, advance paid, timing, society NOC card..." class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white"></textarea>
+          <label class="block font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Notes & Scope</label>
+          <textarea id="contact-notes-input" rows="2" placeholder="Rates, advance paid, timing, society NOC card..." class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500"></textarea>
         </div>
 
         <div class="pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
-          <button type="button" onclick="deleteCurrentContact()" id="contact-delete-btn" class="font-semibold text-rose-400 hover:bg-rose-950/40 px-3 py-1.5 rounded-lg flex items-center gap-1 transition hidden">
+          <button type="button" onclick="deleteCurrentContact()" id="contact-delete-btn" class="font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 px-3 py-1.5 rounded-lg flex items-center gap-1 transition hidden">
             <i data-lucide="trash-2" class="w-4 h-4"></i> Delete
           </button>
           <div class="flex gap-2 ml-auto">
-            <button type="button" onclick="closeContactModal()" class="px-4 py-2 font-semibold text-slate-400 hover:text-white rounded-xl">Cancel</button>
+            <button type="button" onclick="closeContactModal()" class="px-4 py-2 font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white rounded-xl">Cancel</button>
             <button type="submit" class="px-5 py-2 font-bold bg-amber-600 hover:bg-amber-500 text-white rounded-xl shadow flex items-center gap-1.5">
               <i data-lucide="save" class="w-4 h-4"></i> Save Vendor
             </button>
@@ -770,51 +833,51 @@
     <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden text-slate-900 dark:text-slate-100 animate-in fade-in zoom-in-95 duration-150">
       <div class="px-6 py-4 bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
         <div class="flex items-center gap-2">
-          <i data-lucide="camera" class="w-5 h-5 text-emerald-400"></i>
-          <h3 class="text-base font-bold text-white">Record Site Media Proof</h3>
+          <i data-lucide="camera" class="w-5 h-5 text-emerald-500"></i>
+          <h3 class="text-base font-bold text-slate-900 dark:text-white">Record Site Media Proof</h3>
         </div>
-        <button onclick="closeMediaUploadModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">
+        <button onclick="closeMediaUploadModal()" class="text-slate-400 hover:text-slate-700 dark:hover:text-white p-1 rounded-lg">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
       <form onsubmit="handleMediaUploadSubmit(event)" class="p-6 space-y-4 text-xs">
         <div>
-          <label class="block font-bold text-slate-300 uppercase tracking-wider mb-1">Select File (or take photo) <span class="text-rose-500">*</span></label>
-          <input type="file" id="media-file-input" accept="image/*,video/*" capture="environment" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-600 file:text-white hover:file:bg-emerald-500 cursor-pointer">
-          <p class="text-[10px] text-slate-500 mt-1">On your mobile phone, this opens your camera directly for real-time site snaps.</p>
+          <label class="block font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Select File (or take photo) <span class="text-rose-500">*</span></label>
+          <input type="file" id="media-file-input" accept="image/*,video/*" capture="environment" class="w-full text-xs text-slate-600 dark:text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-600 file:text-white hover:file:bg-emerald-500 cursor-pointer">
+          <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">On your mobile phone, this opens your camera directly for real-time site snaps.</p>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block font-bold text-slate-300 uppercase tracking-wider mb-1">Renovation Stage</label>
-            <select id="media-stage-select" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white">
+            <label class="block font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Renovation Stage</label>
+            <select id="media-stage-select" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-800 dark:text-slate-200">
               <option value="in_progress">In-Progress (Pipes / Wires / Walls)</option>
               <option value="pre">Pre-Demolition (Before)</option>
               <option value="post">Post-Finish (After Handover)</option>
             </select>
           </div>
           <div>
-            <label class="block font-bold text-slate-300 uppercase tracking-wider mb-1">Room / Tag</label>
-            <select id="media-room-select" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white">
+            <label class="block font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Room / Tag</label>
+            <select id="media-room-select" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-800 dark:text-slate-200">
               <option value="Entire Flat">Entire Flat</option>
             </select>
           </div>
         </div>
 
         <div>
-          <label class="block font-bold text-slate-300 uppercase tracking-wider mb-1">Link to Task (Optional)</label>
-          <select id="media-task-select" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white">
+          <label class="block font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Link to Task (Optional)</label>
+          <select id="media-task-select" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-800 dark:text-slate-200">
             <option value="">No specific task (General photo)</option>
           </select>
         </div>
 
         <div>
-          <label class="block font-bold text-slate-300 uppercase tracking-wider mb-1">Caption / Proof Description</label>
-          <input type="text" id="media-caption-input" placeholder="e.g. Master bathroom CPVC concealed lines before plastering" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white">
+          <label class="block font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Caption / Proof Description</label>
+          <input type="text" id="media-caption-input" placeholder="e.g. Master bathroom CPVC concealed lines before plastering" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500">
         </div>
 
-        <div class="pt-3 border-t border-slate-800 flex justify-end gap-2">
-          <button type="button" onclick="closeMediaUploadModal()" class="px-4 py-2 font-semibold text-slate-400 hover:text-white rounded-xl">Cancel</button>
+        <div class="pt-3 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-2">
+          <button type="button" onclick="closeMediaUploadModal()" class="px-4 py-2 font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white rounded-xl">Cancel</button>
           <button type="submit" id="media-upload-btn" class="px-5 py-2 font-bold bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl shadow flex items-center gap-1.5">
             <i data-lucide="upload-cloud" class="w-4 h-4"></i> Save to Vault
           </button>
@@ -832,46 +895,46 @@
     <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden text-slate-900 dark:text-slate-100 animate-in fade-in zoom-in-95 duration-150">
       <div class="px-6 py-4 bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
         <div class="flex items-center gap-2.5">
-          <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center">
+          <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-500 dark:text-amber-400 flex items-center justify-center">
             <i data-lucide="key" class="w-4 h-4"></i>
           </div>
           <div>
             <h3 class="text-sm font-bold text-slate-900 dark:text-white">Change Family Password</h3>
-            <p class="text-[10px] text-slate-400">Updates the access password for all family members</p>
+            <p class="text-[10px] text-slate-500 dark:text-slate-400">Updates the access password for all family members</p>
           </div>
         </div>
-        <button onclick="closeChangePasswordModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">
+        <button onclick="closeChangePasswordModal()" class="text-slate-400 hover:text-slate-700 dark:hover:text-white p-1 rounded-lg">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
       <form onsubmit="handleChangePasswordSubmit(event)" class="p-6 space-y-4 text-xs">
-        <div id="change-pass-error" class="hidden p-2.5 bg-rose-950/80 border border-rose-800/80 rounded-xl text-rose-200 text-xs flex items-center gap-2">
-          <i data-lucide="alert-circle" class="w-4 h-4 text-rose-400 shrink-0"></i>
+        <div id="change-pass-error" class="hidden p-2.5 bg-rose-50 dark:bg-rose-950/80 border border-rose-200 dark:border-rose-800/80 rounded-xl text-rose-700 dark:text-rose-200 text-xs flex items-center gap-2">
+          <i data-lucide="alert-circle" class="w-4 h-4 text-rose-500 dark:text-rose-400 shrink-0"></i>
           <span id="change-pass-error-text">Current password incorrect</span>
         </div>
 
         <div>
-          <label class="block font-semibold text-slate-300 mb-1">Current Password <span class="text-rose-400">*</span></label>
-          <input type="password" id="current-pass-input" required placeholder="Enter current password..." class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:border-amber-400">
+          <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Current Password <span class="text-rose-500">*</span></label>
+          <input type="password" id="current-pass-input" required placeholder="Enter current password..." class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-amber-400">
         </div>
 
         <div>
-          <label class="block font-semibold text-slate-300 mb-1">New Password <span class="text-rose-400">*</span></label>
-          <input type="password" id="new-pass-input" required minlength="4" placeholder="Enter new password (min 4 characters)..." class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:border-emerald-400">
+          <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">New Password <span class="text-rose-500">*</span></label>
+          <input type="password" id="new-pass-input" required minlength="4" placeholder="Enter new password (min 4 characters)..." class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-400">
         </div>
 
         <div>
-          <label class="block font-semibold text-slate-300 mb-1">Confirm New Password <span class="text-rose-400">*</span></label>
-          <input type="password" id="confirm-pass-input" required minlength="4" placeholder="Re-enter new password..." class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:border-emerald-400">
+          <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Confirm New Password <span class="text-rose-500">*</span></label>
+          <input type="password" id="confirm-pass-input" required minlength="4" placeholder="Re-enter new password..." class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-400">
         </div>
 
         <div class="pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
-          <button type="button" onclick="resetPasswordToDefault()" class="text-[11px] text-slate-400 hover:text-amber-300 underline">
+          <button type="button" onclick="resetPasswordToDefault()" class="text-[11px] text-slate-500 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-300 underline">
             Reset to default (indra2026)
           </button>
           <div class="flex gap-2">
-            <button type="button" onclick="closeChangePasswordModal()" class="px-3.5 py-1.5 font-semibold text-slate-400 hover:text-white rounded-lg">Cancel</button>
+            <button type="button" onclick="closeChangePasswordModal()" class="px-3.5 py-1.5 font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white rounded-lg">Cancel</button>
             <button type="submit" class="px-4 py-1.5 font-bold bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl shadow transition">Save Password</button>
           </div>
         </div>
@@ -893,26 +956,26 @@
   <!-- ======================================================== -->
   <div id="chat-drawer-backdrop" onclick="toggleChatDrawer()" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 hidden transition-opacity"></div>
 
-  <aside id="chat-drawer" class="fixed inset-y-0 right-0 w-full sm:w-[500px] bg-slate-900 text-slate-100 z-50 shadow-2xl flex flex-col border-l border-slate-800 transform translate-x-full transition-transform duration-300 ease-in-out">
+  <aside id="chat-drawer" class="fixed inset-y-0 right-0 w-full sm:w-[500px] bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 z-50 shadow-2xl flex flex-col border-l border-slate-200 dark:border-slate-800 transform translate-x-full transition-transform duration-300 ease-in-out">
     <!-- Drawer Header -->
-    <div class="px-4 py-3 bg-slate-950 border-b border-slate-800 flex items-center justify-between shrink-0">
+    <div class="px-4 py-3 bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between shrink-0">
       <div class="flex items-center gap-2.5">
-        <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-purple-500 via-indigo-600 to-brand-500 flex items-center justify-center text-white shadow-sm">
+        <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-purple-500 via-indigo-600 to-brand-500 flex items-center justify-center text-white shadow-xs">
           <i data-lucide="sparkles" class="w-4 h-4 text-amber-300"></i>
         </div>
         <div>
           <div class="flex items-center gap-2">
-            <h3 class="text-sm font-bold text-white leading-none">Indra AI</h3>
-            <span id="chat-drawer-model-badge" class="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-brand-500/20 text-brand-300 border border-brand-500/30">Gemini 3.5 Flash</span>
+            <h3 class="text-sm font-bold text-slate-900 dark:text-white leading-none">Indra AI</h3>
+            <span id="chat-drawer-model-badge" class="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-brand-500/15 text-brand-700 dark:text-brand-300 border border-brand-500/30">Gemini 3.5 Flash</span>
           </div>
-          <p class="text-[10px] text-slate-400 mt-0.5">Multimodal Site Copilot • Photos, Videos & Intent</p>
+          <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Multimodal Site Copilot • Photos, Videos & Intent</p>
         </div>
       </div>
       <div class="flex items-center gap-1">
-        <button onclick="clearChatMessages()" class="p-1.5 text-slate-400 hover:text-rose-400 rounded-lg hover:bg-slate-800 transition" title="Clear Chat History">
+        <button onclick="clearChatMessages()" class="p-1.5 text-slate-400 hover:text-rose-500 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition" title="Clear Chat History">
           <i data-lucide="trash-2" class="w-4 h-4"></i>
         </button>
-        <button onclick="toggleChatDrawer()" class="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition" title="Close">
+        <button onclick="toggleChatDrawer()" class="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition" title="Close">
           <i data-lucide="x" class="w-4 h-4"></i>
         </button>
       </div>
@@ -924,47 +987,47 @@
     </div>
 
     <!-- Quick Prompts Horizontal Scroll -->
-    <div class="px-3 py-1.5 bg-slate-950 border-t border-slate-800/70 overflow-x-auto flex items-center gap-1.5 shrink-0 no-scrollbar">
-      <button onclick="sendQuickPrompt('What tasks are currently blocked or waiting?')" class="whitespace-nowrap px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-full text-[10px] font-medium border border-slate-700/60 transition flex items-center gap-1">
+    <div class="px-3 py-1.5 bg-white dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800/70 overflow-x-auto flex items-center gap-1.5 shrink-0 no-scrollbar">
+      <button onclick="sendQuickPrompt('What tasks are currently blocked or waiting?')" class="whitespace-nowrap px-2.5 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-full text-[10px] font-semibold border border-slate-200 dark:border-slate-700/60 transition flex items-center gap-1">
         <span>⚠️ Blocked tasks</span>
       </button>
-      <button onclick="sendQuickPrompt('List all tasks assigned to the plumber')" class="whitespace-nowrap px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-full text-[10px] font-medium border border-slate-700/60 transition flex items-center gap-1">
+      <button onclick="sendQuickPrompt('List all tasks assigned to the plumber')" class="whitespace-nowrap px-2.5 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-full text-[10px] font-semibold border border-slate-200 dark:border-slate-700/60 transition flex items-center gap-1">
         <span>🔧 Plumber tasks</span>
       </button>
-      <button onclick="sendQuickPrompt('Summarize overall renovation progress across all rooms')" class="whitespace-nowrap px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-full text-[10px] font-medium border border-slate-700/60 transition flex items-center gap-1">
+      <button onclick="sendQuickPrompt('Summarize overall renovation progress across all rooms')" class="whitespace-nowrap px-2.5 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-full text-[10px] font-semibold border border-slate-200 dark:border-slate-700/60 transition flex items-center gap-1">
         <span>📊 Progress report</span>
       </button>
-      <button onclick="sendQuickPrompt('What rooms and spaces are we renovating?')" class="whitespace-nowrap px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-full text-[10px] font-medium border border-slate-700/60 transition flex items-center gap-1">
+      <button onclick="sendQuickPrompt('What rooms and spaces are we renovating?')" class="whitespace-nowrap px-2.5 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-full text-[10px] font-semibold border border-slate-200 dark:border-slate-700/60 transition flex items-center gap-1">
         <span>🏛️ All Spaces</span>
       </button>
     </div>
 
     <!-- Staged Media Previews Bar -->
-    <div id="chat-staged-media-bar" class="hidden px-3 py-2 bg-slate-950 border-t border-slate-800 flex items-center gap-2 overflow-x-auto shrink-0">
+    <div id="chat-staged-media-bar" class="hidden px-3 py-2 bg-slate-100 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 flex items-center gap-2 overflow-x-auto shrink-0">
       <!-- Thumbnail chips dynamically added here -->
     </div>
 
     <!-- Input Footer -->
-    <div class="p-3 bg-slate-950 border-t border-slate-800 shrink-0 space-y-2">
+    <div class="p-3 bg-white dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 shrink-0 space-y-2">
       <div class="flex items-end gap-1.5">
         <!-- Hidden file inputs -->
         <input type="file" id="chat-media-file-input" accept="image/*,video/*" multiple class="hidden" onchange="handleChatFilesSelected(this.files)">
         <input type="file" id="chat-camera-file-input" accept="image/*" capture="environment" class="hidden" onchange="handleChatFilesSelected(this.files)">
 
-        <button type="button" onclick="document.getElementById('chat-media-file-input').click()" class="p-2 text-slate-400 hover:text-brand-400 hover:bg-slate-800 rounded-xl transition" title="Attach Photos or Videos">
+        <button type="button" onclick="document.getElementById('chat-media-file-input').click()" class="p-2 text-slate-500 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition" title="Attach Photos or Videos">
           <i data-lucide="paperclip" class="w-4 h-4"></i>
         </button>
-        <button type="button" onclick="document.getElementById('chat-camera-file-input').click()" class="p-2 text-slate-400 hover:text-emerald-400 hover:bg-slate-800 rounded-xl transition" title="Snap Photo with Camera">
+        <button type="button" onclick="document.getElementById('chat-camera-file-input').click()" class="p-2 text-slate-500 hover:text-emerald-600 dark:text-slate-400 dark:hover:text-emerald-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition" title="Snap Photo with Camera">
           <i data-lucide="camera" class="w-4 h-4"></i>
         </button>
 
-        <textarea id="chat-input-text" rows="1" placeholder="Type a task, question, or attach media..." class="flex-1 px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 resize-none max-h-24" onkeydown="handleChatKeyDown(event)"></textarea>
+        <textarea id="chat-input-text" rows="1" placeholder="Type a task, question, or attach media..." class="flex-1 px-3 py-2 text-xs bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-brand-500 resize-none max-h-24" onkeydown="handleChatKeyDown(event)"></textarea>
 
-        <button type="button" id="chat-send-btn" onclick="handleChatSend()" class="p-2 bg-brand-600 hover:bg-brand-500 text-white rounded-xl transition shadow-sm disabled:opacity-50">
+        <button type="button" id="chat-send-btn" onclick="handleChatSend()" class="p-2 bg-brand-600 hover:bg-brand-500 text-white rounded-xl transition shadow-xs disabled:opacity-50">
           <i data-lucide="send" class="w-4 h-4"></i>
         </button>
       </div>
-      <div class="flex items-center justify-between text-[10px] text-slate-500 px-1">
+      <div class="flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400 px-1">
         <span>Multimodal: Photos, Videos & Intent</span>
         <span>Enter to send • Shift+Enter for newline</span>
       </div>
@@ -1542,8 +1605,8 @@
     // --- BOARD VIEW LOGIC ---
     function setBoardGrouping(mode) {
       boardGrouping = mode;
-      document.getElementById('group-status-btn').className = mode === 'status' ? 'px-2.5 py-1 rounded-md font-bold text-slate-800 bg-white shadow-xs' : 'px-2.5 py-1 rounded-md font-medium text-slate-500 hover:text-slate-800';
-      document.getElementById('group-epic-btn').className = mode === 'epic' ? 'px-2.5 py-1 rounded-md font-bold text-slate-800 bg-white shadow-xs' : 'px-2.5 py-1 rounded-md font-medium text-slate-500 hover:text-slate-800';
+      document.getElementById('group-status-btn').className = mode === 'status' ? 'px-2.5 py-1 rounded-md font-bold text-slate-900 dark:text-white bg-white dark:bg-slate-800 shadow-xs' : 'px-2.5 py-1 rounded-md font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white';
+      document.getElementById('group-epic-btn').className = mode === 'epic' ? 'px-2.5 py-1 rounded-md font-bold text-slate-900 dark:text-white bg-white dark:bg-slate-800 shadow-xs' : 'px-2.5 py-1 rounded-md font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white';
       renderBoard();
     }
 
@@ -1604,7 +1667,7 @@
         });
 
         const colEl = document.createElement('div');
-        colEl.className = 'flex-1 min-w-[290px] max-w-[340px] bg-slate-900/60 rounded-2xl p-3 border border-slate-800/80 flex flex-col max-h-[82vh] transition shrink-0 backdrop-blur-xs';
+        colEl.className = 'flex-1 min-w-[290px] max-w-[340px] bg-slate-200/50 dark:bg-slate-900/60 rounded-2xl p-3 border border-slate-200 dark:border-slate-800/80 flex flex-col max-h-[82vh] transition shrink-0 backdrop-blur-xs';
         colEl.setAttribute('data-col-id', col.id);
 
         colEl.addEventListener('dragover', e => { e.preventDefault(); colEl.classList.add('drag-over'); });
@@ -1612,30 +1675,30 @@
         colEl.addEventListener('drop', handleDrop);
 
         colEl.innerHTML = `
-          <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-800/80 px-1">
+          <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-200 dark:border-slate-800/80 px-1">
             <div class="flex items-center gap-2">
               <span class="w-2.5 h-2.5 rounded-full bg-${col.color}-500"></span>
-              <h3 class="font-bold text-xs text-white uppercase tracking-wider">${col.title}</h3>
-              <span class="text-[11px] px-2 py-0.2 bg-slate-800 text-slate-300 font-bold rounded-full">${colTasks.length}</span>
+              <h3 class="font-bold text-xs text-slate-800 dark:text-white uppercase tracking-wider">${col.title}</h3>
+              <span class="text-[11px] px-2 py-0.2 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold rounded-full">${colTasks.length}</span>
             </div>
-            <button onclick="openCardModal(null, '${col.id}')" class="text-slate-400 hover:text-slate-700 hover:bg-slate-300/60 p-1 rounded-lg transition" title="Add Task to this column">
+            <button onclick="openCardModal(null, '${col.id}')" class="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800 p-1 rounded-lg transition" title="Add Task to this column">
               <i data-lucide="plus" class="w-4 h-4"></i>
             </button>
           </div>
           <div class="cards-list flex-1 overflow-y-auto space-y-2.5 pr-1 py-1" id="cards-list-${col.id}"></div>
           
           <!-- Inline Quick Add Input Area -->
-          <div class="pt-2 mt-auto border-t border-slate-300/60" id="quick-add-container-${col.id}">
+          <div class="pt-2 mt-auto border-t border-slate-200 dark:border-slate-800/60" id="quick-add-container-${col.id}">
             ${activeQuickAddCol === col.id ? `
-              <div class="bg-white p-2.5 rounded-xl border border-brand-500 shadow-sm space-y-2">
-                <input type="text" id="quick-add-input-${col.id}" placeholder="Task title..." class="w-full text-xs px-2.5 py-1.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-slate-800" onkeydown="if(event.key==='Enter'){event.preventDefault();submitQuickAdd('${col.id}');} if(event.key==='Escape'){cancelQuickAdd();}">
+              <div class="bg-white dark:bg-slate-900 p-2.5 rounded-xl border border-brand-500 shadow-sm space-y-2">
+                <input type="text" id="quick-add-input-${col.id}" placeholder="Task title..." class="w-full text-xs px-2.5 py-1.5 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-slate-900 dark:text-white bg-slate-50 dark:bg-slate-950" onkeydown="if(event.key==='Enter'){event.preventDefault();submitQuickAdd('${col.id}');} if(event.key==='Escape'){cancelQuickAdd();}">
                 <div class="flex items-center justify-end gap-1.5">
-                  <button type="button" onclick="cancelQuickAdd()" class="px-2 py-1 text-[11px] font-semibold text-slate-500 hover:bg-slate-100 rounded-md">Cancel</button>
+                  <button type="button" onclick="cancelQuickAdd()" class="px-2 py-1 text-[11px] font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md">Cancel</button>
                   <button type="button" onclick="submitQuickAdd('${col.id}')" class="px-3 py-1 text-[11px] font-bold bg-brand-600 hover:bg-brand-500 text-white rounded-md shadow-xs">Add</button>
                 </div>
               </div>
             ` : `
-              <button onclick="activateQuickAdd('${col.id}')" class="w-full py-1.5 px-2.5 text-xs font-semibold text-slate-500 hover:text-slate-800 hover:bg-slate-300/60 rounded-xl transition flex items-center justify-center gap-1.5">
+              <button onclick="activateQuickAdd('${col.id}')" class="w-full py-1.5 px-2.5 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800 rounded-xl transition flex items-center justify-center gap-1.5">
                 <i data-lucide="plus" class="w-3.5 h-3.5"></i>
                 <span>Add a task...</span>
               </button>
@@ -1646,7 +1709,7 @@
         const list = colEl.querySelector('.cards-list');
         if (colTasks.length === 0) {
           list.innerHTML = `
-            <div class="py-6 text-center text-slate-500 text-xs border border-dashed border-slate-800 rounded-xl">
+            <div class="py-6 text-center text-slate-500 dark:text-slate-400 text-xs border border-dashed border-slate-300 dark:border-slate-800 rounded-xl">
               No tasks here yet
             </div>
           `;
@@ -1717,7 +1780,7 @@
 
     function createTaskCardElement(task) {
       const cardEl = document.createElement('div');
-      cardEl.className = 'bg-slate-900/90 rounded-xl p-3.5 shadow-sm hover:shadow-md border border-slate-800 hover:border-slate-700 transition cursor-pointer select-none group';
+      cardEl.className = 'bg-white dark:bg-slate-900/90 rounded-xl p-3.5 shadow-xs hover:shadow-md border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-750 transition cursor-pointer select-none group';
       cardEl.setAttribute('draggable', 'true');
       cardEl.setAttribute('data-task-id', task.id);
 
@@ -1739,45 +1802,45 @@
 
       let priorityBadge = '';
       if (task.priority === 'critical') {
-        priorityBadge = `<span class="px-2 py-0.5 rounded text-[9px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">CRITICAL</span>`;
+        priorityBadge = `<span class="px-2 py-0.5 rounded text-[9px] font-bold bg-rose-50 dark:bg-rose-500/20 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30">CRITICAL</span>`;
       } else if (task.priority === 'high') {
-        priorityBadge = `<span class="px-2 py-0.5 rounded text-[9px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">HIGH</span>`;
+        priorityBadge = `<span class="px-2 py-0.5 rounded text-[9px] font-bold bg-amber-50 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30">HIGH</span>`;
       } else if (task.priority === 'low') {
-        priorityBadge = `<span class="px-2 py-0.5 rounded text-[9px] font-medium bg-slate-800 text-slate-400 border border-slate-700">LOW</span>`;
+        priorityBadge = `<span class="px-2 py-0.5 rounded text-[9px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">LOW</span>`;
       }
 
       cardEl.innerHTML = `
         <div class="flex items-start justify-between gap-1.5 mb-2">
           <div class="flex items-center gap-1.5 flex-wrap">
-            <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-purple-950/60 text-purple-300 border border-purple-800/60">${epic ? (epic.space || epic.title) : 'General'}</span>
-            ${task.days_label ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-medium bg-slate-800 text-slate-400 border border-slate-700">${task.days_label}</span>` : ''}
+            <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60">${epic ? (epic.space || epic.title) : 'General'}</span>
+            ${task.days_label ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">${task.days_label}</span>` : ''}
           </div>
           ${priorityBadge}
         </div>
 
-        <h4 class="font-semibold text-slate-100 text-xs mb-2 group-hover:text-emerald-400 transition leading-snug">${task.title}</h4>
+        <h4 class="font-bold text-slate-900 dark:text-slate-100 text-xs mb-2 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition leading-snug">${task.title}</h4>
 
         ${contact ? `
-          <div class="flex items-center gap-1.5 text-[11px] text-slate-400 mb-2.5">
-            <i data-lucide="user" class="w-3 h-3 text-slate-500"></i>
+          <div class="flex items-center gap-1.5 text-[11px] text-slate-600 dark:text-slate-400 mb-2.5">
+            <i data-lucide="user" class="w-3 h-3 text-slate-400 dark:text-slate-500"></i>
             <span>${contact.name} (${contact.role})</span>
           </div>
         ` : ''}
 
-        <div class="space-y-1.5 pt-2 border-t border-slate-800/80">
-          <div class="flex items-center justify-between text-[11px] text-slate-400">
+        <div class="space-y-1.5 pt-2 border-t border-slate-100 dark:border-slate-800/80">
+          <div class="flex items-center justify-between text-[11px] text-slate-600 dark:text-slate-400">
             <span class="flex items-center gap-1">
-              <i data-lucide="check-square" class="w-3 h-3 ${percent === 100 && totalSub > 0 ? 'text-emerald-400' : 'text-slate-500'}"></i>
+              <i data-lucide="check-square" class="w-3 h-3 ${percent === 100 && totalSub > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'}"></i>
               ${totalSub > 0 ? `${doneSub}/${totalSub} items` : 'No checklist'}
             </span>
             ${taskMediaCount > 0 ? `
-              <span class="flex items-center gap-1 font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded text-[10px]">
+              <span class="flex items-center gap-1 font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 px-1.5 py-0.5 rounded text-[10px]">
                 <i data-lucide="camera" class="w-3 h-3"></i> ${taskMediaCount}
               </span>
             ` : ''}
           </div>
           ${totalSub > 0 ? `
-            <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+            <div class="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden border border-slate-200 dark:border-transparent">
               <div class="h-full bg-emerald-500 rounded-full transition-all duration-300" style="width: ${percent}%"></div>
             </div>
           ` : ''}
@@ -1892,11 +1955,11 @@
 
       currentModalSubtasks.forEach((sub, idx) => {
         const item = document.createElement('div');
-        item.className = 'flex items-center justify-between gap-2 p-2 rounded-lg bg-slate-50 border border-slate-200 transition hover:bg-slate-100/60';
+        item.className = 'flex items-center justify-between gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 transition hover:bg-slate-100/60 dark:hover:bg-slate-900';
         item.innerHTML = `
           <label class="flex items-center gap-2 cursor-pointer flex-1">
             <input type="checkbox" ${sub.is_completed ? 'checked' : ''} onchange="toggleModalSubtask(${idx})" class="w-4 h-4 text-brand-600 rounded">
-            <span class="${sub.is_completed ? 'line-through text-slate-400' : 'text-slate-800'} font-medium">${sub.title}</span>
+            <span class="${sub.is_completed ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-800 dark:text-slate-200'} font-medium">${sub.title}</span>
           </label>
           <button type="button" onclick="removeModalSubtask(${idx})" class="text-slate-400 hover:text-rose-500 p-1 rounded transition">
             <i data-lucide="trash" class="w-3.5 h-3.5"></i>
@@ -2120,10 +2183,10 @@
 
       if (epics.length === 0) {
         container.innerHTML = `
-          <div class="col-span-full py-16 text-center text-slate-400 border border-dashed border-slate-800 rounded-2xl">
-            <i data-lucide="layers" class="w-8 h-8 mx-auto mb-2 text-slate-600"></i>
-            <p class="font-bold text-sm text-slate-200">No Epics or Rooms added yet</p>
-            <p class="text-xs text-slate-500 mt-1 mb-4">Create your first Epic to organize tasks by room or renovation phase.</p>
+          <div class="col-span-full py-16 text-center text-slate-500 dark:text-slate-400 border border-dashed border-slate-300 dark:border-slate-800 rounded-2xl">
+            <i data-lucide="layers" class="w-8 h-8 mx-auto mb-2 text-slate-400 dark:text-slate-600"></i>
+            <p class="font-bold text-sm text-slate-900 dark:text-slate-200">No Epics or Rooms added yet</p>
+            <p class="text-xs text-slate-600 dark:text-slate-500 mt-1 mb-4">Create your first Epic to organize tasks by room or renovation phase.</p>
             <button onclick="openEpicModal(null)" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs rounded-xl shadow-xs transition">
               + Create First Epic
             </button>
@@ -2141,36 +2204,36 @@
         const epicMediaCount = media.filter(m => m.room_tag === epic.space || epicTasks.some(t => t.id === m.task_id)).length;
 
         const card = document.createElement('div');
-        card.className = 'bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-sm hover:border-slate-700 transition flex flex-col justify-between';
+        card.className = 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs hover:border-slate-300 dark:hover:border-slate-700 transition flex flex-col justify-between';
 
         card.innerHTML = `
           <div>
             <div class="flex items-center justify-between mb-2">
-              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-950/70 text-purple-300 border border-purple-800/60">
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-100 dark:bg-purple-950/70 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60">
                 ${epic.space}
               </span>
               <div class="flex items-center gap-1.5">
-                ${epic.target_week ? `<span class="text-[11px] font-semibold text-slate-400">${epic.target_week}</span>` : ''}
-                <button onclick="openEpicModal('${epic.id}')" class="text-slate-400 hover:text-white p-1 rounded transition" title="Edit Epic">
+                ${epic.target_week ? `<span class="text-[11px] font-semibold text-slate-600 dark:text-slate-400">${epic.target_week}</span>` : ''}
+                <button onclick="openEpicModal('${epic.id}')" class="text-slate-400 hover:text-slate-700 dark:hover:text-white p-1 rounded transition" title="Edit Epic">
                   <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
                 </button>
               </div>
             </div>
-            <h3 class="font-bold text-white text-sm mb-1">${epic.title}</h3>
-            <p class="text-xs text-slate-400 mb-3">${epic.description || 'Custom renovation scope'}</p>
+            <h3 class="font-bold text-slate-900 dark:text-white text-sm mb-1">${epic.title}</h3>
+            <p class="text-xs text-slate-600 dark:text-slate-400 mb-3">${epic.description || 'Custom renovation scope'}</p>
           </div>
 
-          <div class="pt-3 border-t border-slate-800 space-y-2 text-xs">
+          <div class="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2 text-xs">
             <div class="flex items-center justify-between font-medium">
-              <span class="text-slate-400">${completed}/${total} Tasks Completed</span>
-              <span class="font-bold text-emerald-400">${pct}%</span>
+              <span class="text-slate-600 dark:text-slate-400 font-medium">${completed}/${total} Tasks Completed</span>
+              <span class="font-bold text-emerald-600 dark:text-emerald-400">${pct}%</span>
             </div>
-            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+            <div class="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden border border-slate-200 dark:border-transparent">
               <div class="bg-emerald-500 h-full rounded-full transition-all duration-300" style="width: ${pct}%"></div>
             </div>
             <div class="flex items-center justify-between text-[11px] pt-1.5">
-              <span class="text-slate-500 flex items-center gap-1"><i data-lucide="camera" class="w-3 h-3 text-slate-400"></i> ${epicMediaCount} photos</span>
-              <button onclick="openCardModal(null, null, '${epic.id}')" class="text-purple-400 hover:text-purple-300 font-bold flex items-center gap-1">
+              <span class="text-slate-500 dark:text-slate-400 flex items-center gap-1"><i data-lucide="camera" class="w-3 h-3 text-slate-400"></i> ${epicMediaCount} photos</span>
+              <button onclick="openCardModal(null, null, '${epic.id}')" class="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-bold flex items-center gap-1">
                 <i data-lucide="plus" class="w-3 h-3"></i> Add Task
               </button>
             </div>
@@ -2281,10 +2344,10 @@
 
       if (contacts.length === 0) {
         container.innerHTML = `
-          <div class="col-span-full py-16 text-center text-slate-400 border border-dashed border-slate-800 rounded-2xl">
-            <i data-lucide="phone-call" class="w-8 h-8 mx-auto mb-2 text-slate-600"></i>
-            <p class="font-bold text-sm text-slate-200">No Vendors or Tradesmen added yet</p>
-            <p class="text-xs text-slate-500 mt-1 mb-4">Add your plumber, electrician, carpenter, and society contacts for one-tap WhatsApp and calling.</p>
+          <div class="col-span-full py-16 text-center text-slate-500 dark:text-slate-400 border border-dashed border-slate-300 dark:border-slate-800 rounded-2xl">
+            <i data-lucide="phone-call" class="w-8 h-8 mx-auto mb-2 text-slate-400 dark:text-slate-600"></i>
+            <p class="font-bold text-sm text-slate-900 dark:text-slate-200">No Vendors or Tradesmen added yet</p>
+            <p class="text-xs text-slate-600 dark:text-slate-500 mt-1 mb-4">Add your plumber, electrician, carpenter, and society contacts for one-tap WhatsApp and calling.</p>
             <button onclick="openContactModal(null)" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs rounded-xl shadow-xs transition">
               + Add First Vendor
             </button>
@@ -2297,32 +2360,32 @@
       contacts.forEach(contact => {
         const assignedTasks = tasks.filter(t => t.contact_id === contact.id);
         const card = document.createElement('div');
-        card.className = 'bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-sm hover:border-slate-700 transition flex flex-col justify-between';
+        card.className = 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs hover:border-slate-300 dark:hover:border-slate-700 transition flex flex-col justify-between';
 
         const cleanPhone = (contact.whatsapp || contact.phone || '').replace(/[^0-9]/g, '');
 
         card.innerHTML = `
           <div>
             <div class="flex items-center justify-between mb-2">
-              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-950/70 text-amber-300 border border-amber-800/60">
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60">
                 ${contact.role}
               </span>
               <div class="flex items-center gap-1.5">
-                <span class="text-[11px] font-semibold text-slate-400">${assignedTasks.length} tasks</span>
-                <button onclick="openContactModal('${contact.id}')" class="text-slate-400 hover:text-white p-1 rounded transition" title="Edit Vendor">
+                <span class="text-[11px] font-semibold text-slate-600 dark:text-slate-400">${assignedTasks.length} tasks</span>
+                <button onclick="openContactModal('${contact.id}')" class="text-slate-400 hover:text-slate-700 dark:hover:text-white p-1 rounded transition" title="Edit Vendor">
                   <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
                 </button>
               </div>
             </div>
-            <h3 class="font-bold text-white text-sm">${contact.name}</h3>
-            ${contact.company ? `<p class="text-xs text-slate-400 mb-1">${contact.company}</p>` : ''}
-            ${contact.notes ? `<p class="text-xs text-slate-400 mt-2 bg-slate-950 p-2 rounded-lg border border-slate-850 italic">${contact.notes}</p>` : ''}
+            <h3 class="font-bold text-slate-900 dark:text-white text-sm">${contact.name}</h3>
+            ${contact.company ? `<p class="text-xs text-slate-600 dark:text-slate-400 mb-1">${contact.company}</p>` : ''}
+            ${contact.notes ? `<p class="text-xs text-slate-700 dark:text-slate-300 mt-2 bg-slate-50 dark:bg-slate-950 p-2.5 rounded-lg border border-slate-200 dark:border-slate-850 italic">${contact.notes}</p>` : ''}
           </div>
 
-          <div class="pt-3 border-t border-slate-800 flex items-center gap-2 mt-4">
+          <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center gap-2 mt-4">
             ${contact.phone ? `
-              <a href="tel:${contact.phone}" class="flex-1 py-1.5 px-3 bg-slate-800 hover:bg-slate-750 text-white rounded-xl text-xs font-bold text-center flex items-center justify-center gap-1.5 transition">
-                <i data-lucide="phone" class="w-3.5 h-3.5 text-slate-300"></i> Call
+              <a href="tel:${contact.phone}" class="flex-1 py-1.5 px-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-center flex items-center justify-center gap-1.5 transition">
+                <i data-lucide="phone" class="w-3.5 h-3.5 text-slate-500 dark:text-slate-300"></i> Call
               </a>
             ` : ''}
             ${cleanPhone ? `
@@ -2344,12 +2407,17 @@
       currentMediaStageFilter = stage;
       document.querySelectorAll('.media-stage-btn').forEach(btn => {
         if (btn.getAttribute('data-stage') === stage) {
-          btn.className = 'media-stage-btn active px-3 py-1.5 rounded-lg bg-white shadow-xs text-slate-900 font-bold';
+          btn.className = 'media-stage-btn active px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 shadow-xs text-slate-900 dark:text-white font-bold';
         } else {
-          btn.className = 'media-stage-btn px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900';
+          btn.className = 'media-stage-btn px-3 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium';
         }
       });
       renderMediaGallery();
+    }
+
+    function openMediaPreviewModal(item) {
+      if (!item || !item.file_url) return;
+      window.open(item.file_url, '_blank');
     }
 
     function renderMediaGallery() {
@@ -2363,10 +2431,10 @@
 
       if (filtered.length === 0) {
         container.innerHTML = `
-          <div class="col-span-full py-16 text-center text-slate-400 border border-dashed border-slate-800 rounded-2xl">
-            <i data-lucide="image" class="w-8 h-8 mx-auto mb-2 text-slate-600"></i>
-            <p class="font-bold text-sm text-slate-200">No photos or videos recorded yet</p>
-            <p class="text-xs text-slate-500 mt-1 mb-4">Snap site photos directly from your phone camera or upload media proof.</p>
+          <div class="col-span-full py-16 text-center text-slate-500 dark:text-slate-400 border border-dashed border-slate-300 dark:border-slate-800 rounded-2xl">
+            <i data-lucide="image" class="w-8 h-8 mx-auto mb-2 text-slate-400 dark:text-slate-600"></i>
+            <p class="font-bold text-sm text-slate-900 dark:text-slate-200">No photos or videos recorded yet</p>
+            <p class="text-xs text-slate-600 dark:text-slate-500 mt-1 mb-4">Snap site photos directly from your phone camera or upload media proof.</p>
             <button onclick="openMediaUploadModal()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-xs transition">
               + Upload First Photo
             </button>
@@ -2378,17 +2446,17 @@
 
       filtered.forEach(item => {
         const card = document.createElement('div');
-        card.className = 'group relative bg-slate-900 rounded-xl overflow-hidden border border-slate-800 shadow-sm hover:border-slate-700 transition flex flex-col cursor-pointer';
+        card.className = 'group relative bg-white dark:bg-slate-900 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-xs hover:border-slate-300 dark:hover:border-slate-700 transition flex flex-col cursor-pointer';
 
         const stageLabels = {
-          'pre': { text: 'Pre-Demo', bg: 'bg-amber-950/80 text-amber-300 border-amber-800/60' },
-          'in_progress': { text: 'In-Progress', bg: 'bg-blue-950/80 text-blue-300 border-blue-800/60' },
-          'post': { text: 'Post-Finish', bg: 'bg-emerald-950/80 text-emerald-300 border-emerald-800/60' }
+          'pre': { text: 'Pre-Demo', bg: 'bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800/60' },
+          'in_progress': { text: 'In-Progress', bg: 'bg-blue-100 dark:bg-blue-950/80 text-blue-800 dark:text-blue-300 border-blue-200 dark:border-blue-800/60' },
+          'post': { text: 'Post-Finish', bg: 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/60' }
         };
         const st = stageLabels[item.stage] || stageLabels['in_progress'];
 
         card.innerHTML = `
-          <div class="aspect-video w-full bg-slate-950 relative overflow-hidden flex items-center justify-center">
+          <div class="aspect-video w-full bg-slate-100 dark:bg-slate-950 relative overflow-hidden flex items-center justify-center">
             ${item.file_type === 'video' ? `
               <video src="${item.file_url}" class="w-full h-full object-cover"></video>
               <div class="absolute inset-0 bg-black/30 flex items-center justify-center">
@@ -2400,15 +2468,15 @@
             <span class="absolute top-2 left-2 px-1.5 py-0.5 rounded text-[9px] font-bold border ${st.bg}">
               ${st.text}
             </span>
-            <span class="absolute top-2 right-2 px-1.5 py-0.5 rounded text-[9px] font-medium bg-slate-950/80 text-slate-300 border border-slate-800">
+            <span class="absolute top-2 right-2 px-1.5 py-0.5 rounded text-[9px] font-medium bg-white/90 dark:bg-slate-950/80 text-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-800">
               ${item.room_tag || 'Flat'}
             </span>
           </div>
           <div class="p-2.5 flex-1 flex flex-col justify-between">
-            <p class="text-xs font-semibold text-slate-200 line-clamp-1 mb-1">${item.caption || 'Renovation photo'}</p>
-            <div class="flex items-center justify-between text-[10px] text-slate-500">
+            <p class="text-xs font-semibold text-slate-900 dark:text-slate-200 line-clamp-1 mb-1">${item.caption || 'Renovation photo'}</p>
+            <div class="flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400">
               <span>${item.uploaded_at ? new Date(item.uploaded_at).toLocaleDateString() : ''}</span>
-              <button onclick="event.stopPropagation(); deleteMedia('${item.id}')" class="text-slate-500 hover:text-rose-400 p-1" title="Delete Photo">
+              <button onclick="event.stopPropagation(); deleteMedia('${item.id}')" class="text-slate-400 hover:text-rose-500 p-1" title="Delete Photo">
                 <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
               </button>
             </div>
@@ -2638,7 +2706,7 @@
     // INDRA AI MULTIMODAL REACT RENOVATION ASSISTANT ENGINE (v5)
     // ========================================================
     const GEMINI_KEY_STORAGE = 'sidhu_indra_gemini_key';
-    const CHAT_HISTORY_STORAGE = 'sidhu_indra_chat_history_v6';
+    const CHAT_HISTORY_STORAGE = 'sidhu_indra_chat_history_v8';
     const GEMINI_MODEL = 'gemini-3.5-flash';
 
     let isChatDrawerOpen = false;
@@ -2667,10 +2735,10 @@
       if (badge) {
         if (key) {
           badge.textContent = 'Gemini 3.5 Flash • ReAct';
-          badge.className = 'text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-brand-500/20 text-brand-300 border border-brand-500/30';
+          badge.className = 'text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-brand-500/20 text-brand-700 dark:text-brand-300 border border-brand-500/30';
         } else {
           badge.textContent = 'GitHub Secret Required';
-          badge.className = 'text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30';
+          badge.className = 'text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30';
         }
       }
     }
@@ -2699,7 +2767,7 @@
 
     function initIndraAIChat() {
       // Purge all legacy localStorage keys with outdated greetings
-      ['sidhu_indra_chat_history_v1', 'sidhu_indra_chat_history_v2', 'sidhu_indra_chat_history_v3', 'sidhu_indra_chat_history_v4', 'sidhu_indra_chat_history_v5'].forEach(k => {
+      ['sidhu_indra_chat_history_v1', 'sidhu_indra_chat_history_v2', 'sidhu_indra_chat_history_v3', 'sidhu_indra_chat_history_v4', 'sidhu_indra_chat_history_v5', 'sidhu_indra_chat_history_v6', 'sidhu_indra_chat_history_v7'].forEach(k => {
         try { localStorage.removeItem(k); } catch(e){}
       });
 
@@ -2723,10 +2791,10 @@ What should we tackle first? Tap an option below or type:`;
       ];
 
       // Always ensure the first message is the pristine welcome message
-      if (chatMessages.length === 0 || chatMessages[0].id !== 'welcome-msg-v6') {
-        chatMessages = chatMessages.filter(m => !m.id.startsWith('welcome-msg') && !m.text.includes('Visual Defect'));
+      if (chatMessages.length === 0 || chatMessages[0].id !== 'welcome-msg-v8') {
+        chatMessages = chatMessages.filter(m => !m.id.startsWith('welcome-msg') && !(m.text || '').toLowerCase().includes('defect'));
         chatMessages.unshift({
-          id: 'welcome-msg-v6',
+          id: 'welcome-msg-v8',
           role: 'assistant',
           text: cleanWelcomeText,
           media: [],
@@ -2745,12 +2813,7 @@ What should we tackle first? Tap an option below or type:`;
         const raw = localStorage.getItem(CHAT_HISTORY_STORAGE);
         if (raw) chatMessages = JSON.parse(raw);
         // Sanitize: strip out any lingering defect mentions from any cached message
-        chatMessages = chatMessages.map(m => {
-          if (m.text && m.text.includes('Visual Defect Inspection')) {
-            m.text = m.text.replace(/•?\s*📸?\s*\*+Visual Defect Inspection\*+:[^\n]+\n?/g, '');
-          }
-          return m;
-        }).filter(m => m.text && m.text.trim().length > 0);
+        chatMessages = chatMessages.filter(m => !m.text || !m.text.toLowerCase().includes('defect'));
       } catch (e) {
         chatMessages = [];
       }
@@ -2853,7 +2916,7 @@ What should we tackle first? Tap an option below or type:`;
           mediaHtml = `
             <div class="flex flex-wrap gap-1.5 mb-2">
               ${msg.media.map(m => `
-                <div class="relative rounded-lg overflow-hidden border border-slate-700 w-20 h-20 bg-slate-950">
+                <div class="relative rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 w-20 h-20 bg-slate-100 dark:bg-slate-950">
                   ${m.isVideo ? 
                     `<video src="${m.dataUrl}" class="w-full h-full object-cover"></video><div class="absolute inset-0 flex items-center justify-center bg-black/40"><i data-lucide="play" class="w-4 h-4 text-white"></i></div>` : 
                     `<img src="${m.dataUrl}" alt="${m.name}" class="w-full h-full object-cover">`
@@ -2867,16 +2930,16 @@ What should we tackle first? Tap an option below or type:`;
         let actionCardsHtml = '';
         if (msg.actionCards && msg.actionCards.length > 0) {
           actionCardsHtml = `
-            <div class="space-y-1.5 mt-2.5 pt-2 border-t border-emerald-800/40">
+            <div class="space-y-1.5 mt-2.5 pt-2 border-t border-slate-100 dark:border-emerald-800/40">
               ${msg.actionCards.map(c => `
-                <div class="p-2.5 rounded-xl bg-slate-950/80 border border-emerald-500/30 text-[11px] flex items-center justify-between gap-2 shadow-xs">
+                <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-emerald-500/30 text-[11px] flex items-center justify-between gap-2 shadow-xs">
                   <div class="flex items-center gap-2 overflow-hidden">
-                    <span class="p-1 rounded-lg bg-emerald-500/20 text-emerald-400 shrink-0">
+                    <span class="p-1 rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 shrink-0">
                       <i data-lucide="${c.icon || 'check-circle'}" class="w-3.5 h-3.5"></i>
                     </span>
                     <div class="truncate">
-                      <span class="font-bold text-white block truncate">${c.title}</span>
-                      <span class="text-[10px] text-slate-400 block">${c.subtitle || ''}</span>
+                      <span class="font-bold text-slate-900 dark:text-white block truncate">${c.title}</span>
+                      <span class="text-[10px] text-slate-500 dark:text-slate-400 block">${c.subtitle || ''}</span>
                     </div>
                   </div>
                   ${c.actionBtn ? `
@@ -2893,15 +2956,15 @@ What should we tackle first? Tap an option below or type:`;
         let questionsHtml = '';
         if (msg.questionOptions && msg.questionOptions.length > 0) {
           questionsHtml = `
-            <div class="mt-3 pt-2.5 border-t border-purple-500/30">
-              <div class="flex items-center gap-1.5 text-[10px] font-bold text-purple-300 mb-2">
-                <i data-lucide="help-circle" class="w-3.5 h-3.5 text-purple-400"></i>
+            <div class="mt-3 pt-2.5 border-t border-purple-100 dark:border-purple-500/30">
+              <div class="flex items-center gap-1.5 text-[10px] font-bold text-purple-700 dark:text-purple-300 mb-2">
+                <i data-lucide="help-circle" class="w-3.5 h-3.5 text-purple-600 dark:text-purple-400"></i>
                 <span>Choose an option or reply:</span>
               </div>
               <div class="flex flex-wrap gap-1.5">
                 ${msg.questionOptions.map(opt => `
-                  <button onclick="handleQuickReply('${opt.replace(/'/g, "\\'")}')" class="px-3 py-1.5 rounded-xl bg-purple-950/70 hover:bg-purple-800 active:scale-95 border border-purple-500/40 text-purple-100 text-xs font-semibold transition flex items-center gap-1.5 shadow-xs group text-left">
-                    <i data-lucide="arrow-right-circle" class="w-3.5 h-3.5 text-purple-400 group-hover:translate-x-0.5 transition shrink-0"></i>
+                  <button onclick="handleQuickReply('${opt.replace(/'/g, "\\'")}')" class="px-3 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/70 dark:hover:bg-purple-800 active:scale-95 border border-purple-200 dark:border-purple-500/40 text-purple-900 dark:text-purple-100 text-xs font-semibold transition flex items-center gap-1.5 shadow-xs group text-left">
+                    <i data-lucide="arrow-right-circle" class="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 group-hover:translate-x-0.5 transition shrink-0"></i>
                     <span>${opt}</span>
                   </button>
                 `).join('')}
@@ -2912,9 +2975,9 @@ What should we tackle first? Tap an option below or type:`;
 
         if (isUser) {
           msgDiv.innerHTML = `
-            <div class="max-w-[85%] bg-brand-700 text-white p-3 rounded-2xl rounded-tr-xs shadow-sm">
+            <div class="user-chat-bubble max-w-[85%] bg-brand-700 text-white p-3 rounded-2xl rounded-tr-xs shadow-xs">
               ${mediaHtml}
-              <div class="chat-prose text-white">${formatMarkdown(msg.text)}</div>
+              <div class="chat-prose">${formatMarkdown(msg.text)}</div>
               <div class="text-[9px] text-brand-200 mt-1 text-right">${msg.timestamp || ''}</div>
             </div>
             <div class="w-7 h-7 rounded-full bg-brand-600 text-white flex items-center justify-center font-bold text-[11px] shrink-0 shadow-xs">
@@ -2926,15 +2989,15 @@ What should we tackle first? Tap an option below or type:`;
             <div class="w-7 h-7 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white flex items-center justify-center shrink-0 shadow-xs mt-0.5">
               <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-300"></i>
             </div>
-            <div class="max-w-[88%] bg-slate-800 text-slate-100 p-3.5 rounded-2xl rounded-tl-xs border border-slate-700/70 shadow-sm">
+            <div class="max-w-[88%] bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 p-3.5 rounded-2xl rounded-tl-xs border border-slate-200 dark:border-slate-700/70 shadow-xs">
               ${mediaHtml}
               <div class="chat-prose">${formatMarkdown(msg.text)}</div>
               ${actionCardsHtml}
               ${questionsHtml}
-              <div class="text-[9px] text-slate-400 mt-2 flex items-center justify-between pt-1 border-t border-slate-700/40">
+              <div class="text-[9px] text-slate-500 dark:text-slate-400 mt-2 flex items-center justify-between pt-1 border-t border-slate-100 dark:border-slate-700/40">
                 <span class="flex items-center gap-1">
-                  <span>Indra AI</span>
-                  <span class="text-[8px] px-1 py-0.2 rounded bg-slate-700 text-brand-300 font-mono">ReAct</span>
+                  <span class="font-semibold text-slate-700 dark:text-slate-300">Indra AI</span>
+                  <span class="text-[8px] px-1 py-0.2 rounded bg-slate-100 dark:bg-slate-700 text-brand-700 dark:text-brand-300 font-mono">ReAct</span>
                 </span>
                 <span>${msg.timestamp || ''}</span>
               </div>
@@ -2953,11 +3016,11 @@ What should we tackle first? Tap an option below or type:`;
           <div class="w-7 h-7 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white flex items-center justify-center shrink-0 shadow-xs animate-pulse">
             <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-300"></i>
           </div>
-          <div class="bg-slate-800 border border-slate-700/70 px-4 py-2.5 rounded-2xl rounded-tl-xs flex items-center gap-1.5 text-xs text-slate-400">
-            <span class="w-2 h-2 rounded-full bg-brand-400 animate-bounce"></span>
-            <span class="w-2 h-2 rounded-full bg-indigo-400 animate-bounce [animation-delay:0.2s]"></span>
-            <span class="w-2 h-2 rounded-full bg-purple-400 animate-bounce [animation-delay:0.4s]"></span>
-            <span class="ml-2 text-[11px] text-slate-300 font-medium">ReAct Reasoning & Execution...</span>
+          <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/70 px-4 py-2.5 rounded-2xl rounded-tl-xs flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300 shadow-xs">
+            <span class="w-2 h-2 rounded-full bg-brand-500 animate-bounce"></span>
+            <span class="w-2 h-2 rounded-full bg-indigo-500 animate-bounce [animation-delay:0.2s]"></span>
+            <span class="w-2 h-2 rounded-full bg-purple-500 animate-bounce [animation-delay:0.4s]"></span>
+            <span class="ml-2 text-[11px] text-slate-700 dark:text-slate-200 font-medium">ReAct Reasoning & Execution...</span>
           </div>
         `;
         container.appendChild(typingDiv);
