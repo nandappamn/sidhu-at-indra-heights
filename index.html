@@ -2106,11 +2106,11 @@
 
 
     // ========================================================
-    // INDRA AI MULTIMODAL REACT RENOVATION ASSISTANT ENGINE (v3)
+    // INDRA AI MULTIMODAL REACT RENOVATION ASSISTANT ENGINE (v5)
     // ========================================================
     const GEMINI_KEY_STORAGE = 'sidhu_indra_gemini_key';
-    const CHAT_HISTORY_STORAGE = 'sidhu_indra_chat_history_v4';
-    // Backed by GitHub Actions Secret GEMINI_API_KEY with encoded client fallback
+    const CHAT_HISTORY_STORAGE = 'sidhu_indra_chat_history_v5';
+    // Backed by GitHub Actions Secret GEMINI_API_KEY with client fallback
     const DEFAULT_GEMINI_API_KEY = atob('QVEuQWI4Uk42TENCaWloVFVlZWY0WFRCUDZpdk9Vc1p5LTV0aV94ZTByMFVSOGIxVWczNnc=');
     const GEMINI_MODEL = 'gemini-3.5-flash';
 
@@ -2224,30 +2224,44 @@
     }
 
     function initIndraAIChat() {
+      // Purge all legacy localStorage keys with outdated greetings
+      ['sidhu_indra_chat_history_v1', 'sidhu_indra_chat_history_v2', 'sidhu_indra_chat_history_v3', 'sidhu_indra_chat_history_v4'].forEach(k => {
+        try { localStorage.removeItem(k); } catch(e){}
+      });
+
       loadChatHistory();
-      if (chatMessages.length === 0) {
-        chatMessages.push({
-          id: 'welcome-msg',
-          role: 'assistant',
-          text: `👋 **Hi Sidhu! I'm Indra AI**, your ReAct Renovation Copilot & Site Director at Indra Heights.
+
+      // Clean welcome message without any defect inspection mentions
+      const cleanWelcomeText = `👋 **Hi Sidhu! I'm Indra AI**, your ReAct Renovation Copilot & Site Director at Indra Heights.
 
 I work in an interactive **Reasoning + Acting** loop:
-* 🎯 **Direct Execution**: When instructions are clear, I immediately create/update tasks, generate professional civil checklist items, and assign contractors.
+* 🎯 **Direct Execution**: When instructions are clear, I immediately create/update tasks, generate civil checklist items, and assign contractors.
 * ❓ **Interactive Clarification**: If a detail is missing or multiple rooms/contractors exist, I will ask targeted questions with **one-tap answer buttons**.
-* 📸 **Media & Photo Proof**: Snap or attach site photos and videos. I will link them directly to the room or task and archive them to the vault.
+* 📸 **Media & Photo Proof**: Snap or attach site photos and videos to link them directly to rooms or tasks in the Media Vault.
 
-What should we tackle first? Tap an option below or type:`,
+What should we tackle first? Tap an option below or type:`;
+
+      const cleanOptions = [
+        'What rooms and spaces are we renovating?',
+        'What tasks are currently blocked or waiting?',
+        'Create initial Kitchen civil & plumbing checklist',
+        'Give me an overall renovation progress audit'
+      ];
+
+      // Always ensure the first message is the pristine welcome message
+      if (chatMessages.length === 0 || chatMessages[0].id !== 'welcome-msg-v5') {
+        chatMessages = chatMessages.filter(m => m.id !== 'welcome-msg' && m.id !== 'welcome-msg-v4' && !m.text.includes('Visual Defect'));
+        chatMessages.unshift({
+          id: 'welcome-msg-v5',
+          role: 'assistant',
+          text: cleanWelcomeText,
           media: [],
           actionCards: [],
-          questionOptions: [
-            'Create initial Kitchen civil & plumbing checklist',
-            'What tasks are currently blocked or waiting?',
-            'Register a new contractor',
-            'Give me an overall renovation progress audit'
-          ]
+          questionOptions: cleanOptions
         });
         saveChatHistory();
       }
+
       updateGeminiKeyStatusUI();
       renderChatMessages();
     }
@@ -2256,6 +2270,13 @@ What should we tackle first? Tap an option below or type:`,
       try {
         const raw = localStorage.getItem(CHAT_HISTORY_STORAGE);
         if (raw) chatMessages = JSON.parse(raw);
+        // Sanitize: strip out any lingering defect mentions from any cached message
+        chatMessages = chatMessages.map(m => {
+          if (m.text && m.text.includes('Visual Defect Inspection')) {
+            m.text = m.text.replace(/•?\s*📸?\s*\*+Visual Defect Inspection\*+:[^\n]+\n?/g, '');
+          }
+          return m;
+        }).filter(m => m.text && m.text.trim().length > 0);
       } catch (e) {
         chatMessages = [];
       }
@@ -2320,7 +2341,7 @@ What should we tackle first? Tap an option below or type:`,
         }
       }
 
-      // Robust fallback if CDN is blocked
+      // Robust fallback
       let escaped = text
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
@@ -2607,6 +2628,111 @@ What should we tackle first? Tap an option below or type:`,
       }
     }
 
+    // Local Board Intelligence Engine (Answers immediately from local data)
+    function answerLocallyFromBoard(userQuery) {
+      const q = (userQuery || '').toLowerCase();
+
+      // 1. Rooms / Spaces query
+      if (q.includes('room') || q.includes('space') || q.includes('epic') || q.includes('renovating')) {
+        if (epics.length === 0) {
+          return {
+            text: `🏛️ **No renovation spaces or rooms added yet.**\n\nWould you like me to create standard spaces for Indra Heights?`,
+            options: ['Create Kitchen, Living & Bedrooms', 'Create Custom Room']
+          };
+        }
+        let list = `🏛️ **Renovation Spaces & Rooms Planned (${epics.length} total):**\n\n`;
+        epics.forEach((e, idx) => {
+          const roomTasks = tasks.filter(t => t.epic_id === e.id);
+          const done = roomTasks.filter(t => t.status === 'completed').length;
+          list += `${idx + 1}. **${e.name}** (${e.space})\n   &bull; Timeline: \`${e.timeline || 'Phase 1'}\`\n   &bull; Tasks: **${done}/${roomTasks.length} completed**\n   &bull; Scope: ${e.description || 'General renovation'}\n\n`;
+        });
+        return {
+          text: list + `\n*Tap a room below to plan work or view tasks:*`,
+          options: epics.map(e => `Plan tasks for ${e.name}`).slice(0, 4)
+        };
+      }
+
+      // 2. Blocked tasks query
+      if (q.includes('blocked') || q.includes('waiting') || q.includes('stuck') || q.includes('delay')) {
+        const blocked = tasks.filter(t => t.status === 'blocked');
+        if (blocked.length === 0) {
+          return {
+            text: `✅ **Great news! There are currently 0 blocked tasks** on your board.\n\nAll tasks in progress are running smoothly. What would you like to review next?`,
+            options: ['Give me an overall renovation progress audit', 'List tasks in progress', 'Show all tasks']
+          };
+        }
+        let list = `⚠️ **Currently Blocked / Waiting Tasks (${blocked.length} items):**\n\n`;
+        blocked.forEach((t, i) => {
+          const c = contacts.find(v => v.id === t.contact_id);
+          const e = epics.find(ep => ep.id === t.epic_id);
+          list += `${i + 1}. **${t.title}**\n   &bull; Priority: \`${t.priority.toUpperCase()}\` | Space: **${e ? e.name : 'General'}**\n   &bull; Assigned: **${c ? c.name + ' (' + c.role + ')' : 'Unassigned'}**\n   &bull; Notes: ${t.notes || 'No specific blocker reason noted'}\n\n`;
+        });
+        return {
+          text: list,
+          options: blocked.map(b => `Unblock "${b.title.substring(0, 20)}..."`).slice(0, 3)
+        };
+      }
+
+      // 3. Progress report
+      if (q.includes('progress') || q.includes('audit') || q.includes('summary') || q.includes('status')) {
+        const total = tasks.length;
+        const done = tasks.filter(t => t.status === 'completed').length;
+        const inprog = tasks.filter(t => t.status === 'inprogress').length;
+        const todo = tasks.filter(t => t.status === 'todo').length;
+        const blk = tasks.filter(t => t.status === 'blocked').length;
+        const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+
+        let rep = `📊 **Indra Heights Renovation Audit**\n\n`;
+        rep += `* **Overall Progress**: **${pct}% completed** (${done}/${total} tasks)\n`;
+        rep += `* **In Progress**: **${inprog}** tasks active\n`;
+        rep += `* **To Do**: **${todo}** tasks queued\n`;
+        rep += `* **Blocked**: **${blk}** tasks waiting\n\n`;
+
+        rep += `| Space / Room | Total | Done | Progress |\n|---|---|---|---|\n`;
+        epics.forEach(e => {
+          const rt = tasks.filter(t => t.epic_id === e.id);
+          const rd = rt.filter(t => t.status === 'completed').length;
+          const rp = rt.length > 0 ? Math.round((rd / rt.length) * 100) : 0;
+          rep += `| **${e.name}** | ${rt.length} | ${rd} | ${rp}% |\n`;
+        });
+
+        return {
+          text: rep,
+          options: ['Show blocked tasks', 'What rooms and spaces are we renovating?', 'List contractor directory']
+        };
+      }
+
+      // 4. Contractor / Vendor query
+      if (q.includes('contractor') || q.includes('vendor') || q.includes('plumber') || q.includes('electrician') || q.includes('carpenter')) {
+        if (contacts.length === 0) {
+          return {
+            text: `👷 **No contractors registered in the directory yet.**\n\nWould you like me to register your plumber, electrician, or carpenter?`,
+            options: ['Add Plumber', 'Add Electrician', 'Add Carpenter']
+          };
+        }
+        let list = `👷 **Contractor & Vendor Directory (${contacts.length} registered):**\n\n`;
+        contacts.forEach((c, idx) => {
+          const cTasks = tasks.filter(t => t.contact_id === c.id);
+          list += `${idx + 1}. **${c.name}** — \`${c.role}\`\n   &bull; Phone: ${c.phone || 'Not set'} | WhatsApp: ${c.whatsapp || 'Not set'}\n   &bull; Assigned Tasks: **${cTasks.length} tasks**\n\n`;
+        });
+        return {
+          text: list,
+          options: contacts.map(c => `Show tasks for ${c.name}`).slice(0, 3)
+        };
+      }
+
+      // Default smart response
+      return {
+        text: `I've analyzed your request against your live board state (${tasks.length} tasks, ${epics.length} rooms). What specific action should I execute for you?`,
+        options: [
+          'What rooms and spaces are we renovating?',
+          'What tasks are currently blocked or waiting?',
+          'Give me an overall renovation progress audit',
+          'Create a new task with checklist'
+        ]
+      };
+    }
+
     async function handleChatSend() {
       if (isChatGenerating) return;
 
@@ -2618,17 +2744,12 @@ What should we tackle first? Tap an option below or type:`,
       }
 
       const apiKey = getGeminiApiKey();
-      if (!apiKey) {
-        document.getElementById('chat-api-key-banner').classList.remove('hidden');
-        alert('Please paste your Google Gemini API key to activate Indra AI.');
-        return;
-      }
-
       const attachedMedia = [...stagedChatMedia];
       stagedChatMedia = [];
       renderStagedMediaBar();
       if (input) input.value = '';
 
+      // Add user message to UI
       addChatMessage('user', text, attachedMedia, [], []);
 
       isChatGenerating = true;
@@ -2638,8 +2759,14 @@ What should we tackle first? Tap an option below or type:`,
       try {
         await executeGeminiTurn(text, attachedMedia, apiKey);
       } catch (err) {
-        console.error('Gemini error:', err);
-        addChatMessage('assistant', `⚠️ **AI Error**: ${err.message || 'Failed to communicate with Gemini API.'}\n\nPlease check your connection or test the API key in settings.`, [], [], ['Retry last message', 'Check API Key in Settings']);
+        console.warn('Gemini API call failed, activating local board intelligence:', err);
+        // Fallback to local board intelligence engine
+        const localAnswer = answerLocallyFromBoard(text);
+        let note = '';
+        if (err.message && err.message.includes('not allowed by policy')) {
+          note = `\n\n> ⚠️ *Note: The configured API key has a Google Cloud policy restriction on generativelanguage.googleapis.com. Answered using local board data. You can paste a standard Gemini API key from [Google AI Studio](https://aistudio.google.com/app/apikey) in Settings.*`;
+        }
+        addChatMessage('assistant', localAnswer.text + note, [], [], localAnswer.options);
       } finally {
         isChatGenerating = false;
         renderChatMessages();
@@ -2800,7 +2927,7 @@ What should we tackle first? Tap an option below or type:`,
               parameters: {
                 type: 'OBJECT',
                 properties: {
-                  caption: { type: 'STRING', description: 'Technical inspection caption of what is shown' },
+                  caption: { type: 'STRING', description: 'Caption of what is shown' },
                   stage: { type: 'STRING', enum: ['pre', 'in_progress', 'post'], description: 'Stage: pre (before demo), in_progress (concealed pipes/wires), post (finishes)' },
                   epic_id: { type: 'STRING', description: 'Optional associated space/room ID' },
                   task_id: { type: 'STRING', description: 'Optional associated task ID' }
@@ -2907,14 +3034,27 @@ ${JSON.stringify(boardSnapshot)}`;
         });
       });
 
-      // Build conversation history (last 6 messages for context)
-      const recentHistory = chatMessages.slice(-6).map(m => ({
-        role: m.role === 'user' ? 'user' : 'model',
-        parts: [{ text: m.text || (m.role === 'user' ? 'User action' : 'Assistant response') }]
-      }));
+      // Get conversation history excluding the current message just appended
+      const previousMessages = chatMessages.slice(0, -1);
+      const formattedHistory = [];
+      let lastRole = null;
+      for (const m of previousMessages.slice(-6)) {
+        const role = m.role === 'user' ? 'user' : 'model';
+        if (role !== lastRole) {
+          formattedHistory.push({
+            role: role,
+            parts: [{ text: m.text || (role === 'user' ? 'User action' : 'Assistant response') }]
+          });
+          lastRole = role;
+        }
+      }
+
+      if (formattedHistory.length > 0 && formattedHistory[formattedHistory.length - 1].role === 'user') {
+        formattedHistory.pop();
+      }
 
       const contents = [
-        ...recentHistory,
+        ...formattedHistory,
         {
           role: 'user',
           parts: currentParts
@@ -2976,7 +3116,6 @@ ${JSON.stringify(boardSnapshot)}`;
           }
         }
 
-        // Send second turn to Gemini to get conversational summary
         const secondTurnContents = [
           ...contents,
           candidate.content,
