@@ -1,16 +1,18 @@
 # Sidhu @ Indra Heights — Renovation Command Center
 
-A simplified, mobile-first Jira alternative and media vault custom-built for tracking the **Indra Heights 2BHK 30-Day Renovation**.
+A simplified, mobile-first Jira alternative and media vault custom-built for tracking the **Indra Heights Renovation**.
 
 ---
 
 ## 🏗️ Architecture: Why This Stack?
 
 Renovation tracking requires more than a simple to-do list:
-1. **Media Vault:** You need to record **Pre-demolition baseline photos** (for society NOC and the downstairs flat ceiling), **In-progress concealed pipe/wiring proof** (before contractors plaster grooves), and **Post-finish handover shots**.
-2. **On-Site Mobile Capture:** When standing on-site at Indra Heights, you snap photos directly with your phone camera and tag them to a task or room.
-3. **Vendor CRM:** Instant one-tap **WhatsApp** and phone links for tradesmen (Plumber, Electrician, Carpenter, Mason, Painter, Society Office).
-4. **Epics & Tasks:** Room-by-room breakdown (Kitchen, Bathrooms, Master Bed, 2nd Bed, Hall, Balcony) with drag-and-drop agile status tracking.
+1. **Dynamic Task & Checklist Creation from UI:** Create tasks, assign priorities (Critical, High, Medium, Low), set target dates, add detailed scopes, and build step-by-step checklist subtasks directly in the browser.
+2. **Inline Quick-Add:** Create tasks in 1 second by typing into any column and hitting Enter.
+3. **Epics & Rooms Management:** Define custom rooms/epics (Kitchen, Master Bed, Living Hall, Balcony, etc.) with automated progress bars tracking tasks completed per room.
+4. **Vendor CRM:** Maintain vendor records (Plumber, Electrician, Carpenter, Mason, Painter, Society Office) with instant one-tap **WhatsApp** (`wa.me`) and phone calling.
+5. **Media Vault:** Record **Pre-demolition baseline photos** (for society NOC and the downstairs flat ceiling), **In-progress concealed pipe/wiring proof** (before contractors plaster grooves), and **Post-finish handover shots**.
+6. **On-Site Mobile Capture:** When standing on-site at Indra Heights, snap photos directly with your phone camera (`capture="environment"`) and tag them to a task or room.
 
 ---
 
@@ -18,16 +20,14 @@ Renovation tracking requires more than a simple to-do list:
 
 ### 1. Instant Local Sandbox Mode (Zero Setup)
 Simply open `index.html` in your browser.
-* Pre-loaded with your entire 30-day master plan.
-* Drag-and-drop Kanban board, media gallery, vendor directory, and subtask checklists all work immediately out-of-the-box in your browser.
+* Drag-and-drop Kanban board, inline task quick-add, checklist items, media gallery, and vendor directory all work immediately out-of-the-box in your browser with `localStorage`.
 
 ### 2. Live Supabase Cloud Sync (Cross-Device Phone + Laptop)
 To sync photos and updates live between your phone and laptop:
 1. Create a free project at [supabase.com](https://supabase.com).
 2. Go to **SQL Editor** in Supabase and run `supabase/schema.sql`.
-3. (Optional) Run `supabase/seed.sql` to populate all 30-day master plan tasks and contacts.
-4. In **Storage**, create a public bucket named `renovation-media`.
-5. Open `index.html`, click the top-right ⚙️ **Settings icon**, and paste your Supabase Project URL and Anon Key.
+3. In **Storage**, create a public bucket named `renovation-media`.
+4. Open `index.html`, click the top-right ⚙️ **Settings icon**, and paste your Supabase Project URL and Anon Key.
 
 ---
 
@@ -35,16 +35,24 @@ To sync photos and updates live between your phone and laptop:
 
 * **📋 Jira-Style Agile Board:**
   * Columns: `To Do`, `In Progress`, `Blocked / Waiting`, and `Completed`.
-  * Grouping options: Agile Status View or 30-Day Timeline Phase View.
-  * Filter on-the-fly by Space/Room (`Kitchen`, `Bathroom & WC`, `Master Bed`, `Hall`, `Balcony`) or assigned Contractor.
+  * Inline "+ Add a task..." quick-input inside every column.
+  * Drag-and-drop cards between columns with celebration confetti upon completion.
+  * Grouping options: By Status or By Room / Epic.
+  * Filter on-the-fly by Space/Room, Assigned Contractor, or Priority.
+* **✅ Checklist Items & Subtasks:**
+  * Add multiple checklist steps while creating or editing tasks.
+  * Check/uncheck steps with live completion percentage meters.
+* **🏛️ Epics & Spaces Roadmap:**
+  * Add, edit, or delete custom renovation spaces and project streams.
+  * Room-by-room completion percentage bars and attached media counters.
+  * One-click "+ Add Task" directly under any room.
+* **👷 Contractor & Vendor Directory:**
+  * Add and edit contractors, trades, company names, rates, and notes.
+  * Direct one-tap **WhatsApp** and **Call** links, plus assigned task counters.
 * **📸 Media Vault (Pre / In-Progress / Post):**
   * Mobile camera capture support (`capture="environment"`).
   * Filter by stage: **Pre-Demolition (Before)**, **In-Progress (Pipes & Walls)**, and **Post-Finish (After)**.
-  * Direct linkage to specific tasks (e.g. wall groove photos before plastering).
-* **🏛️ Epics & Spaces Roadmap:**
-  * Room-by-room completion percentage bars and attached media counters.
-* **👷 Contractor & Vendor Directory:**
-  * Contact cards with direct **WhatsApp** (`wa.me`) and **Call** links, plus assigned task counters.
+  * Direct linkage to specific tasks and rooms.
 
 ---
 
@@ -52,10 +60,8 @@ To sync photos and updates live between your phone and laptop:
 
 ```text
 sidhu-at-indra-heights/
-├── index.html                                  # Standalone Mobile/Desktop Command Center App
-├── 30_day_2bhk_renovation_master_plan.md        # Master 30-Day Renovation Specification
+├── index.html          # Standalone Mobile/Desktop Command Center App
 ├── supabase/
-│   ├── schema.sql                              # PostgreSQL tables, RLS policies & Storage setup
-│   └── seed.sql                                # Complete 30-day Indra Heights seed data
-└── README.md                                   # Architecture & setup guide
+│   └── schema.sql      # PostgreSQL tables, RLS policies & Storage setup
+└── README.md           # Architecture & setup guide
 ```
