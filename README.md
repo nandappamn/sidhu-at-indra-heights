@@ -36,12 +36,20 @@ Simply open `index.html` in your browser.
 * Pre-loaded with starter epics (Kitchen, Bathroom, Bedrooms, Living & Balcony).
 * Drag-and-drop Kanban board, inline task quick-add, checklist items, media gallery, and vendor directory all work immediately out-of-the-box in your browser with `localStorage`.
 
-### 2. Live Supabase Cloud Sync (Cross-Device Phone + Laptop)
-To sync photos and updates live between your phone and laptop:
+### 2. Live Supabase Cloud Sync via GitHub Secrets (Zero Plaintext Secrets)
+To sync photos and updates live across all family phones and laptops without committing sensitive keys to git:
 1. Create a free project at [supabase.com](https://supabase.com).
-2. Go to **SQL Editor** in Supabase and run `supabase/schema.sql` (or click **Copy schema.sql** in the app settings modal).
-3. In **Storage**, create a public bucket named `renovation-media`.
-4. Open `index.html`, click the top-right **Local Sandbox** pill (or Profile &rarr; Supabase & AI Keys), paste your Project URL and Anon Key, and click **Test Live Connection** to verify before saving.
+2. In Supabase **SQL Editor**, run `supabase/schema.sql`.
+3. In Supabase **Storage**, create a public bucket named `renovation-media`.
+4. In your GitHub repository, go to **Settings** &rarr; **Secrets and variables** &rarr; **Actions** &rarr; **New repository secret**:
+   * `SUPABASE_URL`: Your Supabase Project URL (`https://xyz.supabase.co`)
+   * `SUPABASE_ANON_KEY`: Your Supabase `anon` public key (`eyJ...`)
+   * `GEMINI_API_KEY`: Your Google Gemini API Key for Indra AI
+5. In **Settings** &rarr; **Pages** &rarr; **Build and deployment**, set **Source** to **GitHub Actions**.
+6. Trigger the workflow or push to `main` — GitHub Actions bundles `env.js` at deploy time, and your site automatically connects to Supabase Cloud on all devices with zero keys committed to git!
+
+### 3. Local UI Override
+You can also view or override keys anytime directly in the browser by clicking the **Local Sandbox** pill (or Profile &rarr; Supabase & AI Keys). Values entered here are stored strictly in browser `localStorage`.
 
 ---
 
