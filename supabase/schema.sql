@@ -84,6 +84,13 @@ create table if not exists public.expenses (
   created_at timestamptz default now()
 );
 
+-- 7. FAMILY PORTAL SETTINGS & PASSWORD SYNC
+create table if not exists public.family_settings (
+  id text primary key default 'family',
+  password_hash text not null,
+  updated_at timestamptz default now()
+);
+
 -- ====================================================================
 -- ROW LEVEL SECURITY (RLS) POLICIES
 -- Default: Public read & write for personal renovation project tracker
@@ -96,6 +103,7 @@ alter table public.tasks enable row level security;
 alter table public.subtasks enable row level security;
 alter table public.media enable row level security;
 alter table public.expenses enable row level security;
+alter table public.family_settings enable row level security;
 
 -- Open policies for personal project (easy setup without complex auth first)
 create policy "Allow all operations on epics" on public.epics for all using (true) with check (true);
@@ -104,6 +112,7 @@ create policy "Allow all operations on tasks" on public.tasks for all using (tru
 create policy "Allow all operations on subtasks" on public.subtasks for all using (true) with check (true);
 create policy "Allow all operations on media" on public.media for all using (true) with check (true);
 create policy "Allow all operations on expenses" on public.expenses for all using (true) with check (true);
+create policy "Allow all operations on family_settings" on public.family_settings for all using (true) with check (true);
 
 -- ====================================================================
 -- SUPABASE STORAGE BUCKET CONFIGURATION

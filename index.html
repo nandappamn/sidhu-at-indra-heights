@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -7,15 +7,23 @@
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+    </div><!-- /app-root -->
+
   <script>
     tailwind.config = {
       darkMode: 'class',
       theme: {
         extend: {
           colors: {
+            slate: {
+              850: '#111827',
+              900: '#0f172a',
+              950: '#020617',
+            },
             brand: {
               50: '#f0fdf4',
               100: '#dcfce7',
+              400: '#4ade80',
               500: '#22c55e',
               600: '#16a34a',
               700: '#15803d',
@@ -41,13 +49,13 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
-    /* Custom scrollbars */
+    /* Custom scrollbars (Shadcn Dark) */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #f1f5f9; }
-    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    ::-webkit-scrollbar-track { background: #020617; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #334155; }
     .card-ghost { opacity: 0.35; transform: scale(0.98); }
-    .drag-over { background-color: rgba(241, 245, 249, 0.95); border: 2px dashed #22c55e !important; }
+    .drag-over { background-color: rgba(16, 185, 129, 0.08) !important; border: 2px dashed #10b981 !important; }
     /* ======================================================== */
     /* CRISP TYPOGRAPHY FOR INDRA AI CHATBOT (MARKED.JS)        */
     /* ======================================================== */
@@ -131,151 +139,265 @@
     }
   </style>
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col font-sans antialiased selection:bg-brand-500 selection:text-white pb-16 md:pb-0">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-emerald-500 selection:text-white pb-16 md:pb-0 relative overflow-x-hidden">
 
+    <!-- ======================================================== -->
+  <!-- 1. FAMILY LOGIN GATE SCREEN (SHADCN MODERN AUTH)         -->
   <!-- ======================================================== -->
-  <!-- TOP NAVIGATION HEADER                                    -->
-  <!-- ======================================================== -->
-  <header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-30 shadow-md">
-    <div class="max-w-[1700px] mx-auto px-4 py-2.5 flex items-center justify-between gap-3">
-      <!-- Branding & Mode Badge -->
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-emerald-400 flex items-center justify-center shadow-lg shadow-brand-500/20 text-white font-bold">
-          <i data-lucide="home" class="w-5 h-5"></i>
+  <div id="family-login-gate" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950 relative overflow-hidden">
+    <!-- Ambient glowing backdrop meshes -->
+    <div class="absolute -top-40 -left-40 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-40 -right-40 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(16,185,129,0.12),rgba(255,255,255,0))] pointer-events-none"></div>
+
+    <div class="w-full max-w-md bg-slate-900/90 border border-slate-800 backdrop-blur-xl rounded-2xl p-8 shadow-2xl relative z-10 animate-in fade-in zoom-in-95 duration-200">
+      <!-- Crest & Branding -->
+      <div class="text-center mb-6">
+        <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center mx-auto mb-3 shadow-lg shadow-emerald-500/20 text-white">
+          <i data-lucide="home" class="w-7 h-7"></i>
         </div>
-        <div>
-          <div class="flex items-center gap-2">
-            <h1 class="text-base md:text-lg font-bold tracking-tight text-white leading-none">Sidhu @ Indra Heights</h1>
-            <span id="backend-status-pill" onclick="openConfigModal()" class="cursor-pointer text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1 hover:bg-amber-500/30 transition">
-              <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
-              <span id="backend-status-text">Local Sandbox</span>
-            </span>
-          </div>
-          <p class="text-xs text-slate-400 mt-0.5">Renovation Command Center • Tasks, Epics, Media Vault & Vendor CRM</p>
+        <h1 class="text-xl font-bold text-white tracking-tight">Sidhu @ Indra Heights</h1>
+        <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[10px] font-bold uppercase tracking-wider mt-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          Family Renovation Portal
         </div>
+        <p class="text-xs text-slate-400 mt-2.5 leading-relaxed">Sign in to access tasks, checklists, contractor contacts & site media.</p>
       </div>
 
-      <!-- Quick Metrics Ribbon (Desktop) -->
-      <div class="hidden xl:flex items-center gap-5 bg-slate-800/80 px-4 py-1.5 rounded-xl border border-slate-700/60 text-xs">
+      <!-- Error banner on failed login -->
+      <div id="login-error-banner" class="hidden mb-4 p-3 bg-rose-950/80 border border-rose-800/80 rounded-xl text-rose-200 text-xs flex items-center gap-2">
+        <i data-lucide="alert-circle" class="w-4 h-4 text-rose-400 shrink-0"></i>
+        <span id="login-error-text">Incorrect password. Please verify and try again.</span>
+      </div>
+
+      <form onsubmit="handleFamilyLogin(event)" class="space-y-4">
         <div>
-          <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Overall Progress</span>
-          <div class="flex items-center gap-2 mt-0.5">
-            <div class="w-24 bg-slate-700 h-2 rounded-full overflow-hidden">
-              <div id="stat-progress-bar" class="bg-brand-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Family Member / User</label>
+          <div class="relative">
+            <i data-lucide="user" class="w-4 h-4 text-slate-500 absolute left-3 top-3 pointer-events-none"></i>
+            <input type="text" id="login-username-input" value="family" required class="w-full pl-9 pr-3 py-2 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition">
+          </div>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="text-xs font-semibold text-slate-300">Family Password</label>
+            <span class="text-[10px] text-slate-500 font-mono">Default: indra2026</span>
+          </div>
+          <div class="relative">
+            <i data-lucide="lock" class="w-4 h-4 text-slate-500 absolute left-3 top-3 pointer-events-none"></i>
+            <input type="password" id="login-password-input" required placeholder="Enter password..." class="w-full pl-9 pr-10 py-2 text-xs bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition">
+            <button type="button" onclick="togglePasswordVisibility('login-password-input', 'login-eye-icon')" class="absolute right-3 top-2.5 text-slate-400 hover:text-slate-200">
+              <i data-lucide="eye" id="login-eye-icon" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between text-xs pt-1">
+          <label class="flex items-center gap-2 cursor-pointer text-slate-400 hover:text-slate-300">
+            <input type="checkbox" id="login-remember-me" checked class="w-4 h-4 rounded border-slate-700 bg-slate-950 text-emerald-500 focus:ring-0">
+            <span>Remember this device</span>
+          </label>
+        </div>
+
+        <button type="submit" id="login-submit-btn" class="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-600/25 transition flex items-center justify-center gap-2 group">
+          <span>Enter Command Center</span>
+          <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-0.5 transition"></i>
+        </button>
+      </form>
+
+      <div class="mt-6 pt-4 border-t border-slate-800 text-center">
+        <p class="text-[11px] text-slate-500">
+          Protected Family Portal • Password can be changed anytime from the profile menu.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- 2. MAIN APPLICATION ROOT (GATED BEHIND AUTH)             -->
+  <!-- ======================================================== -->
+  <div id="app-root" class="hidden min-h-screen flex flex-col bg-slate-950">
+
+    <!-- Top Navigation Header (Shadcn-Admin Modern Glass) -->
+    <header class="bg-slate-950/85 backdrop-blur-md border-b border-slate-800/80 sticky top-0 z-30 shadow-md">
+      <div class="max-w-[1700px] mx-auto px-4 py-2.5 flex items-center justify-between gap-3">
+        <!-- Branding & Mode Badge -->
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/20 text-white font-bold">
+            <i data-lucide="home" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-base md:text-lg font-bold tracking-tight text-white leading-none">Sidhu @ Indra Heights</h1>
+              <span id="backend-status-pill" onclick="openConfigModal()" class="cursor-pointer text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 flex items-center gap-1 hover:bg-amber-500/25 transition" title="Click to view Supabase Cloud connection status">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                <span id="backend-status-text">Local Sandbox</span>
+              </span>
             </div>
-            <span id="stat-progress-percent" class="font-bold text-white text-xs">0%</span>
+            <p class="text-xs text-slate-400 mt-0.5">Renovation Command Center • Tasks, Epics, Media Vault & Vendor CRM</p>
           </div>
         </div>
-        <div class="h-6 w-px bg-slate-700"></div>
-        <div>
-          <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Tasks</span>
-          <span id="stat-tasks-count" class="font-bold text-white">0</span>
+
+        <!-- Quick Metrics Ribbon (Desktop Tremor-Style KPI Cards) -->
+        <div class="hidden xl:flex items-center gap-4 bg-slate-900/70 px-4 py-1.5 rounded-xl border border-slate-800 text-xs">
+          <div>
+            <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Overall Progress</span>
+            <div class="flex items-center gap-2 mt-0.5">
+              <div class="w-24 bg-slate-800 h-2 rounded-full overflow-hidden">
+                <div id="stat-progress-bar" class="bg-emerald-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+              </div>
+              <span id="stat-progress-percent" class="font-bold text-white text-xs">0%</span>
+            </div>
+          </div>
+          <div class="h-6 w-px bg-slate-800"></div>
+          <div>
+            <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Tasks</span>
+            <span id="stat-tasks-count" class="font-bold text-white">0</span>
+          </div>
+          <div class="h-6 w-px bg-slate-800"></div>
+          <div>
+            <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Checklist Items</span>
+            <span id="stat-subtasks-count" class="font-bold text-white">0 / 0</span>
+          </div>
+          <div class="h-6 w-px bg-slate-800"></div>
+          <div>
+            <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Media Vault</span>
+            <span id="stat-media-count" class="font-bold text-white">0</span>
+          </div>
         </div>
-        <div class="h-6 w-px bg-slate-700"></div>
-        <div>
-          <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Checklist Items</span>
-          <span id="stat-subtasks-count" class="font-bold text-white">0 / 0</span>
-        </div>
-        <div class="h-6 w-px bg-slate-700"></div>
-        <div>
-          <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Media Files</span>
-          <span id="stat-media-count" class="font-bold text-white">0</span>
+
+        <!-- Global Action Buttons -->
+        <div class="flex items-center gap-2">
+          <!-- Indra AI Button -->
+          <button onclick="toggleChatDrawer()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-gradient-to-r from-purple-600 via-indigo-600 to-emerald-600 hover:from-purple-500 hover:to-emerald-500 text-white rounded-lg shadow-sm transition group">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-300 group-hover:rotate-12 transition"></i>
+            <span>Indra AI</span>
+          </button>
+          
+          <!-- New Task Button -->
+          <button onclick="openCardModal(null)" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg shadow-sm transition">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+            <span class="hidden sm:inline">New Task</span>
+          </button>
+
+          <!-- Add Photo/Video Button -->
+          <button onclick="openMediaUploadModal()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg shadow-sm transition">
+            <i data-lucide="camera" class="w-3.5 h-3.5 text-emerald-400"></i>
+            <span class="hidden sm:inline">Add Media</span>
+          </button>
+
+          <!-- Family Profile Dropdown -->
+          <div class="relative" id="family-profile-container">
+            <button onclick="toggleFamilyProfileDropdown()" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-850 border border-slate-800 text-xs text-white transition">
+              <div class="w-5 h-5 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 flex items-center justify-center text-[10px] font-bold text-white shadow-xs">
+                👨‍👩‍👧
+              </div>
+              <span class="font-semibold hidden md:inline" id="nav-user-label">Family Portal</span>
+              <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
+            </button>
+            
+            <!-- Dropdown Menu -->
+            <div id="family-profile-dropdown" class="hidden absolute right-0 mt-2 w-56 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl p-1.5 z-50 text-xs">
+              <div class="px-3 py-2 border-b border-slate-800/80">
+                <p class="font-bold text-white text-xs" id="dropdown-user-name">Family Access</p>
+                <p class="text-[10px] text-emerald-400 font-medium">Sidhu @ Indra Heights</p>
+              </div>
+              <div class="py-1">
+                <button onclick="openChangePasswordModal()" class="w-full text-left px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-850 flex items-center gap-2 transition">
+                  <i data-lucide="key" class="w-3.5 h-3.5 text-amber-400"></i>
+                  <span>Change Password</span>
+                </button>
+                <button onclick="openConfigModal()" class="w-full text-left px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-850 flex items-center gap-2 transition">
+                  <i data-lucide="database" class="w-3.5 h-3.5 text-blue-400"></i>
+                  <span>Supabase & AI Keys</span>
+                </button>
+              </div>
+              <div class="border-t border-slate-800/80 pt-1">
+                <button onclick="handleFamilyLogout()" class="w-full text-left px-3 py-2 rounded-lg text-rose-400 hover:text-rose-300 hover:bg-rose-950/40 flex items-center gap-2 transition">
+                  <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+                  <span>Sign Out</span>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Global Actions -->
-      <div class="flex items-center gap-2">
-        <button onclick="toggleChatDrawer()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-gradient-to-r from-purple-600 via-indigo-600 to-brand-600 hover:from-purple-500 hover:to-brand-500 text-white rounded-lg shadow-sm transition group">
-          <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-300 group-hover:rotate-12 transition"></i>
-          <span>Indra AI</span>
-        </button>
-        <button onclick="openCardModal(null)" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold bg-brand-600 hover:bg-brand-500 text-white rounded-lg shadow-sm transition">
-          <i data-lucide="plus-circle" class="w-4 h-4"></i>
-          <span>New Task</span>
-        </button>
-        <button onclick="openMediaUploadModal()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-emerald-700 hover:bg-emerald-600 text-white rounded-lg shadow-sm transition">
-          <i data-lucide="camera" class="w-3.5 h-3.5"></i>
-          <span class="hidden sm:inline">Add Photo/Video</span>
-        </button>
-        <button onclick="openConfigModal()" class="p-1.5 text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg transition" title="Supabase Cloud Configuration">
-          <i data-lucide="settings" class="w-4 h-4"></i>
-        </button>
-      </div>
-    </div>
+      <!-- Main Navigation Tabs Bar -->
+      <div class="bg-slate-950 border-t border-slate-850 px-4 py-1.5 overflow-x-auto">
+        <div class="max-w-[1700px] mx-auto flex items-center justify-between gap-4 text-xs">
+          <nav class="flex items-center gap-1.5" id="nav-tab-list">
+            <button onclick="switchTab('board')" id="tab-btn-board" class="tab-btn active px-3.5 py-1.5 rounded-lg font-bold text-white bg-slate-900 border border-slate-800 flex items-center gap-1.5 transition">
+              <i data-lucide="kanban" class="w-3.5 h-3.5 text-emerald-400"></i>
+              <span>Jira Board</span>
+              <span id="tab-badge-tasks-count" class="px-1.5 py-0.2 bg-slate-800 rounded-full text-[10px] text-slate-300">0</span>
+            </button>
+            <button onclick="switchTab('epics')" id="tab-btn-epics" class="tab-btn px-3.5 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-slate-200 flex items-center gap-1.5 transition">
+              <i data-lucide="layers" class="w-3.5 h-3.5 text-purple-400"></i>
+              <span>Epics & Rooms</span>
+              <span id="tab-badge-epics-count" class="px-1.5 py-0.2 bg-slate-900 rounded-full text-[10px] text-slate-400">0</span>
+            </button>
+            <button onclick="switchTab('contacts')" id="tab-btn-contacts" class="tab-btn px-3.5 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-slate-200 flex items-center gap-1.5 transition">
+              <i data-lucide="phone-call" class="w-3.5 h-3.5 text-amber-400"></i>
+              <span>Vendor CRM</span>
+              <span id="tab-badge-contacts-count" class="px-1.5 py-0.2 bg-slate-900 rounded-full text-[10px] text-slate-400">0</span>
+            </button>
+            <button onclick="switchTab('media')" id="tab-btn-media" class="tab-btn px-3.5 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-slate-200 flex items-center gap-1.5 transition">
+              <i data-lucide="images" class="w-3.5 h-3.5 text-blue-400"></i>
+              <span>Media Vault</span>
+              <span id="tab-badge-media-count" class="px-1.5 py-0.2 bg-slate-900 rounded-full text-[10px] text-slate-400">0</span>
+            </button>
+          </nav>
 
-    <!-- Main Navigation Tabs -->
-    <div class="bg-slate-950 border-t border-slate-800 px-4 py-1.5 overflow-x-auto">
-      <div class="max-w-[1700px] mx-auto flex items-center justify-between gap-4 text-xs">
-        <nav class="flex items-center gap-1.5" id="nav-tab-list">
-          <button onclick="switchTab('board')" id="tab-btn-board" class="tab-btn active px-3.5 py-1.5 rounded-lg font-bold text-white bg-slate-800 flex items-center gap-1.5 transition">
-            <i data-lucide="trello" class="w-3.5 h-3.5 text-brand-400"></i>
-            <span>Jira Board</span>
-            <span id="tab-badge-tasks-count" class="px-1.5 py-0.2 bg-slate-700 rounded-full text-[10px] text-slate-300">0</span>
-          </button>
-          <button onclick="switchTab('epics')" id="tab-btn-epics" class="tab-btn px-3.5 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-slate-200 flex items-center gap-1.5 transition">
-            <i data-lucide="layers" class="w-3.5 h-3.5 text-purple-400"></i>
-            <span>Epics & Rooms</span>
-            <span id="tab-badge-epics-count" class="px-1.5 py-0.2 bg-slate-800 rounded-full text-[10px] text-slate-300">0</span>
-          </button>
-          <button onclick="switchTab('contacts')" id="tab-btn-contacts" class="tab-btn px-3.5 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-slate-200 flex items-center gap-1.5 transition">
-            <i data-lucide="phone-call" class="w-3.5 h-3.5 text-amber-400"></i>
-            <span>Vendor CRM</span>
-            <span id="tab-badge-contacts-count" class="px-1.5 py-0.2 bg-slate-800 rounded-full text-[10px] text-slate-300">0</span>
-          </button>
-          <button onclick="switchTab('media')" id="tab-btn-media" class="tab-btn px-3.5 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-slate-200 flex items-center gap-1.5 transition">
-            <i data-lucide="images" class="w-3.5 h-3.5 text-blue-400"></i>
-            <span>Media Vault (Pre/Post)</span>
-            <span id="tab-badge-media-count" class="px-1.5 py-0.2 bg-slate-800 rounded-full text-[10px] text-slate-300">0</span>
-          </button>
-        </nav>
-
-        <!-- Search Bar -->
-        <div class="relative hidden md:block w-64">
-          <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5 pointer-events-none"></i>
-          <input type="text" id="global-search" oninput="handleSearch(this.value)" placeholder="Search tasks, items, contractors..." class="w-full pl-8 pr-3 py-1 text-xs bg-slate-900 border border-slate-800 rounded-lg text-slate-200 placeholder-slate-500 focus:outline-none focus:border-brand-500">
+          <!-- Search Bar with Keyboard Tooltip -->
+          <div class="relative hidden md:block w-72">
+            <i data-lucide="search" class="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-2.5 pointer-events-none"></i>
+            <input type="text" id="global-search" oninput="handleSearch(this.value)" placeholder="Search tasks, items, contractors..." class="w-full pl-8 pr-8 py-1 text-xs bg-slate-900 border border-slate-800 rounded-lg text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+            <span class="absolute right-2.5 top-1.5 text-[10px] text-slate-600 border border-slate-800 px-1 rounded font-mono">/</span>
+          </div>
         </div>
       </div>
-    </div>
-  </header>
+    </header>
 
   <!-- ======================================================== -->
   <!-- TAB 1: JIRA-STYLE KANBAN BOARD VIEW                      -->
   <!-- ======================================================== -->
   <section id="tab-content-board" class="tab-content flex-1 flex flex-col p-4 md:p-6 max-w-[1700px] w-full mx-auto">
     <!-- Sub-Filter & Board Controls Strip -->
-    <div class="flex flex-wrap items-center justify-between gap-3 mb-4 bg-white p-3 rounded-xl border border-slate-200 shadow-sm text-xs">
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-4 bg-slate-900/60 p-3 rounded-xl border border-slate-800/80 shadow-sm text-xs backdrop-blur-md">
       <div class="flex items-center gap-3 flex-wrap">
         <!-- Grouping: Agile Status vs By Epic/Room -->
         <div class="flex items-center gap-2">
-          <span class="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Grouping:</span>
-          <div class="bg-slate-100 p-0.5 rounded-lg flex items-center border border-slate-200">
-            <button onclick="setBoardGrouping('status')" id="group-status-btn" class="px-2.5 py-1 rounded-md font-bold text-slate-800 bg-white shadow-xs">By Status</button>
-            <button onclick="setBoardGrouping('epic')" id="group-epic-btn" class="px-2.5 py-1 rounded-md font-medium text-slate-500 hover:text-slate-800">By Room / Epic</button>
+          <span class="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Grouping:</span>
+          <div class="bg-slate-950 p-0.5 rounded-lg flex items-center border border-slate-800">
+            <button onclick="setBoardGrouping('status')" id="group-status-btn" class="px-2.5 py-1 rounded-md font-bold text-white bg-slate-850 shadow-xs">By Status</button>
+            <button onclick="setBoardGrouping('epic')" id="group-epic-btn" class="px-2.5 py-1 rounded-md font-medium text-slate-400 hover:text-white">By Room / Epic</button>
           </div>
         </div>
 
-        <div class="h-4 w-px bg-slate-200 hidden sm:block"></div>
+        <div class="h-4 w-px bg-slate-800 hidden sm:block"></div>
 
         <!-- Filter by Epic / Room -->
         <div class="flex items-center gap-1.5">
-          <span class="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Room:</span>
-          <select id="board-epic-filter" onchange="renderBoard()" class="px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-medium">
+          <span class="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Room:</span>
+          <select id="board-epic-filter" onchange="renderBoard()" class="px-2.5 py-1 bg-slate-950 border border-slate-800 rounded-lg text-slate-200 font-medium focus:border-emerald-500 focus:outline-none">
             <option value="ALL">All Rooms</option>
           </select>
         </div>
 
         <!-- Filter by Assigned Contractor -->
         <div class="flex items-center gap-1.5">
-          <span class="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Vendor:</span>
-          <select id="board-contact-filter" onchange="renderBoard()" class="px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-medium">
+          <span class="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Vendor:</span>
+          <select id="board-contact-filter" onchange="renderBoard()" class="px-2.5 py-1 bg-slate-950 border border-slate-800 rounded-lg text-slate-200 font-medium focus:border-emerald-500 focus:outline-none">
             <option value="ALL">All Vendors</option>
           </select>
         </div>
 
         <!-- Filter by Priority -->
         <div class="flex items-center gap-1.5">
-          <span class="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Priority:</span>
-          <select id="board-priority-filter" onchange="renderBoard()" class="px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-medium">
+          <span class="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Priority:</span>
+          <select id="board-priority-filter" onchange="renderBoard()" class="px-2.5 py-1 bg-slate-950 border border-slate-800 rounded-lg text-slate-200 font-medium focus:border-emerald-500 focus:outline-none">
             <option value="ALL">All Priorities</option>
             <option value="critical">Critical</option>
             <option value="high">High</option>
@@ -287,7 +409,7 @@
 
       <!-- Quick Add Task Trigger -->
       <div class="flex items-center gap-2">
-        <button onclick="openCardModal(null)" class="px-3 py-1.5 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-lg transition flex items-center gap-1 shadow-xs">
+        <button onclick="openCardModal(null)" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg transition flex items-center gap-1.5 shadow-sm text-xs">
           <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Task
         </button>
       </div>
@@ -303,13 +425,13 @@
   <!-- TAB 2: EPICS & SPACES ROADMAP                            -->
   <!-- ======================================================== -->
   <section id="tab-content-epics" class="tab-content hidden flex-1 p-4 md:p-6 max-w-[1700px] w-full mx-auto space-y-4">
-    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-3">
+    <div class="bg-slate-900/70 p-4 rounded-2xl border border-slate-800 shadow-sm flex flex-wrap items-center justify-between gap-3">
       <div>
-        <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
-          <i data-lucide="layers" class="w-5 h-5 text-purple-600"></i>
+        <h2 class="text-base font-bold text-white flex items-center gap-2">
+          <i data-lucide="layers" class="w-5 h-5 text-purple-400"></i>
           Epics & Renovation Rooms
         </h2>
-        <p class="text-xs text-slate-500">Group your work into rooms and major project streams. Add custom rooms and track their completion.</p>
+        <p class="text-xs text-slate-400">Organize and monitor tasks by renovation zone (Kitchen, Bathrooms, Bedrooms, Living Hall).</p>
       </div>
       <button onclick="openEpicModal(null)" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs rounded-xl transition flex items-center gap-1.5 shadow-xs">
         <i data-lucide="plus" class="w-4 h-4"></i> New Epic / Room
@@ -325,13 +447,13 @@
   <!-- TAB 3: VENDOR & CONTRACTOR CRM DIRECTORY                 -->
   <!-- ======================================================== -->
   <section id="tab-content-contacts" class="tab-content hidden flex-1 p-4 md:p-6 max-w-[1700px] w-full mx-auto space-y-4">
-    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-3">
+    <div class="bg-slate-900/70 p-4 rounded-2xl border border-slate-800 shadow-sm flex flex-wrap items-center justify-between gap-3">
       <div>
-        <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
-          <i data-lucide="phone-call" class="w-5 h-5 text-amber-500"></i>
+        <h2 class="text-base font-bold text-white flex items-center gap-2">
+          <i data-lucide="phone-call" class="w-5 h-5 text-amber-400"></i>
           Contractor & Vendor Directory
         </h2>
-        <p class="text-xs text-slate-500">Keep tradesmen contacts, trades, notes, and direct one-tap WhatsApp and calling access organized.</p>
+        <p class="text-xs text-slate-400">Direct one-tap WhatsApp and calling access for tradesmen, plumbers, electricians, carpenters & society management.</p>
       </div>
       <button onclick="openContactModal(null)" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs rounded-xl transition flex items-center gap-1.5 shadow-xs">
         <i data-lucide="user-plus" class="w-4 h-4"></i> Add Vendor
@@ -377,51 +499,49 @@
     </div>
   </section>
 
-  <!-- ======================================================== -->
+    <!-- ======================================================== -->
   <!-- MODAL 1: TASK & CHECKLIST ITEMS MODAL                    -->
   <!-- ======================================================== -->
-  <div id="card-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
-      <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-start justify-between gap-4">
-        <div>
-          <div class="flex items-center gap-2 mb-1">
-            <span id="modal-epic-badge" class="px-2 py-0.5 text-[10px] font-bold rounded-md bg-purple-100 text-purple-700 border border-purple-200">Epic</span>
-            <span id="modal-status-badge" class="px-2 py-0.5 text-[10px] font-bold rounded-md bg-slate-200 text-slate-700">Status</span>
-          </div>
-          <h2 id="modal-card-title-display" class="text-base font-bold text-slate-900">Task Details</h2>
+  <div id="card-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden text-slate-100 animate-in fade-in zoom-in-95 duration-150">
+      <!-- Modal Header -->
+      <div class="px-6 py-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span id="modal-epic-badge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">General</span>
+          <span id="modal-status-badge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-300">TODO</span>
+          <h3 id="modal-card-title-display" class="text-sm font-bold text-white truncate max-w-xs">Create New Task</h3>
         </div>
-        <button onclick="closeCardModal()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-200">
+        <button onclick="closeCardModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
-      <div class="p-6 overflow-y-auto flex-1 space-y-4 text-xs">
+      <!-- Modal Body -->
+      <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto text-xs">
         <div>
-          <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Task Title <span class="text-rose-500">*</span></label>
-          <input type="text" id="modal-title-input" placeholder="e.g. Install kitchen sink mixer tap and RO filter line" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 text-slate-800">
+          <label class="block font-bold text-slate-300 uppercase tracking-wider mb-1">Task Title <span class="text-rose-500">*</span></label>
+          <input type="text" id="modal-title-input" placeholder="e.g. Core cutting for kitchen exhaust or sink plumbing lines" class="w-full px-3 py-2 text-sm bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-emerald-500">
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div>
-            <div class="flex items-center justify-between mb-1">
-              <label class="font-bold text-slate-700 uppercase tracking-wider">Epic / Room</label>
-              <button type="button" onclick="openEpicModal(null)" class="text-[11px] text-purple-600 hover:underline font-semibold">+ New Epic</button>
-            </div>
-            <select id="modal-epic-select" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800"></select>
+            <label class="block font-bold text-slate-300 uppercase tracking-wider mb-1">Room / Renovation Epic</label>
+            <select id="modal-epic-select" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:border-emerald-500">
+              <option value="">General Tasks</option>
+            </select>
           </div>
           <div>
-            <div class="flex items-center justify-between mb-1">
-              <label class="font-bold text-slate-700 uppercase tracking-wider">Assigned Vendor</label>
-              <button type="button" onclick="openContactModal(null)" class="text-[11px] text-amber-600 hover:underline font-semibold">+ New Vendor</button>
-            </div>
-            <select id="modal-contact-select" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800"></select>
+            <label class="block font-bold text-slate-300 uppercase tracking-wider mb-1">Assigned Vendor / Contractor</label>
+            <select id="modal-contact-select" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:border-emerald-500">
+              <option value="">Unassigned</option>
+            </select>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div>
-            <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Status</label>
-            <select id="modal-status-select" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800">
+            <label class="block font-bold text-slate-300 uppercase tracking-wider mb-1">Status Column</label>
+            <select id="modal-status-select" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:border-emerald-500">
               <option value="todo">To Do</option>
               <option value="in_progress">In Progress</option>
               <option value="blocked">Blocked / Waiting</option>
@@ -429,37 +549,37 @@
             </select>
           </div>
           <div>
-            <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Priority</label>
-            <select id="modal-priority-select" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800">
-              <option value="low">Low</option>
-              <option value="medium" selected>Medium</option>
-              <option value="high">High</option>
+            <label class="block font-bold text-slate-300 uppercase tracking-wider mb-1">Priority</label>
+            <select id="modal-priority-select" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:border-emerald-500">
               <option value="critical">Critical</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
             </select>
           </div>
           <div>
-            <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Target Date / Days</label>
-            <input type="text" id="modal-days-input" placeholder="e.g. Target: Nov 15" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-slate-800">
+            <label class="block font-bold text-slate-300 uppercase tracking-wider mb-1">Target / Phase Label</label>
+            <input type="text" id="modal-days-input" placeholder="e.g. Phase 1, Week 1, or Nov 10" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:border-emerald-500">
           </div>
         </div>
 
         <div>
-          <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Notes / Contractor Instructions</label>
-          <textarea id="modal-notes-input" rows="2" placeholder="Specific measurements, materials to buy, contractor instructions..." class="w-full px-3 py-2 border border-slate-300 rounded-xl text-slate-800"></textarea>
+          <label class="block font-bold text-slate-300 uppercase tracking-wider mb-1">Task Notes & Instructions</label>
+          <textarea id="modal-notes-input" rows="2" placeholder="Civil details, measurements, NOC requirements, society timing..." class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:border-emerald-500"></textarea>
         </div>
 
         <!-- Subtask Checklist / Items Section -->
-        <div class="border-t border-slate-200 pt-3">
+        <div class="border-t border-slate-800 pt-3">
           <div class="flex items-center justify-between mb-2">
-            <h4 class="font-bold text-slate-800 flex items-center gap-1.5">
-              <i data-lucide="check-square" class="w-4 h-4 text-brand-600"></i>
-              Checklist Items & Subtasks
+            <h4 class="font-bold text-slate-200 flex items-center gap-1.5">
+              <i data-lucide="check-square" class="w-4 h-4 text-emerald-400"></i>
+              Checklist Items & Milestones
             </h4>
-            <span id="modal-subtask-progress-label" class="text-slate-500 font-medium">0/0</span>
+            <span id="modal-subtask-progress-label" class="text-slate-400 font-medium">0/0</span>
           </div>
           <div id="modal-subtasks-list" class="space-y-1.5 max-h-48 overflow-y-auto pr-1"></div>
           <div class="flex gap-2 mt-2.5">
-            <input type="text" id="modal-new-subtask-input" placeholder="Type an item or checklist step and press Enter..." class="flex-1 px-3 py-2 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500" onkeydown="if(event.key==='Enter'){event.preventDefault();addNewSubtask();}">
+            <input type="text" id="modal-new-subtask-input" placeholder="Type a step or civil checklist item and press Enter..." class="flex-1 px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-emerald-500" onkeydown="if(event.key==='Enter'){event.preventDefault();addNewSubtask();}">
             <button type="button" onclick="addNewSubtask()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold flex items-center gap-1 transition">
               <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Item
             </button>
@@ -467,13 +587,13 @@
         </div>
 
         <!-- Attached Media for this Task -->
-        <div class="border-t border-slate-200 pt-3" id="task-media-section">
+        <div class="border-t border-slate-800 pt-3" id="task-media-section">
           <div class="flex items-center justify-between mb-2">
-            <h4 class="font-bold text-slate-800 flex items-center gap-1.5">
-              <i data-lucide="image" class="w-4 h-4 text-blue-600"></i>
+            <h4 class="font-bold text-slate-200 flex items-center gap-1.5">
+              <i data-lucide="image" class="w-4 h-4 text-blue-400"></i>
               Attached Photos & Videos
             </h4>
-            <button type="button" onclick="openMediaUploadModalWithTask()" class="text-[11px] text-blue-600 hover:underline font-semibold flex items-center gap-1">
+            <button type="button" onclick="openMediaUploadModalWithTask()" class="text-[11px] text-emerald-400 hover:underline font-semibold flex items-center gap-1">
               <i data-lucide="camera" class="w-3 h-3"></i> Attach Media
             </button>
           </div>
@@ -481,13 +601,13 @@
         </div>
       </div>
 
-      <div class="px-6 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs">
-        <button onclick="deleteCurrentCard()" id="modal-delete-btn" class="font-semibold text-rose-600 hover:bg-rose-50 px-3 py-1.5 rounded-lg flex items-center gap-1 transition">
+      <div class="px-6 py-3 bg-slate-950 border-t border-slate-800 flex items-center justify-between text-xs">
+        <button onclick="deleteCurrentCard()" id="modal-delete-btn" class="font-semibold text-rose-400 hover:bg-rose-950/40 px-3 py-1.5 rounded-lg flex items-center gap-1 transition">
           <i data-lucide="trash-2" class="w-4 h-4"></i> Delete Task
         </button>
-        <div class="flex gap-2">
-          <button onclick="closeCardModal()" class="px-4 py-2 font-semibold text-slate-600 hover:bg-slate-200 rounded-xl transition">Cancel</button>
-          <button onclick="saveCardFromModal()" class="px-5 py-2 font-bold bg-brand-600 hover:bg-brand-500 text-white rounded-xl shadow flex items-center gap-1.5 transition">
+        <div class="flex gap-2 ml-auto">
+          <button onclick="closeCardModal()" class="px-4 py-2 font-semibold text-slate-400 hover:text-white rounded-xl transition">Cancel</button>
+          <button onclick="saveCardFromModal()" class="px-5 py-2 font-bold bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl shadow flex items-center gap-1.5 transition">
             <i data-lucide="save" class="w-4 h-4"></i> Save Task
           </button>
         </div>
@@ -498,12 +618,12 @@
   <!-- ======================================================== -->
   <!-- MODAL 2: EPIC / ROOM MODAL                               -->
   <!-- ======================================================== -->
-  <div id="epic-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
-      <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
+  <div id="epic-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden text-slate-100 animate-in fade-in zoom-in-95 duration-150">
+      <div class="px-6 py-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
         <div class="flex items-center gap-2">
           <i data-lucide="layers" class="w-5 h-5 text-purple-400"></i>
-          <h3 id="modal-epic-title-header" class="text-base font-bold">New Epic / Renovation Room</h3>
+          <h3 id="modal-epic-title-header" class="text-base font-bold text-white">New Epic / Renovation Room</h3>
         </div>
         <button onclick="closeEpicModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">
           <i data-lucide="x" class="w-5 h-5"></i>
@@ -511,18 +631,18 @@
       </div>
       <form onsubmit="handleEpicSubmit(event)" class="p-6 space-y-4 text-xs">
         <div>
-          <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Epic Title <span class="text-rose-500">*</span></label>
-          <input type="text" id="epic-title-input" required placeholder="e.g. Master Bedroom & Wardrobe" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl text-slate-800 focus:ring-2 focus:ring-purple-500">
+          <label class="block font-bold text-slate-300 uppercase tracking-wider mb-1">Epic Title <span class="text-rose-500">*</span></label>
+          <input type="text" id="epic-title-input" required placeholder="e.g. Master Bedroom & Wardrobe" class="w-full px-3 py-2 text-sm bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-purple-500">
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Space / Room Name</label>
-            <input type="text" id="epic-space-input" required placeholder="e.g. Master Bedroom" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-slate-800">
+            <label class="block font-bold text-slate-300 uppercase tracking-wider mb-1">Space / Room Name</label>
+            <input type="text" id="epic-space-input" required placeholder="e.g. Master Bedroom" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white">
           </div>
           <div>
-            <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Status</label>
-            <select id="epic-status-select" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800">
+            <label class="block font-bold text-slate-300 uppercase tracking-wider mb-1">Status</label>
+            <select id="epic-status-select" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white">
               <option value="planning">Planning</option>
               <option value="in_progress">In Progress</option>
               <option value="completed">Completed</option>
@@ -532,21 +652,21 @@
         </div>
 
         <div>
-          <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Target Timeline / Notes</label>
-          <input type="text" id="epic-timeline-input" placeholder="e.g. Phase 1, Week 2, or Nov 1–15" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-slate-800">
+          <label class="block font-bold text-slate-300 uppercase tracking-wider mb-1">Target Timeline / Notes</label>
+          <input type="text" id="epic-timeline-input" placeholder="e.g. Phase 1, Week 2, or Nov 1–15" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white">
         </div>
 
         <div>
-          <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Scope Description</label>
-          <textarea id="epic-desc-input" rows="2" placeholder="Civil work, tiles, modular furniture, electrical points..." class="w-full px-3 py-2 border border-slate-300 rounded-xl text-slate-800"></textarea>
+          <label class="block font-bold text-slate-300 uppercase tracking-wider mb-1">Scope Description</label>
+          <textarea id="epic-desc-input" rows="2" placeholder="Civil work, tiles, modular furniture, electrical points..." class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white"></textarea>
         </div>
 
-        <div class="pt-3 border-t border-slate-200 flex items-center justify-between">
-          <button type="button" onclick="deleteCurrentEpic()" id="epic-delete-btn" class="font-semibold text-rose-600 hover:bg-rose-50 px-3 py-1.5 rounded-lg flex items-center gap-1 transition hidden">
+        <div class="pt-3 border-t border-slate-800 flex items-center justify-between">
+          <button type="button" onclick="deleteCurrentEpic()" id="epic-delete-btn" class="font-semibold text-rose-400 hover:bg-rose-950/40 px-3 py-1.5 rounded-lg flex items-center gap-1 transition hidden">
             <i data-lucide="trash-2" class="w-4 h-4"></i> Delete
           </button>
           <div class="flex gap-2 ml-auto">
-            <button type="button" onclick="closeEpicModal()" class="px-4 py-2 font-semibold text-slate-600 hover:bg-slate-100 rounded-xl">Cancel</button>
+            <button type="button" onclick="closeEpicModal()" class="px-4 py-2 font-semibold text-slate-400 hover:text-white rounded-xl">Cancel</button>
             <button type="submit" class="px-5 py-2 font-bold bg-purple-600 hover:bg-purple-500 text-white rounded-xl shadow flex items-center gap-1.5">
               <i data-lucide="save" class="w-4 h-4"></i> Save Epic
             </button>
@@ -559,12 +679,12 @@
   <!-- ======================================================== -->
   <!-- MODAL 3: VENDOR / CONTRACTOR MODAL                       -->
   <!-- ======================================================== -->
-  <div id="contact-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
-      <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
+  <div id="contact-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden text-slate-100 animate-in fade-in zoom-in-95 duration-150">
+      <div class="px-6 py-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
         <div class="flex items-center gap-2">
           <i data-lucide="user-plus" class="w-5 h-5 text-amber-400"></i>
-          <h3 id="modal-contact-title-header" class="text-base font-bold">Add Contractor / Vendor</h3>
+          <h3 id="modal-contact-title-header" class="text-base font-bold text-white">Add Contractor / Vendor</h3>
         </div>
         <button onclick="closeContactModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">
           <i data-lucide="x" class="w-5 h-5"></i>
@@ -572,43 +692,43 @@
       </div>
       <form onsubmit="handleContactSubmit(event)" class="p-6 space-y-4 text-xs">
         <div>
-          <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Contractor / Contact Name <span class="text-rose-500">*</span></label>
-          <input type="text" id="contact-name-input" required placeholder="e.g. Ramesh Sharma" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl text-slate-800 focus:ring-2 focus:ring-amber-500">
+          <label class="block font-bold text-slate-300 uppercase tracking-wider mb-1">Contractor / Contact Name <span class="text-rose-500">*</span></label>
+          <input type="text" id="contact-name-input" required placeholder="e.g. Ramesh Sharma" class="w-full px-3 py-2 text-sm bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-amber-400">
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Trade / Role <span class="text-rose-500">*</span></label>
-            <input type="text" id="contact-role-input" required placeholder="e.g. Plumber, Electrician, Carpenter..." class="w-full px-3 py-2 border border-slate-300 rounded-xl text-slate-800">
+            <label class="block font-bold text-slate-300 uppercase tracking-wider mb-1">Trade / Role <span class="text-rose-500">*</span></label>
+            <input type="text" id="contact-role-input" required placeholder="e.g. Plumber, Electrician, Carpenter" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white">
           </div>
           <div>
-            <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Company / Shop</label>
-            <input type="text" id="contact-company-input" placeholder="e.g. Sharma Hardware" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-slate-800">
+            <label class="block font-bold text-slate-300 uppercase tracking-wider mb-1">Agency / Company</label>
+            <input type="text" id="contact-company-input" placeholder="e.g. Sharma Plumbing" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white">
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Phone Number</label>
-            <input type="tel" id="contact-phone-input" placeholder="+91 98000 00000" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-slate-800">
+            <label class="block font-bold text-slate-300 uppercase tracking-wider mb-1">Phone Number</label>
+            <input type="tel" id="contact-phone-input" placeholder="+91 98765 43210" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white">
           </div>
           <div>
-            <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">WhatsApp Number</label>
-            <input type="tel" id="contact-whatsapp-input" placeholder="Leave empty if same as phone" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-slate-800">
+            <label class="block font-bold text-slate-300 uppercase tracking-wider mb-1">WhatsApp Number</label>
+            <input type="tel" id="contact-whatsapp-input" placeholder="e.g. 9876543210 (digits only)" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white">
           </div>
         </div>
 
         <div>
-          <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Rates, Availability & Notes</label>
-          <textarea id="contact-notes-input" rows="2" placeholder="Agreed labor rates, payment terms, timing..." class="w-full px-3 py-2 border border-slate-300 rounded-xl text-slate-800"></textarea>
+          <label class="block font-bold text-slate-300 uppercase tracking-wider mb-1">Notes & Scope</label>
+          <textarea id="contact-notes-input" rows="2" placeholder="Rates, advance paid, timing, society NOC card..." class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white"></textarea>
         </div>
 
-        <div class="pt-3 border-t border-slate-200 flex items-center justify-between">
-          <button type="button" onclick="deleteCurrentContact()" id="contact-delete-btn" class="font-semibold text-rose-600 hover:bg-rose-50 px-3 py-1.5 rounded-lg flex items-center gap-1 transition hidden">
+        <div class="pt-3 border-t border-slate-800 flex items-center justify-between">
+          <button type="button" onclick="deleteCurrentContact()" id="contact-delete-btn" class="font-semibold text-rose-400 hover:bg-rose-950/40 px-3 py-1.5 rounded-lg flex items-center gap-1 transition hidden">
             <i data-lucide="trash-2" class="w-4 h-4"></i> Delete
           </button>
           <div class="flex gap-2 ml-auto">
-            <button type="button" onclick="closeContactModal()" class="px-4 py-2 font-semibold text-slate-600 hover:bg-slate-100 rounded-xl">Cancel</button>
+            <button type="button" onclick="closeContactModal()" class="px-4 py-2 font-semibold text-slate-400 hover:text-white rounded-xl">Cancel</button>
             <button type="submit" class="px-5 py-2 font-bold bg-amber-600 hover:bg-amber-500 text-white rounded-xl shadow flex items-center gap-1.5">
               <i data-lucide="save" class="w-4 h-4"></i> Save Vendor
             </button>
@@ -621,55 +741,57 @@
   <!-- ======================================================== -->
   <!-- MODAL 4: UPLOAD MEDIA (PHOTO / VIDEO)                    -->
   <!-- ======================================================== -->
-  <div id="media-upload-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
-      <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
+  <div id="media-upload-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden text-slate-100 animate-in fade-in zoom-in-95 duration-150">
+      <div class="px-6 py-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
         <div class="flex items-center gap-2">
           <i data-lucide="camera" class="w-5 h-5 text-emerald-400"></i>
-          <h3 class="text-base font-bold">Upload Site Photo or Video</h3>
+          <h3 class="text-base font-bold text-white">Record Site Media Proof</h3>
         </div>
         <button onclick="closeMediaUploadModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
-      <form id="media-upload-form" onsubmit="handleMediaUpload(event)" class="p-6 space-y-4 text-xs">
+      <form onsubmit="handleMediaUploadSubmit(event)" class="p-6 space-y-4 text-xs">
         <div>
-          <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Select File (Photos or Video)</label>
-          <input type="file" id="media-file-input" accept="image/*,video/*" capture="environment" required class="w-full text-slate-600 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100 cursor-pointer border border-slate-200 rounded-xl p-2 bg-slate-50">
-          <p class="text-[11px] text-slate-400 mt-1">Supports camera snap on mobile. Images (JPEG/PNG) or MP4 video clips.</p>
+          <label class="block font-bold text-slate-300 uppercase tracking-wider mb-1">Select File (or take photo) <span class="text-rose-500">*</span></label>
+          <input type="file" id="media-file-input" accept="image/*,video/*" capture="environment" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-600 file:text-white hover:file:bg-emerald-500 cursor-pointer">
+          <p class="text-[10px] text-slate-500 mt-1">On your mobile phone, this opens your camera directly for real-time site snaps.</p>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Stage</label>
-            <select id="media-stage-select" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800">
-              <option value="in_progress">In-Progress (Plumbing / Wiring)</option>
+            <label class="block font-bold text-slate-300 uppercase tracking-wider mb-1">Renovation Stage</label>
+            <select id="media-stage-select" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white">
+              <option value="in_progress">In-Progress (Pipes / Wires / Walls)</option>
               <option value="pre">Pre-Demolition (Before)</option>
-              <option value="post">Post-Finish (After)</option>
+              <option value="post">Post-Finish (After Handover)</option>
             </select>
           </div>
           <div>
-            <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Room / Space</label>
-            <select id="media-room-select" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800"></select>
+            <label class="block font-bold text-slate-300 uppercase tracking-wider mb-1">Room / Tag</label>
+            <select id="media-room-select" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white">
+              <option value="Entire Flat">Entire Flat</option>
+            </select>
           </div>
         </div>
 
         <div>
-          <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Link to Task (Optional)</label>
-          <select id="media-task-select" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-800">
-            <option value="">-- None / General Space Photo --</option>
+          <label class="block font-bold text-slate-300 uppercase tracking-wider mb-1">Link to Task (Optional)</label>
+          <select id="media-task-select" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white">
+            <option value="">No specific task (General photo)</option>
           </select>
         </div>
 
         <div>
-          <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Caption / Inspection Notes</label>
-          <input type="text" id="media-caption-input" placeholder="e.g. Wall grooves in kitchen before plaster" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-slate-800">
+          <label class="block font-bold text-slate-300 uppercase tracking-wider mb-1">Caption / Proof Description</label>
+          <input type="text" id="media-caption-input" placeholder="e.g. Master bathroom CPVC concealed lines before plastering" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white">
         </div>
 
-        <div class="pt-3 border-t border-slate-200 flex items-center justify-end gap-2">
-          <button type="button" onclick="closeMediaUploadModal()" class="px-4 py-2 font-semibold text-slate-600 hover:bg-slate-100 rounded-xl">Cancel</button>
-          <button type="submit" id="media-upload-submit-btn" class="px-5 py-2 font-bold bg-brand-600 hover:bg-brand-500 text-white rounded-xl shadow-sm flex items-center gap-1.5">
-            <i data-lucide="upload-cloud" class="w-4 h-4"></i> Upload Media
+        <div class="pt-3 border-t border-slate-800 flex justify-end gap-2">
+          <button type="button" onclick="closeMediaUploadModal()" class="px-4 py-2 font-semibold text-slate-400 hover:text-white rounded-xl">Cancel</button>
+          <button type="submit" id="media-upload-btn" class="px-5 py-2 font-bold bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl shadow flex items-center gap-1.5">
+            <i data-lucide="upload-cloud" class="w-4 h-4"></i> Save to Vault
           </button>
         </div>
       </form>
@@ -677,65 +799,149 @@
   </div>
 
   <!-- ======================================================== -->
-  <!-- MODAL 5: SUPABASE CLOUD CONNECTION SETTINGS              -->
+  <!-- MODAL 5: SUPABASE CLOUD & AI KEYS DIAGNOSTICS HUB        -->
   <!-- ======================================================== -->
-  <div id="config-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
-      <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
+  <div id="config-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl max-w-xl w-full overflow-hidden text-slate-100 animate-in fade-in zoom-in-95 duration-150">
+      <div class="px-6 py-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
         <div class="flex items-center gap-2">
-          <i data-lucide="cloud" class="w-5 h-5 text-emerald-400"></i>
-          <h3 class="text-base font-bold">Supabase Cloud Connection</h3>
+          <i data-lucide="database" class="w-5 h-5 text-emerald-400"></i>
+          <div>
+            <h3 class="text-base font-bold text-white">Supabase Cloud & AI Keys</h3>
+            <p class="text-[10px] text-slate-400">Cloud database sync diagnostics & Gemini multimodal copilot</p>
+          </div>
         </div>
         <button onclick="closeConfigModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
-      <div class="p-6 space-y-4 text-xs">
-        <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800">
-          <p class="font-bold">✨ Real Cloud Sync + Photo/Video Storage</p>
-          <p class="mt-0.5 text-[11px] leading-relaxed">Enter your project credentials from your free Supabase Dashboard (Settings → API). Once connected, photos taken on your phone will sync live to your laptop.</p>
+
+      <div class="p-6 space-y-5 text-xs">
+        <!-- Live Diagnostic Status Banner -->
+        <div class="p-3.5 rounded-xl border border-slate-800 bg-slate-950 flex items-start gap-3">
+          <div id="cfg-status-icon" class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
+            <i data-lucide="hard-drive" class="w-4 h-4"></i>
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-white text-xs">Active Storage Mode:</span>
+              <span id="cfg-status-text" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">Local Sandbox (Browser Storage)</span>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-1 leading-relaxed" id="cfg-status-desc">
+              Your tasks and checklists are currently stored locally in this browser. To sync live between your phone camera and laptop, connect your free Supabase cloud project below.
+            </p>
+          </div>
         </div>
 
-        <!-- Gemini Multimodal AI Settings -->
-        <div class="p-3 bg-purple-50 border border-purple-200 rounded-xl text-purple-900 space-y-2">
+        <!-- Connection Test Result Area -->
+        <div id="supabase-test-result" class="hidden p-3 rounded-xl text-xs flex items-center gap-2"></div>
+
+        <!-- Supabase Project Fields -->
+        <div class="space-y-3">
           <div class="flex items-center justify-between">
-            <div class="flex items-center gap-1.5 font-bold">
-              <i data-lucide="sparkles" class="w-4 h-4 text-purple-600"></i>
-              <span>Google Gemini Multimodal AI</span>
-            </div>
-            <span id="gemini-status-pill" class="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-slate-200 text-slate-700">Not Set</span>
-          </div>
-          <p class="text-[11px] leading-relaxed text-purple-800">Powers Indra AI to manage tasks, answer renovation queries, and take automated actions on your board.</p>
-          <div>
-            <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1 text-[10px]">Gemini API Key</label>
-            <input type="password" id="gemini-key-input" placeholder="AIzaSy..." class="w-full px-3 py-2 border border-purple-200 rounded-xl text-slate-800 font-mono text-xs bg-white">
-          </div>
-          <div class="flex items-center justify-between text-[11px]">
-            <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-purple-700 hover:underline font-semibold flex items-center gap-1">
-              <span>Get free key from Google AI Studio</span>
+            <label class="block font-bold text-slate-300 uppercase tracking-wider text-[11px]">Supabase Project URL</label>
+            <a href="https://supabase.com/dashboard" target="_blank" class="text-[10px] text-emerald-400 hover:underline flex items-center gap-1">
+              <span>Open Supabase Dashboard</span>
               <i data-lucide="external-link" class="w-3 h-3"></i>
             </a>
-            <button type="button" onclick="testGeminiConnection()" class="font-bold text-purple-700 hover:text-purple-900 underline">Test Key</button>
+          </div>
+          <input type="text" id="supabase-url-input" placeholder="https://your-project.supabase.co" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white font-mono text-xs focus:outline-none focus:border-emerald-500">
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="block font-bold text-slate-300 uppercase tracking-wider text-[11px]">Supabase Public Anon Key</label>
+          <input type="password" id="supabase-key-input" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white font-mono text-xs focus:outline-none focus:border-emerald-500">
+        </div>
+
+        <!-- Test Connection & Copy Schema buttons -->
+        <div class="flex items-center gap-2 pt-1">
+          <button type="button" onclick="testSupabaseConnection()" class="flex-1 py-2 px-3 bg-slate-800 hover:bg-slate-750 border border-slate-700 text-white font-bold rounded-xl transition flex items-center justify-center gap-1.5">
+            <i data-lucide="activity" class="w-3.5 h-3.5 text-emerald-400"></i>
+            <span>Test Live Connection</span>
+          </button>
+          <button type="button" onclick="copySchemaSql()" class="py-2 px-3 bg-slate-800 hover:bg-slate-750 border border-slate-700 text-slate-300 hover:text-white font-semibold rounded-xl transition flex items-center gap-1.5" title="Copy SQL schema to paste in Supabase">
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+            <span>Copy schema.sql</span>
+          </button>
+        </div>
+
+        <!-- Gemini API Key Section -->
+        <div class="border-t border-slate-800 pt-4 space-y-2">
+          <div class="flex items-center justify-between">
+            <label class="block font-bold text-slate-300 uppercase tracking-wider text-[11px]">Gemini 3.5 Flash API Key</label>
+            <span id="gemini-status-pill" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Active</span>
+          </div>
+          <input type="password" id="gemini-key-input" placeholder="AIzaSy..." class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white font-mono text-xs focus:outline-none focus:border-purple-500">
+          <div class="flex items-center justify-between text-[10px] text-slate-500 pt-0.5">
+            <span>Required for multimodal site photo & video inspection</span>
+            <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-emerald-400 hover:underline">Get key &rarr;</a>
           </div>
         </div>
 
-        <div class="pt-2 border-t border-slate-200">
-          <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Project URL</label>
-          <input type="text" id="supabase-url-input" placeholder="https://your-project.supabase.co" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-slate-800 font-mono text-xs">
+        <div class="pt-4 border-t border-slate-800 flex items-center justify-between">
+          <button onclick="disconnectSupabase()" class="text-rose-400 hover:underline font-semibold">Clear & Use Local Sandbox</button>
+          <div class="flex gap-2">
+            <button onclick="closeConfigModal()" class="px-4 py-2 font-semibold text-slate-400 hover:text-white rounded-xl">Cancel</button>
+            <button onclick="saveSupabaseConfig()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition flex items-center gap-1.5 shadow">
+              <i data-lucide="save" class="w-4 h-4"></i> Save & Connect
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: CHANGE FAMILY PASSWORD                            -->
+  <!-- ======================================================== -->
+  <div id="change-password-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden text-slate-100 animate-in fade-in zoom-in-95 duration-150">
+      <div class="px-6 py-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center">
+            <i data-lucide="key" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-white">Change Family Password</h3>
+            <p class="text-[10px] text-slate-400">Updates the access password for all family members</p>
+          </div>
+        </div>
+        <button onclick="closeChangePasswordModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form onsubmit="handleChangePasswordSubmit(event)" class="p-6 space-y-4 text-xs">
+        <div id="change-pass-error" class="hidden p-2.5 bg-rose-950/80 border border-rose-800/80 rounded-xl text-rose-200 text-xs flex items-center gap-2">
+          <i data-lucide="alert-circle" class="w-4 h-4 text-rose-400 shrink-0"></i>
+          <span id="change-pass-error-text">Current password incorrect</span>
         </div>
 
         <div>
-          <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Anon / Public API Key</label>
-          <input type="password" id="supabase-key-input" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." class="w-full px-3 py-2 border border-slate-300 rounded-xl text-slate-800 font-mono text-xs">
+          <label class="block font-semibold text-slate-300 mb-1">Current Password <span class="text-rose-400">*</span></label>
+          <input type="password" id="current-pass-input" required placeholder="Enter current password..." class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-amber-400">
         </div>
 
-        <div class="pt-2 flex items-center justify-between">
-          <button onclick="disconnectSupabase()" class="text-rose-600 hover:underline font-semibold">Clear & Use Sandbox</button>
-          <button onclick="saveSupabaseConfig()" class="px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl transition flex items-center gap-1.5">
-            <i data-lucide="save" class="w-4 h-4 text-emerald-400"></i> Connect & Sync
-          </button>
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">New Password <span class="text-rose-400">*</span></label>
+          <input type="password" id="new-pass-input" required minlength="4" placeholder="Enter new password (min 4 characters)..." class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-emerald-400">
         </div>
-      </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Confirm New Password <span class="text-rose-400">*</span></label>
+          <input type="password" id="confirm-pass-input" required minlength="4" placeholder="Re-enter new password..." class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-emerald-400">
+        </div>
+
+        <div class="pt-3 border-t border-slate-800 flex items-center justify-between">
+          <button type="button" onclick="resetPasswordToDefault()" class="text-[11px] text-slate-400 hover:text-amber-300 underline">
+            Reset to default (indra2026)
+          </button>
+          <div class="flex gap-2">
+            <button type="button" onclick="closeChangePasswordModal()" class="px-3.5 py-1.5 font-semibold text-slate-400 hover:text-white rounded-lg">Cancel</button>
+            <button type="submit" class="px-4 py-1.5 font-bold bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl shadow transition">Save Password</button>
+          </div>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -853,7 +1059,272 @@
   <!-- ======================================================== -->
   <!-- APPLICATION JAVASCRIPT STATE & LOGIC                     -->
   <!-- ======================================================== -->
+    </div><!-- /app-root -->
+
   <script>
+    // ========================================================
+    // FAMILY PORTAL AUTHENTICATION & SECURITY (SHA-256)
+    // ========================================================
+    const FAMILY_AUTH_STORAGE = 'sidhu_indra_family_auth';
+    const FAMILY_SESSION_STORAGE = 'sidhu_indra_family_session';
+    // Default SHA-256 hash for initial password 'indra2026'
+    const DEFAULT_PASS_HASH = 'fed45bde3a1f67a0084d9c8e3811e9afabf237d47fb2d2c15c9e0bebfac8dd7b';
+
+    async function sha256(str) {
+      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    function getFamilyAuthData() {
+      try {
+        const stored = localStorage.getItem(FAMILY_AUTH_STORAGE);
+        if (stored) return JSON.parse(stored);
+      } catch (e) {}
+      return { username: 'family', passHash: DEFAULT_PASS_HASH, updatedAt: new Date().toISOString() };
+    }
+
+    function initFamilyAuth() {
+      const auth = getFamilyAuthData();
+      if (!localStorage.getItem(FAMILY_AUTH_STORAGE)) {
+        localStorage.setItem(FAMILY_AUTH_STORAGE, JSON.stringify(auth));
+      }
+    }
+
+    function checkAuthSession() {
+      const localSess = localStorage.getItem(FAMILY_SESSION_STORAGE);
+      const tempSess = sessionStorage.getItem(FAMILY_SESSION_STORAGE);
+      const isAuth = !!(localSess || tempSess);
+
+      const gate = document.getElementById('family-login-gate');
+      const app = document.getElementById('app-root');
+
+      if (isAuth) {
+        if (gate) gate.classList.add('hidden');
+        if (app) app.classList.remove('hidden');
+        lucide.createIcons();
+        return true;
+      } else {
+        if (gate) gate.classList.remove('hidden');
+        if (app) app.classList.add('hidden');
+        lucide.createIcons();
+        return false;
+      }
+    }
+
+    async function handleFamilyLogin(e) {
+      e.preventDefault();
+      const usernameInput = document.getElementById('login-username-input').value.trim();
+      const passwordInput = document.getElementById('login-password-input').value.trim();
+      const rememberMe = document.getElementById('login-remember-me').checked;
+      const errorBanner = document.getElementById('login-error-banner');
+      const errorText = document.getElementById('login-error-text');
+
+      if (!passwordInput) {
+        errorBanner.classList.remove('hidden');
+        errorText.textContent = 'Please enter your password.';
+        return;
+      }
+
+      const authData = getFamilyAuthData();
+      const enteredHash = await sha256(passwordInput);
+
+      if (enteredHash === authData.passHash) {
+        errorBanner.classList.add('hidden');
+        const sessObj = JSON.stringify({ user: usernameInput || 'family', loggedInAt: new Date().toISOString() });
+        if (rememberMe) {
+          localStorage.setItem(FAMILY_SESSION_STORAGE, sessObj);
+        } else {
+          sessionStorage.setItem(FAMILY_SESSION_STORAGE, sessObj);
+        }
+        confetti({ particleCount: 40, spread: 60, origin: { y: 0.7 } });
+        checkAuthSession();
+      } else {
+        errorBanner.classList.remove('hidden');
+        errorText.textContent = 'Incorrect password. Please verify or ask Sidhu for access.';
+      }
+    }
+
+    function handleFamilyLogout() {
+      localStorage.removeItem(FAMILY_SESSION_STORAGE);
+      sessionStorage.removeItem(FAMILY_SESSION_STORAGE);
+      toggleFamilyProfileDropdown(false);
+      checkAuthSession();
+    }
+
+    function toggleFamilyProfileDropdown(forceState) {
+      const dd = document.getElementById('family-profile-dropdown');
+      if (!dd) return;
+      if (typeof forceState === 'boolean') {
+        if (forceState) dd.classList.remove('hidden');
+        else dd.classList.add('hidden');
+      } else {
+        dd.classList.toggle('hidden');
+      }
+    }
+
+    // Close profile dropdown on outside click
+    document.addEventListener('click', function(e) {
+      const container = document.getElementById('family-profile-container');
+      const dd = document.getElementById('family-profile-dropdown');
+      if (container && dd && !container.contains(e.target)) {
+        dd.classList.add('hidden');
+      }
+    });
+
+    function togglePasswordVisibility(inputId, iconId) {
+      const inp = document.getElementById(inputId);
+      const icon = document.getElementById(iconId);
+      if (!inp) return;
+      if (inp.type === 'password') {
+        inp.type = 'text';
+        if (icon) icon.setAttribute('data-lucide', 'eye-off');
+      } else {
+        inp.type = 'password';
+        if (icon) icon.setAttribute('data-lucide', 'eye');
+      }
+      lucide.createIcons();
+    }
+
+    function openChangePasswordModal() {
+      toggleFamilyProfileDropdown(false);
+      const modal = document.getElementById('change-password-modal');
+      const err = document.getElementById('change-pass-error');
+      if (err) err.classList.add('hidden');
+      document.getElementById('current-pass-input').value = '';
+      document.getElementById('new-pass-input').value = '';
+      document.getElementById('confirm-pass-input').value = '';
+      modal.classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeChangePasswordModal() {
+      document.getElementById('change-password-modal').classList.add('hidden');
+    }
+
+    async function handleChangePasswordSubmit(e) {
+      e.preventDefault();
+      const currentPass = document.getElementById('current-pass-input').value.trim();
+      const newPass = document.getElementById('new-pass-input').value.trim();
+      const confirmPass = document.getElementById('confirm-pass-input').value.trim();
+      const errEl = document.getElementById('change-pass-error');
+      const errText = document.getElementById('change-pass-error-text');
+
+      const authData = getFamilyAuthData();
+      const currentHash = await sha256(currentPass);
+
+      if (currentHash !== authData.passHash) {
+        errEl.classList.remove('hidden');
+        errText.textContent = 'Current password is incorrect. Please try again.';
+        return;
+      }
+
+      if (newPass.length < 4) {
+        errEl.classList.remove('hidden');
+        errText.textContent = 'New password must be at least 4 characters long.';
+        return;
+      }
+
+      if (newPass !== confirmPass) {
+        errEl.classList.remove('hidden');
+        errText.textContent = 'New passwords do not match. Please re-type carefully.';
+        return;
+      }
+
+      const newHash = await sha256(newPass);
+      const updatedData = {
+        username: authData.username || 'family',
+        passHash: newHash,
+        updatedAt: new Date().toISOString()
+      };
+
+      localStorage.setItem(FAMILY_AUTH_STORAGE, JSON.stringify(updatedData));
+
+      // If Supabase is connected, sync password to family_settings table!
+      if (supabaseClient) {
+        try {
+          await supabaseClient.from('family_settings').upsert({
+            id: 'family',
+            password_hash: newHash,
+            updated_at: new Date().toISOString()
+          });
+        } catch (e) {
+          console.warn('Could not sync password to Supabase:', e);
+        }
+      }
+
+      closeChangePasswordModal();
+      confetti({ particleCount: 50, spread: 70, origin: { y: 0.6 } });
+      alert('🎉 Password updated successfully! Please share the new password with your family members.');
+    }
+
+    async function resetPasswordToDefault() {
+      if (!confirm('Reset family password back to initial default "indra2026"?')) return;
+      const updatedData = {
+        username: 'family',
+        passHash: DEFAULT_PASS_HASH,
+        updatedAt: new Date().toISOString()
+      };
+      localStorage.setItem(FAMILY_AUTH_STORAGE, JSON.stringify(updatedData));
+      if (supabaseClient) {
+        try {
+          await supabaseClient.from('family_settings').upsert({
+            id: 'family',
+            password_hash: DEFAULT_PASS_HASH,
+            updated_at: new Date().toISOString()
+          });
+        } catch (e) {}
+      }
+      closeChangePasswordModal();
+      alert('Password has been reset to default "indra2026".');
+    }
+
+    // --- SUPABASE CLOUD LIVE DIAGNOSTICS & SETUP HUB ---
+    async function testSupabaseConnection() {
+      const url = document.getElementById('supabase-url-input').value.trim();
+      const key = document.getElementById('supabase-key-input').value.trim();
+      const testResultEl = document.getElementById('supabase-test-result');
+      testResultEl.className = 'p-3 rounded-xl text-xs flex items-center gap-2 bg-slate-800 text-slate-200 border border-slate-700';
+      testResultEl.innerHTML = '<span class="animate-spin inline-block">⏳</span> Connecting to Supabase project...';
+      testResultEl.classList.remove('hidden');
+
+      if (!url || !key) {
+        testResultEl.className = 'p-3 rounded-xl text-xs flex items-center gap-2 bg-rose-950/80 border border-rose-800 text-rose-200';
+        testResultEl.innerHTML = '❌ Please enter both a Supabase Project URL and Anon Key.';
+        return;
+      }
+
+      try {
+        const client = window.supabase.createClient(url, key);
+        const { data, error } = await client.from('epics').select('count', { count: 'exact', head: true });
+        if (error) {
+          if (error.code === 'PGRST116' || (error.message && error.message.includes('relation "public.epics" does not exist')) || error.code === '42P01') {
+            testResultEl.className = 'p-3 rounded-xl text-xs flex items-start gap-2 bg-amber-950/80 border border-amber-800 text-amber-200';
+            testResultEl.innerHTML = '⚠️ Connected to Supabase project, but tables do not exist yet! Click "Copy schema.sql" below and run it in the Supabase SQL Editor.';
+          } else {
+            testResultEl.className = 'p-3 rounded-xl text-xs flex items-start gap-2 bg-rose-950/80 border border-rose-800 text-rose-200';
+            testResultEl.innerHTML = `❌ Supabase error: ${error.message} (${error.code || 'Check permissions'})`;
+          }
+        } else {
+          testResultEl.className = 'p-3 rounded-xl text-xs flex items-center gap-2 bg-emerald-950/80 border border-emerald-800 text-emerald-200';
+          testResultEl.innerHTML = '🎉 Connection Verified! Successfully connected to Supabase Cloud & tables verified.';
+        }
+      } catch (err) {
+        testResultEl.className = 'p-3 rounded-xl text-xs flex items-center gap-2 bg-rose-950/80 border border-rose-800 text-rose-200';
+        testResultEl.innerHTML = `❌ Connection failed: ${err.message}`;
+      }
+    }
+
+    async function copySchemaSql() {
+      try {
+        const resp = await fetch('supabase/schema.sql');
+        const text = await resp.text();
+        await navigator.clipboard.writeText(text);
+        alert('📋 schema.sql copied to clipboard! Paste it into your Supabase SQL Editor at supabase.com.');
+      } catch (e) {
+        alert('Please open supabase/schema.sql in the repo and copy its contents into the Supabase SQL Editor.');
+      }
+    }
+
     const CONFIG_KEY = 'sidhu_indra_supabase_config';
     const LOCAL_DATA_KEY = 'sidhu_indra_board_v3';
 
@@ -886,6 +1357,8 @@
 
     // --- INITIALIZATION ---
     async function initApp() {
+      initFamilyAuth();
+      checkAuthSession();
       setupSupabase();
       await loadData();
       populateDropdowns();
@@ -899,19 +1372,36 @@
       const config = getSupabaseConfig();
       const statusPill = document.getElementById('backend-status-pill');
       const statusText = document.getElementById('backend-status-text');
+      const cfgStatusText = document.getElementById('cfg-status-text');
+      const cfgStatusDesc = document.getElementById('cfg-status-desc');
+      const cfgStatusIcon = document.getElementById('cfg-status-icon');
 
       if (config.url && config.key && window.supabase) {
         try {
           supabaseClient = window.supabase.createClient(config.url, config.key);
-          statusPill.className = 'cursor-pointer text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1 hover:bg-emerald-500/30 transition';
-          statusText.textContent = 'Supabase Cloud';
+          if (statusPill) {
+            statusPill.className = 'cursor-pointer text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1 hover:bg-emerald-500/30 transition';
+          }
+          if (statusText) statusText.textContent = 'Supabase Cloud';
+          if (cfgStatusText) {
+            cfgStatusText.textContent = 'Supabase Cloud Synced';
+            cfgStatusText.className = 'px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
+          }
+          if (cfgStatusDesc) {
+            cfgStatusDesc.textContent = `Connected to ${config.url}. All devices (phone & laptop) share real-time updates and site photos.`;
+          }
+          if (cfgStatusIcon) {
+            cfgStatusIcon.className = 'w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5';
+          }
         } catch (e) {
           console.warn('Supabase init error, fallback to sandbox:', e);
           supabaseClient = null;
         }
       } else {
-        statusPill.className = 'cursor-pointer text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1 hover:bg-amber-500/30 transition';
-        statusText.textContent = 'Local Sandbox';
+        if (statusPill) {
+          statusPill.className = 'cursor-pointer text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 flex items-center gap-1 hover:bg-amber-500/25 transition';
+        }
+        if (statusText) statusText.textContent = 'Local Sandbox';
       }
     }
 
@@ -1092,7 +1582,7 @@
         });
 
         const colEl = document.createElement('div');
-        colEl.className = 'flex-1 min-w-[280px] max-w-[340px] bg-slate-200/75 rounded-2xl p-3 border border-slate-300/80 flex flex-col max-h-[82vh] transition shrink-0';
+        colEl.className = 'flex-1 min-w-[290px] max-w-[340px] bg-slate-900/60 rounded-2xl p-3 border border-slate-800/80 flex flex-col max-h-[82vh] transition shrink-0 backdrop-blur-xs';
         colEl.setAttribute('data-col-id', col.id);
 
         colEl.addEventListener('dragover', e => { e.preventDefault(); colEl.classList.add('drag-over'); });
@@ -1100,11 +1590,11 @@
         colEl.addEventListener('drop', handleDrop);
 
         colEl.innerHTML = `
-          <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-300/70 px-1">
+          <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-800/80 px-1">
             <div class="flex items-center gap-2">
               <span class="w-2.5 h-2.5 rounded-full bg-${col.color}-500"></span>
-              <h3 class="font-bold text-xs text-slate-800 uppercase tracking-wider">${col.title}</h3>
-              <span class="text-[11px] px-2 py-0.2 bg-slate-300 text-slate-700 font-bold rounded-full">${colTasks.length}</span>
+              <h3 class="font-bold text-xs text-white uppercase tracking-wider">${col.title}</h3>
+              <span class="text-[11px] px-2 py-0.2 bg-slate-800 text-slate-300 font-bold rounded-full">${colTasks.length}</span>
             </div>
             <button onclick="openCardModal(null, '${col.id}')" class="text-slate-400 hover:text-slate-700 hover:bg-slate-300/60 p-1 rounded-lg transition" title="Add Task to this column">
               <i data-lucide="plus" class="w-4 h-4"></i>
@@ -1134,7 +1624,7 @@
         const list = colEl.querySelector('.cards-list');
         if (colTasks.length === 0) {
           list.innerHTML = `
-            <div class="py-6 text-center text-slate-400 text-xs border border-dashed border-slate-300 rounded-xl">
+            <div class="py-6 text-center text-slate-500 text-xs border border-dashed border-slate-800 rounded-xl">
               No tasks here yet
             </div>
           `;
@@ -1204,7 +1694,7 @@
 
     function createTaskCardElement(task) {
       const cardEl = document.createElement('div');
-      cardEl.className = 'bg-white rounded-xl p-3 shadow-xs hover:shadow-md border border-slate-200 transition cursor-pointer select-none group';
+      cardEl.className = 'bg-slate-900/90 rounded-xl p-3.5 shadow-sm hover:shadow-md border border-slate-800 hover:border-slate-700 transition cursor-pointer select-none group';
       cardEl.setAttribute('draggable', 'true');
       cardEl.setAttribute('data-task-id', task.id);
 
@@ -1226,38 +1716,47 @@
 
       let priorityBadge = '';
       if (task.priority === 'critical') {
-        priorityBadge = `<span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-rose-100 text-rose-700">CRITICAL</span>`;
+        priorityBadge = `<span class="px-2 py-0.5 rounded text-[9px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">CRITICAL</span>`;
       } else if (task.priority === 'high') {
-        priorityBadge = `<span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-100 text-amber-800">HIGH</span>`;
+        priorityBadge = `<span class="px-2 py-0.5 rounded text-[9px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">HIGH</span>`;
+      } else if (task.priority === 'low') {
+        priorityBadge = `<span class="px-2 py-0.5 rounded text-[9px] font-medium bg-slate-800 text-slate-400 border border-slate-700">LOW</span>`;
       }
 
       cardEl.innerHTML = `
-        <div class="flex items-start justify-between gap-1.5 mb-1.5">
-          <div class="flex items-center gap-1 flex-wrap">
-            <span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-purple-50 text-purple-700 border border-purple-200">${epic ? (epic.space || epic.title) : 'General'}</span>
-            ${task.days_label ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-600 border border-slate-200">${task.days_label}</span>` : ''}
+        <div class="flex items-start justify-between gap-1.5 mb-2">
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-purple-950/60 text-purple-300 border border-purple-800/60">${epic ? (epic.space || epic.title) : 'General'}</span>
+            ${task.days_label ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-medium bg-slate-800 text-slate-400 border border-slate-700">${task.days_label}</span>` : ''}
           </div>
           ${priorityBadge}
         </div>
 
-        <h4 class="font-bold text-slate-800 text-xs mb-1.5 group-hover:text-brand-700 transition leading-snug">${task.title}</h4>
+        <h4 class="font-semibold text-slate-100 text-xs mb-2 group-hover:text-emerald-400 transition leading-snug">${task.title}</h4>
 
         ${contact ? `
-          <div class="flex items-center gap-1 text-[11px] text-slate-500 mb-2">
-            <i data-lucide="user" class="w-3 h-3 text-slate-400"></i>
+          <div class="flex items-center gap-1.5 text-[11px] text-slate-400 mb-2.5">
+            <i data-lucide="user" class="w-3 h-3 text-slate-500"></i>
             <span>${contact.name} (${contact.role})</span>
           </div>
         ` : ''}
 
-        <div class="flex items-center justify-between text-[11px] text-slate-500 pt-2 border-t border-slate-100">
-          <span class="flex items-center gap-1">
-            <i data-lucide="check-square" class="w-3 h-3 text-${percent === 100 && totalSub > 0 ? 'emerald' : 'slate'}-500"></i>
-            ${totalSub > 0 ? `${doneSub}/${totalSub} items` : 'No checklist'}
-          </span>
-          ${taskMediaCount > 0 ? `
-            <span class="flex items-center gap-1 font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">
-              <i data-lucide="image" class="w-3 h-3"></i> ${taskMediaCount}
+        <div class="space-y-1.5 pt-2 border-t border-slate-800/80">
+          <div class="flex items-center justify-between text-[11px] text-slate-400">
+            <span class="flex items-center gap-1">
+              <i data-lucide="check-square" class="w-3 h-3 ${percent === 100 && totalSub > 0 ? 'text-emerald-400' : 'text-slate-500'}"></i>
+              ${totalSub > 0 ? `${doneSub}/${totalSub} items` : 'No checklist'}
             </span>
+            ${taskMediaCount > 0 ? `
+              <span class="flex items-center gap-1 font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded text-[10px]">
+                <i data-lucide="camera" class="w-3 h-3"></i> ${taskMediaCount}
+              </span>
+            ` : ''}
+          </div>
+          ${totalSub > 0 ? `
+            <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+              <div class="h-full bg-emerald-500 rounded-full transition-all duration-300" style="width: ${percent}%"></div>
+            </div>
           ` : ''}
         </div>
       `;
@@ -1591,10 +2090,10 @@
 
       if (epics.length === 0) {
         container.innerHTML = `
-          <div class="col-span-full py-16 text-center text-slate-400 border border-dashed border-slate-300 rounded-2xl">
-            <i data-lucide="layers" class="w-8 h-8 mx-auto mb-2 text-slate-300"></i>
-            <p class="font-bold text-sm text-slate-600">No Epics or Rooms added yet</p>
-            <p class="text-xs text-slate-400 mt-1 mb-4">Create your first Epic to organize your tasks by room or renovation phase.</p>
+          <div class="col-span-full py-16 text-center text-slate-400 border border-dashed border-slate-800 rounded-2xl">
+            <i data-lucide="layers" class="w-8 h-8 mx-auto mb-2 text-slate-600"></i>
+            <p class="font-bold text-sm text-slate-200">No Epics or Rooms added yet</p>
+            <p class="text-xs text-slate-500 mt-1 mb-4">Create your first Epic to organize tasks by room or renovation phase.</p>
             <button onclick="openEpicModal(null)" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs rounded-xl shadow-xs transition">
               + Create First Epic
             </button>
@@ -1612,36 +2111,36 @@
         const epicMediaCount = media.filter(m => m.room_tag === epic.space || epicTasks.some(t => t.id === m.task_id)).length;
 
         const card = document.createElement('div');
-        card.className = 'bg-white rounded-2xl p-4 border border-slate-200 shadow-xs hover:shadow-md transition flex flex-col justify-between';
+        card.className = 'bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-sm hover:border-slate-700 transition flex flex-col justify-between';
 
         card.innerHTML = `
           <div>
             <div class="flex items-center justify-between mb-2">
-              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-800 border border-purple-200">
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-950/70 text-purple-300 border border-purple-800/60">
                 ${epic.space}
               </span>
               <div class="flex items-center gap-1.5">
                 ${epic.target_week ? `<span class="text-[11px] font-semibold text-slate-400">${epic.target_week}</span>` : ''}
-                <button onclick="openEpicModal('${epic.id}')" class="text-slate-400 hover:text-slate-700 p-1 rounded transition" title="Edit Epic">
+                <button onclick="openEpicModal('${epic.id}')" class="text-slate-400 hover:text-white p-1 rounded transition" title="Edit Epic">
                   <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
                 </button>
               </div>
             </div>
-            <h3 class="font-bold text-slate-900 text-sm mb-1">${epic.title}</h3>
-            <p class="text-xs text-slate-500 mb-3">${epic.description || 'Custom renovation scope'}</p>
+            <h3 class="font-bold text-white text-sm mb-1">${epic.title}</h3>
+            <p class="text-xs text-slate-400 mb-3">${epic.description || 'Custom renovation scope'}</p>
           </div>
 
-          <div class="pt-3 border-t border-slate-100 space-y-2 text-xs">
+          <div class="pt-3 border-t border-slate-800 space-y-2 text-xs">
             <div class="flex items-center justify-between font-medium">
-              <span class="text-slate-500">${completed}/${total} Tasks Completed</span>
-              <span class="font-bold text-slate-800">${pct}%</span>
+              <span class="text-slate-400">${completed}/${total} Tasks Completed</span>
+              <span class="font-bold text-emerald-400">${pct}%</span>
             </div>
-            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-              <div class="bg-brand-500 h-full rounded-full transition-all duration-300" style="width: ${pct}%"></div>
+            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+              <div class="bg-emerald-500 h-full rounded-full transition-all duration-300" style="width: ${pct}%"></div>
             </div>
             <div class="flex items-center justify-between text-[11px] pt-1.5">
-              <span class="text-slate-400">${epicMediaCount} photos</span>
-              <button onclick="openCardModal(null, null, '${epic.id}')" class="text-purple-600 hover:text-purple-800 font-bold flex items-center gap-1">
+              <span class="text-slate-500 flex items-center gap-1"><i data-lucide="camera" class="w-3 h-3 text-slate-400"></i> ${epicMediaCount} photos</span>
+              <button onclick="openCardModal(null, null, '${epic.id}')" class="text-purple-400 hover:text-purple-300 font-bold flex items-center gap-1">
                 <i data-lucide="plus" class="w-3 h-3"></i> Add Task
               </button>
             </div>
@@ -1749,10 +2248,10 @@
 
       if (contacts.length === 0) {
         container.innerHTML = `
-          <div class="col-span-full py-16 text-center text-slate-400 border border-dashed border-slate-300 rounded-2xl">
-            <i data-lucide="phone-call" class="w-8 h-8 mx-auto mb-2 text-slate-300"></i>
-            <p class="font-bold text-sm text-slate-600">No Vendors or Tradesmen added yet</p>
-            <p class="text-xs text-slate-400 mt-1 mb-4">Add your plumber, electrician, carpenter, and society contacts for one-tap WhatsApp and calling.</p>
+          <div class="col-span-full py-16 text-center text-slate-400 border border-dashed border-slate-800 rounded-2xl">
+            <i data-lucide="phone-call" class="w-8 h-8 mx-auto mb-2 text-slate-600"></i>
+            <p class="font-bold text-sm text-slate-200">No Vendors or Tradesmen added yet</p>
+            <p class="text-xs text-slate-500 mt-1 mb-4">Add your plumber, electrician, carpenter, and society contacts for one-tap WhatsApp and calling.</p>
             <button onclick="openContactModal(null)" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs rounded-xl shadow-xs transition">
               + Add First Vendor
             </button>
@@ -1765,32 +2264,32 @@
       contacts.forEach(contact => {
         const assignedTasks = tasks.filter(t => t.contact_id === contact.id);
         const card = document.createElement('div');
-        card.className = 'bg-white rounded-2xl p-4 border border-slate-200 shadow-xs hover:shadow-md transition flex flex-col justify-between';
+        card.className = 'bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-sm hover:border-slate-700 transition flex flex-col justify-between';
 
         const cleanPhone = (contact.whatsapp || contact.phone || '').replace(/[^0-9]/g, '');
 
         card.innerHTML = `
           <div>
             <div class="flex items-center justify-between mb-2">
-              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-950/70 text-amber-300 border border-amber-800/60">
                 ${contact.role}
               </span>
               <div class="flex items-center gap-1.5">
                 <span class="text-[11px] font-semibold text-slate-400">${assignedTasks.length} tasks</span>
-                <button onclick="openContactModal('${contact.id}')" class="text-slate-400 hover:text-slate-700 p-1 rounded transition" title="Edit Vendor">
+                <button onclick="openContactModal('${contact.id}')" class="text-slate-400 hover:text-white p-1 rounded transition" title="Edit Vendor">
                   <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
                 </button>
               </div>
             </div>
-            <h3 class="font-bold text-slate-900 text-sm">${contact.name}</h3>
-            ${contact.company ? `<p class="text-xs text-slate-500 mb-1">${contact.company}</p>` : ''}
-            ${contact.notes ? `<p class="text-xs text-slate-400 mt-2 bg-slate-50 p-2 rounded-lg border border-slate-100 italic">${contact.notes}</p>` : ''}
+            <h3 class="font-bold text-white text-sm">${contact.name}</h3>
+            ${contact.company ? `<p class="text-xs text-slate-400 mb-1">${contact.company}</p>` : ''}
+            ${contact.notes ? `<p class="text-xs text-slate-400 mt-2 bg-slate-950 p-2 rounded-lg border border-slate-850 italic">${contact.notes}</p>` : ''}
           </div>
 
-          <div class="pt-3 border-t border-slate-100 flex items-center gap-2 mt-4">
+          <div class="pt-3 border-t border-slate-800 flex items-center gap-2 mt-4">
             ${contact.phone ? `
-              <a href="tel:${contact.phone}" class="flex-1 py-1.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold text-center flex items-center justify-center gap-1.5 transition">
-                <i data-lucide="phone" class="w-3.5 h-3.5 text-slate-600"></i> Call
+              <a href="tel:${contact.phone}" class="flex-1 py-1.5 px-3 bg-slate-800 hover:bg-slate-750 text-white rounded-xl text-xs font-bold text-center flex items-center justify-center gap-1.5 transition">
+                <i data-lucide="phone" class="w-3.5 h-3.5 text-slate-300"></i> Call
               </a>
             ` : ''}
             ${cleanPhone ? `
@@ -1831,11 +2330,11 @@
 
       if (filtered.length === 0) {
         container.innerHTML = `
-          <div class="col-span-full py-16 text-center text-slate-400 border border-dashed border-slate-300 rounded-2xl">
-            <i data-lucide="image" class="w-8 h-8 mx-auto mb-2 text-slate-300"></i>
-            <p class="font-bold text-sm text-slate-600">No photos or videos recorded yet</p>
-            <p class="text-xs text-slate-400 mt-1 mb-4">Take photos directly from your phone camera or upload site progress.</p>
-            <button onclick="openMediaUploadModal()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl shadow-xs transition">
+          <div class="col-span-full py-16 text-center text-slate-400 border border-dashed border-slate-800 rounded-2xl">
+            <i data-lucide="image" class="w-8 h-8 mx-auto mb-2 text-slate-600"></i>
+            <p class="font-bold text-sm text-slate-200">No photos or videos recorded yet</p>
+            <p class="text-xs text-slate-500 mt-1 mb-4">Snap site photos directly from your phone camera or upload media proof.</p>
+            <button onclick="openMediaUploadModal()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-xs transition">
               + Upload First Photo
             </button>
           </div>
@@ -1846,38 +2345,44 @@
 
       filtered.forEach(item => {
         const card = document.createElement('div');
-        card.className = 'bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-xs hover:shadow-md transition flex flex-col group';
+        card.className = 'group relative bg-slate-900 rounded-xl overflow-hidden border border-slate-800 shadow-sm hover:border-slate-700 transition flex flex-col cursor-pointer';
 
-        let stageBadge = 'bg-slate-100 text-slate-700';
-        let stageLabel = 'In-Progress';
-        if (item.stage === 'pre') { stageBadge = 'bg-amber-100 text-amber-800 border-amber-200'; stageLabel = 'Pre-Demolition (Before)'; }
-        else if (item.stage === 'post') { stageBadge = 'bg-emerald-100 text-emerald-800 border-emerald-200'; stageLabel = 'Post-Finish (After)'; }
-        else { stageBadge = 'bg-blue-100 text-blue-800 border-blue-200'; stageLabel = 'In-Progress'; }
+        const stageLabels = {
+          'pre': { text: 'Pre-Demo', bg: 'bg-amber-950/80 text-amber-300 border-amber-800/60' },
+          'in_progress': { text: 'In-Progress', bg: 'bg-blue-950/80 text-blue-300 border-blue-800/60' },
+          'post': { text: 'Post-Finish', bg: 'bg-emerald-950/80 text-emerald-300 border-emerald-800/60' }
+        };
+        const st = stageLabels[item.stage] || stageLabels['in_progress'];
 
         card.innerHTML = `
-          <div class="relative aspect-video bg-slate-900 overflow-hidden flex items-center justify-center">
+          <div class="aspect-video w-full bg-slate-950 relative overflow-hidden flex items-center justify-center">
             ${item.file_type === 'video' ? `
-              <video src="${item.file_url}" controls class="w-full h-full object-cover"></video>
+              <video src="${item.file_url}" class="w-full h-full object-cover"></video>
+              <div class="absolute inset-0 bg-black/30 flex items-center justify-center">
+                <i data-lucide="play-circle" class="w-8 h-8 text-white/90"></i>
+              </div>
             ` : `
-              <img src="${item.file_url}" alt="${item.caption || 'Renovation photo'}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" loading="lazy">
+              <img src="${item.file_url}" alt="${item.caption || 'Site Photo'}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" loading="lazy">
             `}
-            <span class="absolute top-2 left-2 px-2 py-0.5 rounded-md text-[10px] font-bold border ${stageBadge}">
-              ${stageLabel}
+            <span class="absolute top-2 left-2 px-1.5 py-0.5 rounded text-[9px] font-bold border ${st.bg}">
+              ${st.text}
             </span>
-            <span class="absolute top-2 right-2 px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-900/80 text-white backdrop-blur-xs">
+            <span class="absolute top-2 right-2 px-1.5 py-0.5 rounded text-[9px] font-medium bg-slate-950/80 text-slate-300 border border-slate-800">
               ${item.room_tag || 'Flat'}
             </span>
           </div>
-
-          <div class="p-3 flex-1 flex flex-col justify-between text-xs">
-            <p class="font-medium text-slate-800 mb-2 leading-snug">${item.caption || 'No caption provided'}</p>
-            <div class="flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-slate-100">
-              <span>${item.uploaded_at ? new Date(item.uploaded_at).toLocaleDateString() : 'Recent'}</span>
-              <button onclick="deleteMedia('${item.id}')" class="text-rose-500 hover:text-rose-700 font-semibold">Delete</button>
+          <div class="p-2.5 flex-1 flex flex-col justify-between">
+            <p class="text-xs font-semibold text-slate-200 line-clamp-1 mb-1">${item.caption || 'Renovation photo'}</p>
+            <div class="flex items-center justify-between text-[10px] text-slate-500">
+              <span>${item.uploaded_at ? new Date(item.uploaded_at).toLocaleDateString() : ''}</span>
+              <button onclick="event.stopPropagation(); deleteMedia('${item.id}')" class="text-slate-500 hover:text-rose-400 p-1" title="Delete Photo">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+              </button>
             </div>
           </div>
         `;
 
+        card.addEventListener('click', () => openMediaPreviewModal(item));
         container.appendChild(card);
       });
 
@@ -2109,7 +2614,7 @@
     // INDRA AI MULTIMODAL REACT RENOVATION ASSISTANT ENGINE (v5)
     // ========================================================
     const GEMINI_KEY_STORAGE = 'sidhu_indra_gemini_key';
-    const CHAT_HISTORY_STORAGE = 'sidhu_indra_chat_history_v5';
+    const CHAT_HISTORY_STORAGE = 'sidhu_indra_chat_history_v6';
     // Backed by GitHub Actions Secret GEMINI_API_KEY with client fallback
     const DEFAULT_GEMINI_API_KEY = atob('QVEuQWI4Uk42TENCaWloVFVlZWY0WFRCUDZpdk9Vc1p5LTV0aV94ZTByMFVSOGIxVWczNnc=');
     const GEMINI_MODEL = 'gemini-3.5-flash';
@@ -2225,19 +2730,19 @@
 
     function initIndraAIChat() {
       // Purge all legacy localStorage keys with outdated greetings
-      ['sidhu_indra_chat_history_v1', 'sidhu_indra_chat_history_v2', 'sidhu_indra_chat_history_v3', 'sidhu_indra_chat_history_v4'].forEach(k => {
+      ['sidhu_indra_chat_history_v1', 'sidhu_indra_chat_history_v2', 'sidhu_indra_chat_history_v3', 'sidhu_indra_chat_history_v4', 'sidhu_indra_chat_history_v5'].forEach(k => {
         try { localStorage.removeItem(k); } catch(e){}
       });
 
       loadChatHistory();
 
       // Clean welcome message without any defect inspection mentions
-      const cleanWelcomeText = `👋 **Hi Sidhu! I'm Indra AI**, your ReAct Renovation Copilot & Site Director at Indra Heights.
+      const cleanWelcomeText = `👋 **Hi Sidhu & Family! I'm Indra AI**, your ReAct Renovation Copilot & Site Director at Indra Heights.
 
 I work in an interactive **Reasoning + Acting** loop:
 * 🎯 **Direct Execution**: When instructions are clear, I immediately create/update tasks, generate civil checklist items, and assign contractors.
-* ❓ **Interactive Clarification**: If a detail is missing or multiple rooms/contractors exist, I will ask targeted questions with **one-tap answer buttons**.
-* 📸 **Media & Photo Proof**: Snap or attach site photos and videos to link them directly to rooms or tasks in the Media Vault.
+* ❓ **Interactive Clarification**: If a detail is missing or multiple rooms exist, I ask targeted questions with **one-tap answer buttons**.
+* 📸 **Media Proof & Site Photos**: Snap or attach site photos and videos to link them directly to rooms or tasks in the Media Vault.
 
 What should we tackle first? Tap an option below or type:`;
 
@@ -2249,10 +2754,10 @@ What should we tackle first? Tap an option below or type:`;
       ];
 
       // Always ensure the first message is the pristine welcome message
-      if (chatMessages.length === 0 || chatMessages[0].id !== 'welcome-msg-v5') {
-        chatMessages = chatMessages.filter(m => m.id !== 'welcome-msg' && m.id !== 'welcome-msg-v4' && !m.text.includes('Visual Defect'));
+      if (chatMessages.length === 0 || chatMessages[0].id !== 'welcome-msg-v6') {
+        chatMessages = chatMessages.filter(m => !m.id.startsWith('welcome-msg') && !m.text.includes('Visual Defect'));
         chatMessages.unshift({
-          id: 'welcome-msg-v5',
+          id: 'welcome-msg-v6',
           role: 'assistant',
           text: cleanWelcomeText,
           media: [],
