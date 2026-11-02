@@ -24,7 +24,7 @@ Based on the top trending open-source frontend and UI repositories on GitHub (**
 ## 🔐 Family Access Credentials
 
 * **Default Username:** `family`
-* **Default Initial Password:** `indra2026`
+* **Default Initial Password:** Configured securely as a private SHA-256 hash.
 * **Password Change:** Click the **👨‍👩‍👧 Family Portal** avatar in the top right &rarr; **Change Password**.
 
 ---
