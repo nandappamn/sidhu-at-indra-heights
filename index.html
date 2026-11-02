@@ -99,6 +99,10 @@
 
       <!-- Global Actions -->
       <div class="flex items-center gap-2">
+        <button onclick="toggleChatDrawer()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-gradient-to-r from-purple-600 via-indigo-600 to-brand-600 hover:from-purple-500 hover:to-brand-500 text-white rounded-lg shadow-sm transition group">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-300 group-hover:rotate-12 transition"></i>
+          <span>Indra AI</span>
+        </button>
         <button onclick="openCardModal(null)" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold bg-brand-600 hover:bg-brand-500 text-white rounded-lg shadow-sm transition">
           <i data-lucide="plus-circle" class="w-4 h-4"></i>
           <span>New Task</span>
@@ -606,7 +610,30 @@
           <p class="mt-0.5 text-[11px] leading-relaxed">Enter your project credentials from your free Supabase Dashboard (Settings → API). Once connected, photos taken on your phone will sync live to your laptop.</p>
         </div>
 
-        <div>
+        <!-- Gemini Multimodal AI Settings -->
+        <div class="p-3 bg-purple-50 border border-purple-200 rounded-xl text-purple-900 space-y-2">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-1.5 font-bold">
+              <i data-lucide="sparkles" class="w-4 h-4 text-purple-600"></i>
+              <span>Google Gemini Multimodal AI</span>
+            </div>
+            <span id="gemini-status-pill" class="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-slate-200 text-slate-700">Not Set</span>
+          </div>
+          <p class="text-[11px] leading-relaxed text-purple-800">Powers Indra AI to visually inspect site photos/videos, diagnose defects, and take automated actions on your board.</p>
+          <div>
+            <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1 text-[10px]">Gemini API Key</label>
+            <input type="password" id="gemini-key-input" placeholder="AIzaSy..." class="w-full px-3 py-2 border border-purple-200 rounded-xl text-slate-800 font-mono text-xs bg-white">
+          </div>
+          <div class="flex items-center justify-between text-[11px]">
+            <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-purple-700 hover:underline font-semibold flex items-center gap-1">
+              <span>Get free key from Google AI Studio</span>
+              <i data-lucide="external-link" class="w-3 h-3"></i>
+            </a>
+            <button type="button" onclick="testGeminiConnection()" class="font-bold text-purple-700 hover:text-purple-900 underline">Test Key</button>
+          </div>
+        </div>
+
+        <div class="pt-2 border-t border-slate-200">
           <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Project URL</label>
           <input type="text" id="supabase-url-input" placeholder="https://your-project.supabase.co" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-slate-800 font-mono text-xs">
         </div>
@@ -625,6 +652,117 @@
       </div>
     </div>
   </div>
+
+  <!-- ======================================================== -->
+  <!-- FLOATING ACTION BUTTON: INDRA AI COPILOT                 -->
+  <!-- ======================================================== -->
+  <button onclick="toggleChatDrawer()" id="fab-ai-btn" class="fixed bottom-5 right-5 z-40 bg-gradient-to-r from-purple-600 via-indigo-600 to-brand-600 hover:from-purple-500 hover:to-brand-500 text-white p-3.5 sm:px-4 sm:py-3 rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center gap-2 border-2 border-white/20 group">
+    <i data-lucide="sparkles" class="w-5 h-5 text-amber-300 animate-pulse"></i>
+    <span class="font-bold text-xs tracking-wide hidden sm:inline">Ask Indra AI</span>
+    <span id="chat-fab-unread" class="hidden w-2.5 h-2.5 rounded-full bg-rose-500 absolute -top-1 -right-1 ring-2 ring-white"></span>
+  </button>
+
+  <!-- ======================================================== -->
+  <!-- DRAWER: INDRA AI MULTIMODAL RENOVATION ASSISTANT         -->
+  <!-- ======================================================== -->
+  <div id="chat-drawer-backdrop" onclick="toggleChatDrawer()" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 hidden transition-opacity"></div>
+
+  <aside id="chat-drawer" class="fixed inset-y-0 right-0 w-full sm:w-[500px] bg-slate-900 text-slate-100 z-50 shadow-2xl flex flex-col border-l border-slate-800 transform translate-x-full transition-transform duration-300 ease-in-out">
+    <!-- Drawer Header -->
+    <div class="px-4 py-3 bg-slate-950 border-b border-slate-800 flex items-center justify-between shrink-0">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-purple-500 via-indigo-600 to-brand-500 flex items-center justify-center text-white shadow-sm">
+          <i data-lucide="sparkles" class="w-4 h-4 text-amber-300"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h3 class="text-sm font-bold text-white leading-none">Indra AI</h3>
+            <span id="chat-drawer-model-badge" class="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-brand-500/20 text-brand-300 border border-brand-500/30">Gemini 1.5 Flash</span>
+          </div>
+          <p class="text-[10px] text-slate-400 mt-0.5">Multimodal Site Copilot • Photos, Videos & Intent</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-1">
+        <button onclick="clearChatMessages()" class="p-1.5 text-slate-400 hover:text-rose-400 rounded-lg hover:bg-slate-800 transition" title="Clear Chat History">
+          <i data-lucide="trash-2" class="w-4 h-4"></i>
+        </button>
+        <button onclick="openConfigModal()" class="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition" title="API Key Settings">
+          <i data-lucide="settings" class="w-4 h-4"></i>
+        </button>
+        <button onclick="toggleChatDrawer()" class="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition" title="Close">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Inline API Key Notice if missing -->
+    <div id="chat-api-key-banner" class="hidden p-3 bg-amber-950/70 border-b border-amber-800/60 text-xs text-amber-200 shrink-0">
+      <div class="flex items-start gap-2">
+        <i data-lucide="key" class="w-4 h-4 text-amber-400 shrink-0 mt-0.5"></i>
+        <div class="flex-1 space-y-1.5">
+          <p class="font-bold text-[11px]">Gemini API Key Required</p>
+          <p class="text-[10px] text-amber-300/80 leading-relaxed">Paste your free Google Gemini API key to enable multimodal photo inspection and automated task creation:</p>
+          <div class="flex items-center gap-1.5">
+            <input type="password" id="inline-gemini-key-input" placeholder="AIzaSy..." class="flex-1 px-2.5 py-1 text-xs bg-slate-900 border border-amber-500/40 rounded-lg text-white font-mono focus:outline-none focus:border-amber-400">
+            <button onclick="saveInlineGeminiKey()" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg transition">Save</button>
+          </div>
+          <a href="https://aistudio.google.com/app/apikey" target="_blank" class="inline-block text-[10px] text-brand-400 hover:underline">Get a free key from Google AI Studio &rarr;</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Messages Container -->
+    <div id="chat-messages-container" class="flex-1 overflow-y-auto p-4 space-y-3 text-xs">
+      <!-- Dynamic messages -->
+    </div>
+
+    <!-- Quick Prompts Horizontal Scroll -->
+    <div class="px-3 py-1.5 bg-slate-950 border-t border-slate-800/70 overflow-x-auto flex items-center gap-1.5 shrink-0 no-scrollbar">
+      <button onclick="sendQuickPrompt('What tasks are currently blocked or waiting?')" class="whitespace-nowrap px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-full text-[10px] font-medium border border-slate-700/60 transition flex items-center gap-1">
+        <span>⚠️ Blocked tasks</span>
+      </button>
+      <button onclick="sendQuickPrompt('List all tasks assigned to the plumber')" class="whitespace-nowrap px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-full text-[10px] font-medium border border-slate-700/60 transition flex items-center gap-1">
+        <span>🔧 Plumber tasks</span>
+      </button>
+      <button onclick="sendQuickPrompt('Summarize overall renovation progress across all rooms')" class="whitespace-nowrap px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-full text-[10px] font-medium border border-slate-700/60 transition flex items-center gap-1">
+        <span>📊 Progress report</span>
+      </button>
+      <button onclick="sendQuickPrompt('What rooms and spaces are we renovating?')" class="whitespace-nowrap px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-full text-[10px] font-medium border border-slate-700/60 transition flex items-center gap-1">
+        <span>🏛️ All Spaces</span>
+      </button>
+    </div>
+
+    <!-- Staged Media Previews Bar -->
+    <div id="chat-staged-media-bar" class="hidden px-3 py-2 bg-slate-950 border-t border-slate-800 flex items-center gap-2 overflow-x-auto shrink-0">
+      <!-- Thumbnail chips dynamically added here -->
+    </div>
+
+    <!-- Input Footer -->
+    <div class="p-3 bg-slate-950 border-t border-slate-800 shrink-0 space-y-2">
+      <div class="flex items-end gap-1.5">
+        <!-- Hidden file inputs -->
+        <input type="file" id="chat-media-file-input" accept="image/*,video/*" multiple class="hidden" onchange="handleChatFilesSelected(this.files)">
+        <input type="file" id="chat-camera-file-input" accept="image/*" capture="environment" class="hidden" onchange="handleChatFilesSelected(this.files)">
+
+        <button type="button" onclick="document.getElementById('chat-media-file-input').click()" class="p-2 text-slate-400 hover:text-brand-400 hover:bg-slate-800 rounded-xl transition" title="Attach Photos or Videos">
+          <i data-lucide="paperclip" class="w-4 h-4"></i>
+        </button>
+        <button type="button" onclick="document.getElementById('chat-camera-file-input').click()" class="p-2 text-slate-400 hover:text-emerald-400 hover:bg-slate-800 rounded-xl transition" title="Snap Photo with Camera">
+          <i data-lucide="camera" class="w-4 h-4"></i>
+        </button>
+
+        <textarea id="chat-input-text" rows="1" placeholder="Type a task, question, or attach media..." class="flex-1 px-3 py-2 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 resize-none max-h-24" onkeydown="handleChatKeyDown(event)"></textarea>
+
+        <button type="button" id="chat-send-btn" onclick="handleChatSend()" class="p-2 bg-brand-600 hover:bg-brand-500 text-white rounded-xl transition shadow-sm disabled:opacity-50">
+          <i data-lucide="send" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <div class="flex items-center justify-between text-[10px] text-slate-500 px-1">
+        <span>Multimodal: Photos, Videos & Intent</span>
+        <span>Enter to send • Shift+Enter for newline</span>
+      </div>
+    </div>
+  </aside>
 
   <!-- ======================================================== -->
   <!-- APPLICATION JAVASCRIPT STATE & LOGIC                     -->
@@ -666,6 +804,7 @@
       await loadData();
       populateDropdowns();
       renderAllViews();
+      initIndraAIChat();
       lucide.createIcons();
     }
 
@@ -701,13 +840,19 @@
     function saveSupabaseConfig() {
       const url = document.getElementById('supabase-url-input').value.trim();
       const key = document.getElementById('supabase-key-input').value.trim();
-      if (!url || !key) {
-        alert('Please provide both Project URL and Anon Key.');
-        return;
+      const geminiKey = document.getElementById('gemini-key-input') ? document.getElementById('gemini-key-input').value.trim() : '';
+
+      if (geminiKey) {
+        saveGeminiApiKey(geminiKey);
       }
-      localStorage.setItem(CONFIG_KEY, JSON.stringify({ url, key }));
-      closeConfigModal();
-      location.reload();
+
+      if (url && key) {
+        localStorage.setItem(CONFIG_KEY, JSON.stringify({ url, key }));
+        closeConfigModal();
+        location.reload();
+      } else {
+        closeConfigModal();
+      }
     }
 
     function disconnectSupabase() {
@@ -1819,6 +1964,10 @@
       const cfg = getSupabaseConfig();
       document.getElementById('supabase-url-input').value = cfg.url || '';
       document.getElementById('supabase-key-input').value = cfg.key || '';
+      const geminiKey = getGeminiApiKey();
+      const gInput = document.getElementById('gemini-key-input');
+      if (gInput) gInput.value = geminiKey;
+      updateGeminiKeyStatusUI();
       document.getElementById('config-modal').classList.remove('hidden');
       lucide.createIcons();
     }
@@ -1869,6 +2018,973 @@
       renderBoard();
     }
 
+
+    // ========================================================
+    // INDRA AI MULTIMODAL RENOVATION ASSISTANT ENGINE
+    // ========================================================
+    const GEMINI_KEY_STORAGE = 'sidhu_indra_gemini_key';
+    const CHAT_HISTORY_STORAGE = 'sidhu_indra_chat_history_v1';
+
+    let isChatDrawerOpen = false;
+    let chatMessages = [];
+    let stagedChatMedia = []; // Array of { name, mimeType, dataUrl, base64Data, isVideo }
+    let isChatGenerating = false;
+
+    function getGeminiApiKey() {
+      return (localStorage.getItem(GEMINI_KEY_STORAGE) || '').trim();
+    }
+
+    function saveGeminiApiKey(key) {
+      if (key) {
+        localStorage.setItem(GEMINI_KEY_STORAGE, key.trim());
+      } else {
+        localStorage.removeItem(GEMINI_KEY_STORAGE);
+      }
+      updateGeminiKeyStatusUI();
+    }
+
+    function saveInlineGeminiKey() {
+      const input = document.getElementById('inline-gemini-key-input');
+      const val = (input ? input.value : '').trim();
+      if (!val) {
+        alert('Please enter a valid Gemini API key.');
+        return;
+      }
+      saveGeminiApiKey(val);
+      document.getElementById('chat-api-key-banner').classList.add('hidden');
+      addChatMessage('assistant', '✨ **Gemini API Key saved!** I am ready. You can now send me renovation questions, attach worksite photos or videos, or ask me to add/manage tasks.');
+    }
+
+    function updateGeminiKeyStatusUI() {
+      const key = getGeminiApiKey();
+      const pill = document.getElementById('gemini-status-pill');
+      const banner = document.getElementById('chat-api-key-banner');
+      const badge = document.getElementById('chat-drawer-model-badge');
+
+      if (key) {
+        if (pill) {
+          pill.textContent = 'Active';
+          pill.className = 'text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-700 border border-emerald-500/30';
+        }
+        if (banner) banner.classList.add('hidden');
+        if (badge) {
+          badge.textContent = 'Gemini 1.5 Flash';
+          badge.className = 'text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-brand-500/20 text-brand-300 border border-brand-500/30';
+        }
+      } else {
+        if (pill) {
+          pill.textContent = 'Not Set';
+          pill.className = 'text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-slate-200 text-slate-700';
+        }
+        if (banner) banner.classList.remove('hidden');
+        if (badge) {
+          badge.textContent = 'API Key Needed';
+          badge.className = 'text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30';
+        }
+      }
+    }
+
+    async function testGeminiConnection() {
+      const keyInput = document.getElementById('gemini-key-input');
+      const key = (keyInput ? keyInput.value.trim() : '') || getGeminiApiKey();
+      if (!key) {
+        alert('Please enter an API key first.');
+        return;
+      }
+      try {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: 'Respond with just "OK".' }] }]
+          })
+        });
+        const data = await res.json();
+        if (data.candidates && data.candidates.length > 0) {
+          alert('✅ Gemini API connected successfully!');
+          saveGeminiApiKey(key);
+        } else {
+          alert('❌ Gemini API responded with error: ' + (data.error ? data.error.message : 'Unknown error'));
+        }
+      } catch (err) {
+        alert('❌ Network connection failed: ' + err.message);
+      }
+    }
+
+    function toggleChatDrawer() {
+      const drawer = document.getElementById('chat-drawer');
+      const backdrop = document.getElementById('chat-drawer-backdrop');
+      if (!drawer) return;
+
+      isChatDrawerOpen = !isChatDrawerOpen;
+      if (isChatDrawerOpen) {
+        drawer.classList.remove('translate-x-full');
+        backdrop.classList.remove('hidden');
+        updateGeminiKeyStatusUI();
+        renderChatMessages();
+        setTimeout(() => {
+          const input = document.getElementById('chat-input-text');
+          if (input) input.focus();
+        }, 150);
+      } else {
+        drawer.classList.add('translate-x-full');
+        backdrop.classList.add('hidden');
+      }
+      lucide.createIcons();
+    }
+
+    function initIndraAIChat() {
+      loadChatHistory();
+      if (chatMessages.length === 0) {
+        chatMessages.push({
+          id: 'welcome-msg',
+          role: 'assistant',
+          text: `👋 **Hi Sidhu! I'm Indra AI**, your multimodal site engineer and renovation copilot at Indra Heights.
+
+Here is how I can help you:
+* 📸 **Inspect Photos & Videos**: Snap worksite defects, plumbing grooves, concealed wiring, or tile catalogs. I will inspect the visuals and draft exact tasks.
+* ⚡ **Natural Task Creation**: Say *"Add high-priority task for Ramesh Plumber to replace 1-inch pipe in Master Bath by Friday"* with checklist items.
+* 📊 **Ask Questions**: Ask *"What tasks are blocked?"* or *"Who is assigned to the Kitchen?"*.
+
+Tap any quick chip below or type a message to start!`,
+          media: [],
+          actionCards: []
+        });
+        saveChatHistory();
+      }
+      updateGeminiKeyStatusUI();
+      renderChatMessages();
+    }
+
+    function loadChatHistory() {
+      try {
+        const raw = localStorage.getItem(CHAT_HISTORY_STORAGE);
+        if (raw) chatMessages = JSON.parse(raw);
+      } catch (e) {
+        chatMessages = [];
+      }
+    }
+
+    function saveChatHistory() {
+      try {
+        const trimmed = chatMessages.slice(-30);
+        localStorage.setItem(CHAT_HISTORY_STORAGE, JSON.stringify(trimmed));
+      } catch (e) {
+        console.warn('Chat history save error:', e);
+      }
+    }
+
+    function clearChatMessages() {
+      if (confirm('Clear all chat history with Indra AI?')) {
+        chatMessages = [];
+        localStorage.removeItem(CHAT_HISTORY_STORAGE);
+        initIndraAIChat();
+      }
+    }
+
+    function addChatMessage(role, text, mediaItems = [], actionCards = []) {
+      const msg = {
+        id: 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+        role: role,
+        text: text,
+        media: mediaItems,
+        actionCards: actionCards,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      chatMessages.push(msg);
+      saveChatHistory();
+      renderChatMessages();
+      scrollChatToBottom();
+      return msg;
+    }
+
+    function scrollChatToBottom() {
+      const container = document.getElementById('chat-messages-container');
+      if (container) {
+        setTimeout(() => {
+          container.scrollTop = container.scrollHeight;
+        }, 50);
+      }
+    }
+
+    function formatMarkdown(text) {
+      if (!text) return '';
+      let escaped = text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+
+      // Bold **text**
+      escaped = escaped.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      // Italic *text*
+      escaped = escaped.replace(/\*(.*?)\*/g, '<em>$1</em>');
+      // Inline code
+      escaped = escaped.replace(/`([^`]+)`/g, '<code class="px-1 py-0.5 bg-slate-800 text-brand-300 rounded font-mono text-[11px]">$1</code>');
+      // Line breaks
+      escaped = escaped.replace(/\n/g, '<br>');
+      // Bullet points
+      escaped = escaped.replace(/(?:<br>|^)[•\-] (.*?)(?=(?:<br>|$))/g, '<br>&bull; $1');
+
+      return escaped;
+    }
+
+    function renderChatMessages() {
+      const container = document.getElementById('chat-messages-container');
+      if (!container) return;
+
+      container.innerHTML = '';
+
+      chatMessages.forEach(msg => {
+        const isUser = msg.role === 'user';
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `flex gap-2.5 ${isUser ? 'justify-end' : 'justify-start'}`;
+
+        let mediaHtml = '';
+        if (msg.media && msg.media.length > 0) {
+          mediaHtml = `
+            <div class="flex flex-wrap gap-1.5 mb-2">
+              ${msg.media.map(m => `
+                <div class="relative rounded-lg overflow-hidden border border-slate-700 w-20 h-20 bg-slate-950">
+                  ${m.isVideo ? 
+                    `<video src="${m.dataUrl}" class="w-full h-full object-cover"></video><div class="absolute inset-0 flex items-center justify-center bg-black/40"><i data-lucide="play" class="w-4 h-4 text-white"></i></div>` : 
+                    `<img src="${m.dataUrl}" alt="${m.name}" class="w-full h-full object-cover">`
+                  }
+                </div>
+              `).join('')}
+            </div>
+          `;
+        }
+
+        let actionCardsHtml = '';
+        if (msg.actionCards && msg.actionCards.length > 0) {
+          actionCardsHtml = `
+            <div class="space-y-1.5 mt-2.5 pt-2 border-t border-emerald-800/40">
+              ${msg.actionCards.map(c => `
+                <div class="p-2.5 rounded-xl bg-slate-950/70 border border-emerald-500/30 text-[11px] flex items-center justify-between gap-2 shadow-xs">
+                  <div class="flex items-center gap-2 overflow-hidden">
+                    <span class="p-1 rounded-lg bg-emerald-500/20 text-emerald-400 shrink-0">
+                      <i data-lucide="${c.icon || 'check-circle'}" class="w-3.5 h-3.5"></i>
+                    </span>
+                    <div class="truncate">
+                      <span class="font-bold text-white block truncate">${c.title}</span>
+                      <span class="text-[10px] text-slate-400 block">${c.subtitle || ''}</span>
+                    </div>
+                  </div>
+                  ${c.actionBtn ? `
+                    <button onclick="${c.actionBtn.onClick}" class="px-2 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold text-[10px] shrink-0 transition">
+                      ${c.actionBtn.label}
+                    </button>
+                  ` : ''}
+                </div>
+              `).join('')}
+            </div>
+          `;
+        }
+
+        if (isUser) {
+          msgDiv.innerHTML = `
+            <div class="max-w-[85%] bg-brand-700 text-white p-3 rounded-2xl rounded-tr-xs shadow-sm">
+              ${mediaHtml}
+              <div class="text-xs leading-relaxed whitespace-pre-wrap">${formatMarkdown(msg.text)}</div>
+              <div class="text-[9px] text-brand-200 mt-1 text-right">${msg.timestamp || ''}</div>
+            </div>
+            <div class="w-7 h-7 rounded-full bg-brand-600 text-white flex items-center justify-center font-bold text-[11px] shrink-0 shadow-xs">
+              S
+            </div>
+          `;
+        } else {
+          msgDiv.innerHTML = `
+            <div class="w-7 h-7 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white flex items-center justify-center shrink-0 shadow-xs mt-0.5">
+              <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-300"></i>
+            </div>
+            <div class="max-w-[85%] bg-slate-800 text-slate-100 p-3 rounded-2xl rounded-tl-xs border border-slate-700/70 shadow-sm">
+              ${mediaHtml}
+              <div class="text-xs leading-relaxed text-slate-200 space-y-1">${formatMarkdown(msg.text)}</div>
+              ${actionCardsHtml}
+              <div class="text-[9px] text-slate-400 mt-1.5 flex items-center justify-between">
+                <span>Indra AI</span>
+                <span>${msg.timestamp || ''}</span>
+              </div>
+            </div>
+          `;
+        }
+
+        container.appendChild(msgDiv);
+      });
+
+      if (isChatGenerating) {
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'flex gap-2.5 justify-start';
+        typingDiv.id = 'chat-typing-indicator';
+        typingDiv.innerHTML = `
+          <div class="w-7 h-7 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white flex items-center justify-center shrink-0 shadow-xs animate-pulse">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-300"></i>
+          </div>
+          <div class="bg-slate-800 border border-slate-700/70 px-4 py-2.5 rounded-2xl rounded-tl-xs flex items-center gap-1.5 text-xs text-slate-400">
+            <span class="w-2 h-2 rounded-full bg-brand-400 animate-bounce"></span>
+            <span class="w-2 h-2 rounded-full bg-indigo-400 animate-bounce [animation-delay:0.2s]"></span>
+            <span class="w-2 h-2 rounded-full bg-purple-400 animate-bounce [animation-delay:0.4s]"></span>
+            <span class="ml-2 text-[11px] text-slate-300 font-medium">Analyzing media & board state...</span>
+          </div>
+        `;
+        container.appendChild(typingDiv);
+      }
+
+      lucide.createIcons();
+    }
+
+    // Media attachment handling
+    async function handleChatFilesSelected(files) {
+      if (!files || files.length === 0) return;
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        try {
+          const processed = await processFileForGemini(file);
+          stagedChatMedia.push(processed);
+        } catch (err) {
+          alert('Could not read file ' + file.name + ': ' + err.message);
+        }
+      }
+
+      renderStagedMediaBar();
+      const f1 = document.getElementById('chat-media-file-input');
+      const f2 = document.getElementById('chat-camera-file-input');
+      if (f1) f1.value = '';
+      if (f2) f2.value = '';
+    }
+
+    function processFileForGemini(file) {
+      return new Promise((resolve, reject) => {
+        const isImg = file.type.startsWith('image/');
+        const isVid = file.type.startsWith('video/');
+
+        if (!isImg && !isVid) {
+          return reject(new Error('Only images and videos are supported.'));
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const rawDataUrl = e.target.result;
+
+          if (isImg) {
+            const img = new Image();
+            img.onload = () => {
+              let { width, height } = img;
+              const maxDim = 1600;
+              if (width > maxDim || height > maxDim) {
+                if (width > height) {
+                  height = Math.round((height * maxDim) / width);
+                  width = maxDim;
+                } else {
+                  width = Math.round((width * maxDim) / height);
+                  height = maxDim;
+                }
+              }
+              const canvas = document.createElement('canvas');
+              canvas.width = width;
+              canvas.height = height;
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, width, height);
+
+              const compressedUrl = canvas.toDataURL('image/jpeg', 0.85);
+              const base64Data = compressedUrl.split(',')[1];
+
+              resolve({
+                name: file.name,
+                mimeType: 'image/jpeg',
+                dataUrl: compressedUrl,
+                base64Data: base64Data,
+                isVideo: false
+              });
+            };
+            img.onerror = () => {
+              const base64Data = rawDataUrl.split(',')[1];
+              resolve({
+                name: file.name,
+                mimeType: file.type || 'image/jpeg',
+                dataUrl: rawDataUrl,
+                base64Data: base64Data,
+                isVideo: false
+              });
+            };
+            img.src = rawDataUrl;
+          } else {
+            // Video
+            const base64Data = rawDataUrl.split(',')[1];
+            resolve({
+              name: file.name,
+              mimeType: file.type || 'video/mp4',
+              dataUrl: rawDataUrl,
+              base64Data: base64Data,
+              isVideo: true
+            });
+          }
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function renderStagedMediaBar() {
+      const bar = document.getElementById('chat-staged-media-bar');
+      if (!bar) return;
+
+      if (stagedChatMedia.length === 0) {
+        bar.classList.add('hidden');
+        bar.innerHTML = '';
+        return;
+      }
+
+      bar.classList.remove('hidden');
+      bar.innerHTML = stagedChatMedia.map((m, idx) => `
+        <div class="relative group shrink-0 w-16 h-16 rounded-xl overflow-hidden border border-slate-700 bg-slate-900">
+          ${m.isVideo ? 
+            `<video src="${m.dataUrl}" class="w-full h-full object-cover"></video>` : 
+            `<img src="${m.dataUrl}" alt="${m.name}" class="w-full h-full object-cover">`
+          }
+          <button type="button" onclick="removeStagedMedia(${idx})" class="absolute top-1 right-1 p-0.5 bg-slate-950/80 hover:bg-rose-600 text-white rounded-full transition shadow-xs">
+            <i data-lucide="x" class="w-3 h-3"></i>
+          </button>
+        </div>
+      `).join('');
+
+      lucide.createIcons();
+    }
+
+    function removeStagedMedia(idx) {
+      stagedChatMedia.splice(idx, 1);
+      renderStagedMediaBar();
+    }
+
+    function sendQuickPrompt(promptText) {
+      const input = document.getElementById('chat-input-text');
+      if (input) input.value = promptText;
+      handleChatSend();
+    }
+
+    function handleChatKeyDown(event) {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        handleChatSend();
+      }
+    }
+
+    async function handleChatSend() {
+      if (isChatGenerating) return;
+
+      const input = document.getElementById('chat-input-text');
+      const text = input ? input.value.trim() : '';
+
+      if (!text && stagedChatMedia.length === 0) {
+        return;
+      }
+
+      const apiKey = getGeminiApiKey();
+      if (!apiKey) {
+        document.getElementById('chat-api-key-banner').classList.remove('hidden');
+        alert('Please paste your Google Gemini API key to activate Indra AI.');
+        return;
+      }
+
+      const attachedMedia = [...stagedChatMedia];
+      stagedChatMedia = [];
+      renderStagedMediaBar();
+      if (input) input.value = '';
+
+      // Add user message to UI
+      addChatMessage('user', text, attachedMedia, []);
+
+      isChatGenerating = true;
+      renderChatMessages();
+      scrollChatToBottom();
+
+      try {
+        await executeGeminiTurn(text, attachedMedia, apiKey);
+      } catch (err) {
+        console.error('Gemini error:', err);
+        addChatMessage('assistant', `⚠️ **AI Error**: ${err.message || 'Failed to communicate with Gemini API.'}\n\nPlease verify your Gemini API key in settings or try again.`);
+      } finally {
+        isChatGenerating = false;
+        renderChatMessages();
+        scrollChatToBottom();
+      }
+    }
+
+    // Tool Declarations for Gemini Function Calling
+    function getGeminiToolDeclarations() {
+      return [
+        {
+          functionDeclarations: [
+            {
+              name: 'create_task',
+              description: 'Create a new renovation task on the Kanban board with optional subtasks/checklist items and assignment.',
+              parameters: {
+                type: 'OBJECT',
+                properties: {
+                  title: { type: 'STRING', description: 'Clear action title of the task (e.g. Replace concealed CPVC bend)' },
+                  epic_id: { type: 'STRING', description: 'ID of the space or room, or leave empty' },
+                  contact_id: { type: 'STRING', description: 'ID of the assigned contractor/vendor, or leave empty' },
+                  status: { type: 'STRING', enum: ['todo', 'inprogress', 'blocked', 'completed'], description: 'Initial status of task' },
+                  priority: { type: 'STRING', enum: ['low', 'medium', 'high', 'urgent'], description: 'Priority level' },
+                  days_label: { type: 'STRING', description: 'Target date or timeline label, e.g. Target: Nov 15' },
+                  notes: { type: 'STRING', description: 'Detailed inspection observations, specifications, measurements, or materials' },
+                  subtasks: {
+                    type: 'ARRAY',
+                    items: { type: 'STRING' },
+                    description: 'Array of checklist items or subtasks required to finish this task'
+                  }
+                },
+                required: ['title']
+              }
+            },
+            {
+              name: 'update_task',
+              description: 'Update an existing task status, priority, notes, or checklist items by task ID or title match.',
+              parameters: {
+                type: 'OBJECT',
+                properties: {
+                  task_id: { type: 'STRING', description: 'ID of the task to update (or close title match)' },
+                  status: { type: 'STRING', enum: ['todo', 'inprogress', 'blocked', 'completed'], description: 'New status' },
+                  priority: { type: 'STRING', enum: ['low', 'medium', 'high', 'urgent'], description: 'New priority' },
+                  notes: { type: 'STRING', description: 'Additional notes or remarks to append' },
+                  days_label: { type: 'STRING', description: 'New target date' },
+                  add_subtasks: {
+                    type: 'ARRAY',
+                    items: { type: 'STRING' },
+                    description: 'New checklist items to append'
+                  },
+                  complete_subtasks: {
+                    type: 'ARRAY',
+                    items: { type: 'STRING' },
+                    description: 'Keywords or titles of checklist items to mark as completed'
+                  }
+                },
+                required: ['task_id']
+              }
+            },
+            {
+              name: 'delete_task',
+              description: 'Delete a task from the board.',
+              parameters: {
+                type: 'OBJECT',
+                properties: {
+                  task_id: { type: 'STRING', description: 'ID of the task to delete' }
+                },
+                required: ['task_id']
+              }
+            },
+            {
+              name: 'create_epic',
+              description: 'Create a new renovation room, space, or major epic stream.',
+              parameters: {
+                type: 'OBJECT',
+                properties: {
+                  name: { type: 'STRING', description: 'Name of the epic (e.g. Master Bedroom & Wardrobe)' },
+                  space: { type: 'STRING', description: 'Space or room name' },
+                  timeline: { type: 'STRING', description: 'Target phase or timeline' },
+                  color: { type: 'STRING', description: 'Hex color code, e.g. #8b5cf6' },
+                  description: { type: 'STRING', description: 'Detailed scope of renovation in this space' }
+                },
+                required: ['name', 'space']
+              }
+            },
+            {
+              name: 'create_contact',
+              description: 'Add a new tradesman, contractor, or vendor to the directory.',
+              parameters: {
+                type: 'OBJECT',
+                properties: {
+                  name: { type: 'STRING', description: 'Full name of contractor' },
+                  role: { type: 'STRING', description: 'Trade role (e.g. Plumber, Electrician, Carpenter, Mason, Painter)' },
+                  phone: { type: 'STRING', description: 'Mobile phone number' },
+                  whatsapp: { type: 'STRING', description: 'WhatsApp phone number' },
+                  company: { type: 'STRING', description: 'Company or shop name' },
+                  notes: { type: 'STRING', description: 'Rates, payment schedule, or terms' }
+                },
+                required: ['name', 'role']
+              }
+            },
+            {
+              name: 'save_media',
+              description: 'Save the attached photo or video into the Media Vault under pre, in-progress, or post stage.',
+              parameters: {
+                type: 'OBJECT',
+                properties: {
+                  caption: { type: 'STRING', description: 'Descriptive caption of what is in the media' },
+                  stage: { type: 'STRING', enum: ['pre', 'in_progress', 'post'], description: 'Stage of renovation' },
+                  epic_id: { type: 'STRING', description: 'Optional associated space/room ID' },
+                  task_id: { type: 'STRING', description: 'Optional associated task ID' }
+                },
+                required: ['caption', 'stage']
+              }
+            }
+          ]
+        }
+      ];
+    }
+
+    async function executeGeminiTurn(userText, attachedMedia, apiKey) {
+      const boardSnapshot = {
+        epics: epics.map(e => ({ id: e.id, name: e.name, space: e.space })),
+        contacts: contacts.map(c => ({ id: c.id, name: c.name, role: c.role, phone: c.phone })),
+        tasksSummary: {
+          total: tasks.length,
+          todo: tasks.filter(t => t.status === 'todo').length,
+          inprogress: tasks.filter(t => t.status === 'inprogress').length,
+          blocked: tasks.filter(t => t.status === 'blocked').length,
+          completed: tasks.filter(t => t.status === 'completed').length
+        },
+        tasks: tasks.slice(0, 40).map(t => ({
+          id: t.id,
+          title: t.title,
+          status: t.status,
+          priority: t.priority,
+          epic_id: t.epic_id,
+          contact_id: t.contact_id,
+          subtasks: (t.subtasks || []).map(s => ({ title: s.title, done: s.is_completed }))
+        }))
+      };
+
+      const systemInstruction = `You are Indra AI, an expert site engineer and renovation project manager for Sidhu's apartment at Indra Heights.
+You have FULL authority to create tasks, update statuses, add checklist items, manage rooms/epics, add vendor contacts, and save inspection photos/videos into the media vault using your tool declarations.
+
+GUIDELINES:
+1. Multimodal Vision: If photos or videos are attached, inspect them closely. Identify specific technical defects (e.g. wall cracks, pipe diameter, electrical conduit placement, tile finish, dampness). Use this specific diagnosis in task titles and notes.
+2. Intent Execution: When user asks to "add task", "remind me to buy X", "assign to plumber", "mark as completed", or "save photo", IMMEDIATELY invoke the appropriate tool declaration (e.g. create_task, update_task, save_media, create_contact).
+3. Auto-linkage: Automatically link tasks to the best matching Epic/Room ID (e.g. if Kitchen is mentioned, look up Kitchen epic ID) and Contact ID (e.g. if plumber is mentioned, link Ramesh Plumber).
+4. Checklist Subtasks: For civil or technical tasks, break down work into 2-4 granular checklist subtasks inside the create_task call.
+5. Conversational Response: Be concise, clear, and proactive. Point out potential dependencies or worksite risks.
+
+CURRENT WORKSPACE SNAPSHOT:
+${JSON.stringify(boardSnapshot)}`;
+
+      const currentParts = [];
+      if (userText) {
+        currentParts.push({ text: userText });
+      } else {
+        currentParts.push({ text: 'Please inspect this photo/video and tell me what tasks or observations should be logged.' });
+      }
+
+      attachedMedia.forEach(m => {
+        currentParts.push({
+          inlineData: {
+            mimeType: m.mimeType,
+            data: m.base64Data
+          }
+        });
+      });
+
+      const contents = [
+        {
+          role: 'user',
+          parts: currentParts
+        }
+      ];
+
+      const requestPayload = {
+        system_instruction: {
+          parts: [{ text: systemInstruction }]
+        },
+        contents: contents,
+        tools: getGeminiToolDeclarations()
+      };
+
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestPayload)
+      });
+
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        throw new Error(errJson.error ? errJson.error.message : `HTTP ${res.status}: ${res.statusText}`);
+      }
+
+      const responseData = await res.json();
+      const candidate = responseData.candidates && responseData.candidates[0];
+      if (!candidate || !candidate.content) {
+        throw new Error('No response generated by Gemini model.');
+      }
+
+      const parts = candidate.content.parts || [];
+      const functionCalls = parts.filter(p => p.functionCall).map(p => p.functionCall);
+      const textParts = parts.filter(p => p.text).map(p => p.text).join('\n');
+
+      const actionCards = [];
+
+      if (functionCalls.length > 0) {
+        const functionResponses = [];
+
+        for (const call of functionCalls) {
+          const result = executeAgentTool(call.name, call.args || {}, attachedMedia);
+          functionResponses.push({
+            functionResponse: {
+              name: call.name,
+              response: result.data || { result: result.message }
+            }
+          });
+          if (result.card) {
+            actionCards.push(result.card);
+          }
+        }
+
+        const secondTurnContents = [
+          ...contents,
+          candidate.content,
+          {
+            role: 'function',
+            parts: functionResponses
+          }
+        ];
+
+        try {
+          const secondRes = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              system_instruction: { parts: [{ text: systemInstruction }] },
+              contents: secondTurnContents
+            })
+          });
+
+          if (secondRes.ok) {
+            const secondData = await secondRes.json();
+            const secondCand = secondData.candidates && secondData.candidates[0];
+            if (secondCand && secondCand.content && secondCand.content.parts) {
+              const summaryText = secondCand.content.parts.filter(p => p.text).map(p => p.text).join('\n');
+              addChatMessage('assistant', summaryText || textParts || 'I have completed the requested actions.', [], actionCards);
+              return;
+            }
+          }
+        } catch (secErr) {
+          console.warn('Second turn warning:', secErr);
+        }
+      }
+
+      const finalText = textParts || (actionCards.length > 0 ? 'Actions executed successfully on your board.' : 'Ready for your instructions.');
+      addChatMessage('assistant', finalText, [], actionCards);
+    }
+
+    function executeAgentTool(name, args, attachedMedia) {
+      if (name === 'create_task') {
+        const taskId = 't-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4);
+        const subtasks = (args.subtasks || []).map((st, i) => ({
+          id: 'st-' + Date.now() + '-' + i,
+          title: typeof st === 'string' ? st : (st.title || String(st)),
+          is_completed: false
+        }));
+
+        const newTask = {
+          id: taskId,
+          title: args.title || 'Untitled Renovation Task',
+          days_label: args.days_label || '',
+          epic_id: args.epic_id || '',
+          contact_id: args.contact_id || '',
+          status: args.status || 'todo',
+          priority: args.priority || 'medium',
+          notes: args.notes || '',
+          phase: 'Phase 1',
+          subtasks: subtasks
+        };
+
+        tasks.unshift(newTask);
+        saveLocalData();
+        renderAllViews();
+
+        const epicObj = epics.find(e => e.id === newTask.epic_id);
+        const contactObj = contacts.find(c => c.id === newTask.contact_id);
+
+        return {
+          status: 'success',
+          message: `Created task "${newTask.title}" (ID: ${newTask.id})`,
+          data: { id: newTask.id, title: newTask.title, status: newTask.status },
+          card: {
+            icon: 'check-square',
+            title: newTask.title,
+            subtitle: `Priority: ${(newTask.priority || 'medium').toUpperCase()} • ${epicObj ? epicObj.name : 'General Space'} ${contactObj ? '• Assigned: ' + contactObj.name : ''}`,
+            actionBtn: {
+              label: 'Open Task',
+              onClick: `openCardModal('${newTask.id}')`
+            }
+          }
+        };
+      }
+
+      if (name === 'update_task') {
+        const searchId = (args.task_id || '').toLowerCase();
+        const task = tasks.find(t => t.id === args.task_id || t.title.toLowerCase().includes(searchId));
+
+        if (!task) {
+          return { status: 'error', message: `Task not found with identifier "${args.task_id}"` };
+        }
+
+        if (args.status) task.status = args.status;
+        if (args.priority) task.priority = args.priority;
+        if (args.notes) task.notes = (task.notes ? task.notes + '\n' : '') + args.notes;
+        if (args.days_label) task.days_label = args.days_label;
+
+        if (Array.isArray(args.add_subtasks)) {
+          if (!task.subtasks) task.subtasks = [];
+          args.add_subtasks.forEach((st, i) => {
+            task.subtasks.push({
+              id: 'st-' + Date.now() + '-' + i,
+              title: typeof st === 'string' ? st : (st.title || String(st)),
+              is_completed: false
+            });
+          });
+        }
+
+        if (Array.isArray(args.complete_subtasks) && task.subtasks) {
+          task.subtasks.forEach(s => {
+            if (args.complete_subtasks.some(term => s.title.toLowerCase().includes(term.toLowerCase()))) {
+              s.is_completed = true;
+            }
+          });
+        }
+
+        if (task.status === 'completed') {
+          confetti({ particleCount: 40, spread: 55 });
+        }
+
+        saveLocalData();
+        renderAllViews();
+
+        return {
+          status: 'success',
+          message: `Updated task "${task.title}"`,
+          data: { id: task.id, title: task.title, status: task.status },
+          card: {
+            icon: 'refresh-cw',
+            title: `Updated: ${task.title}`,
+            subtitle: `Status: ${task.status} • Priority: ${task.priority}`,
+            actionBtn: {
+              label: 'View Card',
+              onClick: `openCardModal('${task.id}')`
+            }
+          }
+        };
+      }
+
+      if (name === 'delete_task') {
+        const searchId = (args.task_id || '').toLowerCase();
+        const idx = tasks.findIndex(t => t.id === args.task_id || t.title.toLowerCase().includes(searchId));
+        if (idx !== -1) {
+          const removed = tasks.splice(idx, 1)[0];
+          saveLocalData();
+          renderAllViews();
+          return {
+            status: 'success',
+            message: `Deleted task "${removed.title}"`,
+            card: {
+              icon: 'trash-2',
+              title: `Deleted: ${removed.title}`,
+              subtitle: 'Removed from board'
+            }
+          };
+        }
+        return { status: 'error', message: 'Task not found' };
+      }
+
+      if (name === 'create_epic') {
+        const epicId = 'e-' + (args.space ? args.space.toLowerCase().replace(/[^a-z0-9]/g, '-') : Date.now());
+        const newEpic = {
+          id: epicId,
+          name: args.name || 'New Space',
+          space: args.space || args.name || 'General',
+          timeline: args.timeline || 'Phase 1',
+          color: args.color || '#8b5cf6',
+          description: args.description || ''
+        };
+
+        epics.push(newEpic);
+        saveLocalData();
+        renderAllViews();
+
+        return {
+          status: 'success',
+          message: `Created space/epic "${newEpic.name}"`,
+          data: { id: newEpic.id, name: newEpic.name },
+          card: {
+            icon: 'layers',
+            title: `Created Space: ${newEpic.name}`,
+            subtitle: `Timeline: ${newEpic.timeline} • Color: ${newEpic.color}`,
+            actionBtn: {
+              label: 'View Epics',
+              onClick: `switchTab('epics')`
+            }
+          }
+        };
+      }
+
+      if (name === 'create_contact') {
+        const newContact = {
+          id: 'c-' + Date.now(),
+          name: args.name || 'New Contact',
+          role: args.role || 'Contractor',
+          company: args.company || '',
+          phone: args.phone || '',
+          whatsapp: args.whatsapp || args.phone || '',
+          notes: args.notes || ''
+        };
+
+        contacts.push(newContact);
+        saveLocalData();
+        renderAllViews();
+
+        return {
+          status: 'success',
+          message: `Added vendor "${newContact.name}" (${newContact.role})`,
+          data: { id: newContact.id, name: newContact.name },
+          card: {
+            icon: 'phone-call',
+            title: `Added Contact: ${newContact.name}`,
+            subtitle: `Trade: ${newContact.role} ${newContact.phone ? '• ' + newContact.phone : ''}`,
+            actionBtn: {
+              label: 'View Directory',
+              onClick: `switchTab('contacts')`
+            }
+          }
+        };
+      }
+
+      if (name === 'save_media') {
+        const attached = attachedMedia && attachedMedia.length > 0 ? attachedMedia[0] : null;
+        const newMedia = {
+          id: 'm-' + Date.now(),
+          file_url: attached ? attached.dataUrl : 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80',
+          file_type: attached ? (attached.isVideo ? 'video' : 'photo') : 'photo',
+          stage: args.stage || 'in_progress',
+          caption: args.caption || 'Renovation Inspection Photo',
+          epic_id: args.epic_id || '',
+          task_id: args.task_id || '',
+          created_at: new Date().toISOString()
+        };
+
+        media.unshift(newMedia);
+        saveLocalData();
+        renderAllViews();
+
+        return {
+          status: 'success',
+          message: `Saved media item "${newMedia.caption}" to vault`,
+          data: { id: newMedia.id, caption: newMedia.caption, stage: newMedia.stage },
+          card: {
+            icon: 'camera',
+            title: `Vaulted: ${newMedia.caption}`,
+            subtitle: `Stage: ${newMedia.stage.toUpperCase()}`,
+            actionBtn: {
+              label: 'View Media',
+              onClick: `switchTab('media')`
+            }
+          }
+        };
+      }
+
+      return { status: 'error', message: `Unknown tool "${name}"` };
+    }
     window.addEventListener('DOMContentLoaded', initApp);
   </script>
 </body>
