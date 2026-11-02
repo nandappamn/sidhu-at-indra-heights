@@ -38,18 +38,14 @@ Simply open `index.html` in your browser.
 
 ### 2. Live Supabase Cloud Sync via GitHub Secrets (Zero Plaintext Secrets)
 To sync photos and updates live across all family phones and laptops without committing sensitive keys to git:
-1. Create a free project at [supabase.com](https://supabase.com).
-2. In Supabase **SQL Editor**, run `supabase/schema.sql`.
-3. In Supabase **Storage**, create a public bucket named `renovation-media`.
-4. In your GitHub repository, go to **Settings** &rarr; **Secrets and variables** &rarr; **Actions** &rarr; **New repository secret**:
-   * `SUPABASE_URL`: Your Supabase Project URL (`https://xyz.supabase.co`)
-   * `SUPABASE_ANON_KEY`: Your Supabase `anon` public key (`eyJ...`)
+1. In Supabase **SQL Editor**, run `supabase/schema.sql` (if not already done).
+2. In Supabase **Storage**, create a public bucket named `renovation-media`.
+3. In your GitHub repository, go to **Settings** &rarr; **Secrets and variables** &rarr; **Actions** &rarr; **New repository secret**:
+   * `SUPABASE_URL`: `https://bhfptaezplmhwcqqndzp.supabase.co`
+   * `SUPABASE_ANON_KEY`: `sb_publishable_LwEicfRSYXd8ZcxIhdRsAg_-Q4cb7v1`
    * `GEMINI_API_KEY`: Your Google Gemini API Key for Indra AI
-5. In **Settings** &rarr; **Pages** &rarr; **Build and deployment**, set **Source** to **GitHub Actions**.
-6. Trigger the workflow or push to `main` — GitHub Actions bundles `env.js` at deploy time, and your site automatically connects to Supabase Cloud on all devices with zero keys committed to git!
-
-### 3. Local UI Override
-You can also view or override keys anytime directly in the browser by clicking the **Local Sandbox** pill (or Profile &rarr; Supabase & AI Keys). Values entered here are stored strictly in browser `localStorage`.
+4. In **Settings** &rarr; **Pages** &rarr; **Build and deployment**, set **Source** to **GitHub Actions**.
+5. Push to `main` — GitHub Actions automatically injects `env.js` at deploy time, and your site connects to Supabase Cloud on all family devices with zero credentials exposed in the UI or in git history.
 
 ---
 
