@@ -10,8 +10,8 @@ create extension if not exists "uuid-ossp";
 create table if not exists public.epics (
   id uuid primary key default uuid_generate_v4(),
   title text not null,
-  space text not null, -- 'Kitchen', 'Bathroom & WC', 'Master Bedroom', '2nd Bedroom', 'Hall', 'Balcony', 'Entire Flat'
-  target_week text not null, -- 'Pre-Reno', 'Week 1', 'Week 2', 'Week 3', 'Week 4'
+  space text not null, -- 'Kitchen', 'Bathroom & WC', 'Master Bedroom', '2nd Bedroom', 'Hall', 'Balcony', 'Entire Flat', or custom room
+  target_week text, -- e.g. 'Phase 1', 'Week 1', 'Sprint 1', or date range
   description text,
   status text not null default 'planning' check (status in ('planning', 'in_progress', 'completed', 'blocked')),
   sort_order int default 0,
@@ -37,8 +37,8 @@ create table if not exists public.tasks (
   assigned_contact_id uuid references public.contacts(id) on delete set null,
   title text not null,
   description text,
-  days_label text, -- e.g. 'Days 1–3', 'Days 8–10'
-  phase text not null default 'week-1' check (phase in ('pre-reno', 'week-1', 'week-2', 'week-3', 'week-4')),
+  days_label text, -- e.g. 'Target: Nov 15', 'Phase 1', 'Priority'
+  phase text default 'Phase 1',
   status text not null default 'todo' check (status in ('todo', 'in_progress', 'blocked', 'done')),
   priority text not null default 'medium' check (priority in ('low', 'medium', 'high', 'critical')),
   sort_order int default 0,
