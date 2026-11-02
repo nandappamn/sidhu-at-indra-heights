@@ -705,7 +705,7 @@
             </div>
             <span id="gemini-status-pill" class="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-slate-200 text-slate-700">Not Set</span>
           </div>
-          <p class="text-[11px] leading-relaxed text-purple-800">Powers Indra AI to visually inspect site photos/videos, diagnose defects, and take automated actions on your board.</p>
+          <p class="text-[11px] leading-relaxed text-purple-800">Powers Indra AI to manage tasks, answer renovation queries, and take automated actions on your board.</p>
           <div>
             <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1 text-[10px]">Gemini API Key</label>
             <input type="password" id="gemini-key-input" placeholder="AIzaSy..." class="w-full px-3 py-2 border border-purple-200 rounded-xl text-slate-800 font-mono text-xs bg-white">
@@ -787,7 +787,7 @@
         <i data-lucide="key" class="w-4 h-4 text-amber-400 shrink-0 mt-0.5"></i>
         <div class="flex-1 space-y-1.5">
           <p class="font-bold text-[11px]">Gemini API Key Required</p>
-          <p class="text-[10px] text-amber-300/80 leading-relaxed">Paste your free Google Gemini API key to enable multimodal photo inspection and automated task creation:</p>
+          <p class="text-[10px] text-amber-300/80 leading-relaxed">Paste your free Google Gemini API key to enable AI task management and automated board actions:</p>
           <div class="flex items-center gap-1.5">
             <input type="password" id="inline-gemini-key-input" placeholder="AIzaSy..." class="flex-1 px-2.5 py-1 text-xs bg-slate-900 border border-amber-500/40 rounded-lg text-white font-mono focus:outline-none focus:border-amber-400">
             <button onclick="saveInlineGeminiKey()" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg transition">Save</button>
@@ -2109,7 +2109,7 @@
     // INDRA AI MULTIMODAL REACT RENOVATION ASSISTANT ENGINE (v3)
     // ========================================================
     const GEMINI_KEY_STORAGE = 'sidhu_indra_gemini_key';
-    const CHAT_HISTORY_STORAGE = 'sidhu_indra_chat_history_v3';
+    const CHAT_HISTORY_STORAGE = 'sidhu_indra_chat_history_v4';
     // Backed by GitHub Actions Secret GEMINI_API_KEY with encoded client fallback
     const DEFAULT_GEMINI_API_KEY = atob('QVEuQWI4Uk42TENCaWloVFVlZWY0WFRCUDZpdk9Vc1p5LTV0aV94ZTByMFVSOGIxVWczNnc=');
     const GEMINI_MODEL = 'gemini-3.5-flash';
@@ -2234,7 +2234,7 @@
 I work in an interactive **Reasoning + Acting** loop:
 * 🎯 **Direct Execution**: When instructions are clear, I immediately create/update tasks, generate professional civil checklist items, and assign contractors.
 * ❓ **Interactive Clarification**: If a detail is missing or multiple rooms/contractors exist, I will ask targeted questions with **one-tap answer buttons**.
-* 📸 **Visual Defect Inspection**: Snap or attach site photos and videos. I'll inspect pipe gradients, conduit placement, or wall cracks and archive them to the vault.
+* 📸 **Media & Photo Proof**: Snap or attach site photos and videos. I will link them directly to the room or task and archive them to the vault.
 
 What should we tackle first? Tap an option below or type:`,
           media: [],
@@ -2880,9 +2880,8 @@ REACT OPERATIONAL DIRECTIVES:
    - After executing an action, anticipate the NEXT civil or interior milestone (e.g. after concealed pipe laying comes pressure testing, then waterproofing, then plastering).
    - In your follow-up, provide 'followup_question' with 2 to 3 one-tap 'followup_options' so the user can easily guide the next step.
 
-3. MULTIMODAL SITE INSPECTION:
-   - When photos/videos are attached, diagnose technical features: pipe diameters, mortar ratios, conduit depth, dampness, tile leveling.
-   - Save proof with 'save_media' and log the necessary follow-up tasks.
+3. MULTIMODAL MEDIA & PHOTOS:
+   - When photos/videos are attached, archive them to the vault using 'save_media' and link them to the relevant room or task.
 
 4. CRISP FORMATTING (Markdown):
    - You MUST format responses in clean GitHub Flavored Markdown (GFM).
@@ -2896,7 +2895,7 @@ ${JSON.stringify(boardSnapshot)}`;
       if (userText) {
         currentParts.push({ text: userText });
       } else {
-        currentParts.push({ text: 'Please inspect this attached photo/video and tell me what tasks, observations, or quality checks should be logged.' });
+        currentParts.push({ text: 'Please save this attached photo/video to the media vault and tell me what tasks or notes should be logged.' });
       }
 
       attachedMedia.forEach(m => {
@@ -3291,7 +3290,7 @@ ${JSON.stringify(boardSnapshot)}`;
           file_url: attached ? attached.dataUrl : 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80',
           file_type: attached ? (attached.isVideo ? 'video' : 'photo') : 'photo',
           stage: args.stage || 'in_progress',
-          caption: args.caption || 'Renovation Inspection Proof',
+          caption: args.caption || 'Renovation Photo Proof',
           epic_id: args.epic_id || '',
           task_id: args.task_id || '',
           created_at: new Date().toISOString()

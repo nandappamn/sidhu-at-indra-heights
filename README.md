@@ -12,7 +12,7 @@ Renovation tracking requires more than a simple to-do list:
 3. **Epics & Rooms Management:** Define custom rooms/epics (Kitchen, Master Bed, Living Hall, Balcony, etc.) with automated progress bars tracking tasks completed per room.
 4. **Vendor CRM:** Maintain vendor records (Plumber, Electrician, Carpenter, Mason, Painter, Society Office) with instant one-tap **WhatsApp** (`wa.me`) and phone calling.
 5. **Media Vault:** Record **Pre-demolition baseline photos** (for society NOC and the downstairs flat ceiling), **In-progress concealed pipe/wiring proof** (before contractors plaster grooves), and **Post-finish handover shots**.
-7. **🤖 Multimodal AI Copilot (Indra AI):** Inspect worksite photos and videos, diagnose plumbing/civil/electrical defects, formulate step-by-step checklist tasks, and query current board progress with native Gemini function calling.
+7. **🤖 Multimodal AI Copilot (Indra AI):** Interactive ReAct renovation assistant that asks questions, manages tasks with granular checklists, answers queries, archives media proof to the vault, and tracks project progress with native Gemini function calling.
 
 ---
 
@@ -50,11 +50,12 @@ To sync photos and updates live between your phone and laptop:
   * Add and edit contractors, trades, company names, rates, and notes.
   * Direct one-tap **WhatsApp** and **Call** links, plus assigned task counters.
 * **🤖 Multimodal AI Copilot (Indra AI):**
-  * Powered by Google **Gemini 1.5 Flash** with native function calling.
-  * **Multimodal Inspection:** Attach or snap photos/videos of worksite problems, pipe runs, wall cracks, or tile catalogs. Indra AI analyzes the visuals and extracts technical specs.
+  * Powered by Google **Gemini 3.5 Flash** with ReAct architecture and native function calling.
+  * **Interactive ReAct Loop:** Evaluates task ambiguity, asks targeted clarifying questions with one-tap answer buttons, and proposes proactive follow-ups.
   * **Intent & Automated Actions:** Direct natural language actions to create tasks with subtasks, assign contractors, update progress, create epics, or save proof to the Media Vault.
   * **Interactive Action Cards:** Displays live card results in the chat with one-click navigation to inspect the updated board cards.
   * **Renovation Queries:** Ask *"What tasks are blocked?"*, *"Who is the plumber?"*, or *"Summarize overall progress"*.
+  * **Multimodal Media Support:** Attach or snap photos/videos of worksite progress, materials, or plans to link directly to tasks and rooms.
 * **📸 Media Vault (Pre / In-Progress / Post):**
   * Mobile camera capture support (`capture="environment"`).
   * Filter by stage: **Pre-Demolition (Before)**, **In-Progress (Pipes & Walls)**, and **Post-Finish (After)**.
