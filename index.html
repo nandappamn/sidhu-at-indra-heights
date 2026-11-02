@@ -32,6 +32,11 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Canvas Confetti -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <!-- Marked.js for perfect Markdown rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/marked@12.0.0/marked.min.js"></script>
+  <!-- DOMPurify for XSS safety -->
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.10/dist/purify.min.js"></script>
+
   <!-- Supabase JS Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -43,6 +48,87 @@
     ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     .card-ghost { opacity: 0.35; transform: scale(0.98); }
     .drag-over { background-color: rgba(241, 245, 249, 0.95); border: 2px dashed #22c55e !important; }
+    /* ======================================================== */
+    /* CRISP TYPOGRAPHY FOR INDRA AI CHATBOT (MARKED.JS)        */
+    /* ======================================================== */
+    .chat-prose {
+      color: #e2e8f0;
+      font-size: 0.8125rem;
+      line-height: 1.6;
+      word-break: break-word;
+    }
+    .chat-prose p { margin-bottom: 0.5rem; }
+    .chat-prose p:last-child { margin-bottom: 0; }
+    .chat-prose ul { list-style-type: disc; padding-left: 1.25rem; margin-bottom: 0.5rem; }
+    .chat-prose ol { list-style-type: decimal; padding-left: 1.25rem; margin-bottom: 0.5rem; }
+    .chat-prose li { margin-bottom: 0.25rem; }
+    .chat-prose li::marker { color: #10b981; }
+    .chat-prose strong { color: #ffffff; font-weight: 700; }
+    .chat-prose em { color: #cbd5e1; font-style: italic; }
+    .chat-prose hr { border-color: #334155; margin: 0.75rem 0; }
+    .chat-prose code {
+      background: #090d16;
+      color: #86efac;
+      padding: 0.15rem 0.4rem;
+      border-radius: 0.375rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.75rem;
+      border: 1px solid #1e293b;
+    }
+    .chat-prose pre {
+      background: #090d16;
+      padding: 0.75rem;
+      border-radius: 0.75rem;
+      overflow-x: auto;
+      margin: 0.5rem 0;
+      border: 1px solid #1e293b;
+    }
+    .chat-prose pre code {
+      background: transparent;
+      padding: 0;
+      border: none;
+      color: #cbd5e1;
+    }
+    .chat-prose blockquote {
+      border-left: 3px solid #10b981;
+      background: rgba(16, 185, 129, 0.08);
+      padding: 0.4rem 0.75rem;
+      border-radius: 0 0.5rem 0.5rem 0;
+      color: #94a3b8;
+      margin: 0.5rem 0;
+    }
+    .chat-prose h1, .chat-prose h2, .chat-prose h3, .chat-prose h4 {
+      color: #ffffff;
+      font-weight: 700;
+      margin-top: 0.75rem;
+      margin-bottom: 0.35rem;
+      line-height: 1.3;
+    }
+    .chat-prose h1 { font-size: 1.05rem; color: #a7f3d0; border-bottom: 1px solid #334155; padding-bottom: 0.25rem; }
+    .chat-prose h2 { font-size: 0.95rem; color: #86efac; }
+    .chat-prose h3 { font-size: 0.875rem; color: #e2e8f0; }
+    .chat-prose table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.5rem 0;
+      font-size: 0.75rem;
+      border-radius: 0.5rem;
+      overflow: hidden;
+      border: 1px solid #334155;
+    }
+    .chat-prose th, .chat-prose td {
+      border: 1px solid #334155;
+      padding: 0.4rem 0.6rem;
+      text-align: left;
+    }
+    .chat-prose th {
+      background: #0f172a;
+      color: #f1f5f9;
+      font-weight: 700;
+    }
+    .chat-prose tr:nth-child(even) {
+      background: rgba(15, 23, 42, 0.4);
+    }
   </style>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col font-sans antialiased selection:bg-brand-500 selection:text-white pb-16 md:pb-0">
@@ -2020,10 +2106,10 @@
 
 
     // ========================================================
-    // INDRA AI MULTIMODAL RENOVATION ASSISTANT ENGINE (v2 - SMART)
+    // INDRA AI MULTIMODAL REACT RENOVATION ASSISTANT ENGINE (v3)
     // ========================================================
     const GEMINI_KEY_STORAGE = 'sidhu_indra_gemini_key';
-    const CHAT_HISTORY_STORAGE = 'sidhu_indra_chat_history_v2';
+    const CHAT_HISTORY_STORAGE = 'sidhu_indra_chat_history_v3';
     // Backed by GitHub Actions Secret GEMINI_API_KEY with encoded client fallback
     const DEFAULT_GEMINI_API_KEY = atob('QVEuQWI4Uk42TENCaWloVFVlZWY0WFRCUDZpdk9Vc1p5LTV0aV94ZTByMFVSOGIxVWczNnc=');
     const GEMINI_MODEL = 'gemini-3.5-flash';
@@ -2072,7 +2158,7 @@
         }
         if (banner) banner.classList.add('hidden');
         if (badge) {
-          badge.textContent = 'Gemini 3.5 Flash';
+          badge.textContent = 'Gemini 3.5 Flash • ReAct';
           badge.className = 'text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-brand-500/20 text-brand-300 border border-brand-500/30';
         }
       } else {
@@ -2143,16 +2229,22 @@
         chatMessages.push({
           id: 'welcome-msg',
           role: 'assistant',
-          text: `👋 **Hi Sidhu! I'm Indra AI**, your Senior Renovation Project Director & Site Engineer at Indra Heights (powered by **Gemini 3.5 Flash**).
+          text: `👋 **Hi Sidhu! I'm Indra AI**, your ReAct Renovation Copilot & Site Director at Indra Heights.
 
-Here is how I can run this renovation with you:
-* 📸 **Visual Site Inspection**: Upload or snap photos/videos of exposed pipes, wall cracks, electrical conduit grooves, or tile catalogues. I will diagnose the issue and create technical tasks with checklists.
-* ⚡ **Natural Command Center**: Say *"Create bathroom civil checklist"*, *"Assign kitchen sink leak to Ramesh Plumber (Urgent)"*, or *"Mark plastering as completed"*.
-* 📊 **Smart Progress Analysis**: Ask *"What tasks are blocked right now?"*, *"Give me an overall progress audit"*, or *"What is Ramesh working on?"*.
+I work in an interactive **Reasoning + Acting** loop:
+* 🎯 **Direct Execution**: When instructions are clear, I immediately create/update tasks, generate professional civil checklist items, and assign contractors.
+* ❓ **Interactive Clarification**: If a detail is missing or multiple rooms/contractors exist, I will ask targeted questions with **one-tap answer buttons**.
+* 📸 **Visual Defect Inspection**: Snap or attach site photos and videos. I'll inspect pipe gradients, conduit placement, or wall cracks and archive them to the vault.
 
-Tap any prompt below or send me your first instruction!`,
+What should we tackle first? Tap an option below or type:`,
           media: [],
-          actionCards: []
+          actionCards: [],
+          questionOptions: [
+            'Create initial Kitchen civil & plumbing checklist',
+            'What tasks are currently blocked or waiting?',
+            'Register a new contractor',
+            'Give me an overall renovation progress audit'
+          ]
         });
         saveChatHistory();
       }
@@ -2186,13 +2278,14 @@ Tap any prompt below or send me your first instruction!`,
       }
     }
 
-    function addChatMessage(role, text, mediaItems = [], actionCards = []) {
+    function addChatMessage(role, text, mediaItems = [], actionCards = [], questionOptions = []) {
       const msg = {
         id: 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
         role: role,
         text: text,
         media: mediaItems,
         actionCards: actionCards,
+        questionOptions: questionOptions || [],
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
       chatMessages.push(msg);
@@ -2211,29 +2304,42 @@ Tap any prompt below or send me your first instruction!`,
       }
     }
 
+    // Markdown Parser with Marked.js + DOMPurify
     function formatMarkdown(text) {
       if (!text) return '';
+
+      if (typeof marked !== 'undefined' && marked.parse) {
+        try {
+          const rawHtml = marked.parse(text, { breaks: true, gfm: true });
+          if (typeof DOMPurify !== 'undefined' && DOMPurify.sanitize) {
+            return DOMPurify.sanitize(rawHtml, { ADD_ATTR: ['target'] });
+          }
+          return rawHtml;
+        } catch (e) {
+          console.warn('Marked parse error, using fallback:', e);
+        }
+      }
+
+      // Robust fallback if CDN is blocked
       let escaped = text
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;');
 
-      // Headers ### Header
-      escaped = escaped.replace(/^### (.*$)/gim, '<h4 class="font-bold text-white text-xs mt-2 mb-1">$1</h4>');
-      escaped = escaped.replace(/^## (.*$)/gim, '<h3 class="font-bold text-white text-sm mt-2.5 mb-1 text-brand-300">$1</h3>');
-
-      // Bold **text**
+      escaped = escaped.replace(/^### (.*$)/gim, '<h3 class="font-bold text-white text-xs mt-2 mb-1">$1</h3>');
+      escaped = escaped.replace(/^## (.*$)/gim, '<h2 class="font-bold text-brand-300 text-sm mt-2.5 mb-1">$1</h2>');
       escaped = escaped.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-      // Italic *text*
       escaped = escaped.replace(/\*(.*?)\*/g, '<em>$1</em>');
-      // Inline code
-      escaped = escaped.replace(/`([^`]+)`/g, '<code class="px-1 py-0.5 bg-slate-900 text-brand-300 rounded font-mono text-[11px]">$1</code>');
-      // Line breaks
+      escaped = escaped.replace(/`([^`]+)`/g, '<code>$1</code>');
       escaped = escaped.replace(/\n/g, '<br>');
-      // Bullet points
       escaped = escaped.replace(/(?:<br>|^)[•\-] (.*?)(?=(?:<br>|$))/g, '<br>&bull; $1');
-
       return escaped;
+    }
+
+    function handleQuickReply(optionText) {
+      const input = document.getElementById('chat-input-text');
+      if (input) input.value = optionText;
+      handleChatSend();
     }
 
     function renderChatMessages() {
@@ -2268,7 +2374,7 @@ Tap any prompt below or send me your first instruction!`,
           actionCardsHtml = `
             <div class="space-y-1.5 mt-2.5 pt-2 border-t border-emerald-800/40">
               ${msg.actionCards.map(c => `
-                <div class="p-2.5 rounded-xl bg-slate-950/70 border border-emerald-500/30 text-[11px] flex items-center justify-between gap-2 shadow-xs">
+                <div class="p-2.5 rounded-xl bg-slate-950/80 border border-emerald-500/30 text-[11px] flex items-center justify-between gap-2 shadow-xs">
                   <div class="flex items-center gap-2 overflow-hidden">
                     <span class="p-1 rounded-lg bg-emerald-500/20 text-emerald-400 shrink-0">
                       <i data-lucide="${c.icon || 'check-circle'}" class="w-3.5 h-3.5"></i>
@@ -2289,11 +2395,31 @@ Tap any prompt below or send me your first instruction!`,
           `;
         }
 
+        let questionsHtml = '';
+        if (msg.questionOptions && msg.questionOptions.length > 0) {
+          questionsHtml = `
+            <div class="mt-3 pt-2.5 border-t border-purple-500/30">
+              <div class="flex items-center gap-1.5 text-[10px] font-bold text-purple-300 mb-2">
+                <i data-lucide="help-circle" class="w-3.5 h-3.5 text-purple-400"></i>
+                <span>Choose an option or reply:</span>
+              </div>
+              <div class="flex flex-wrap gap-1.5">
+                ${msg.questionOptions.map(opt => `
+                  <button onclick="handleQuickReply('${opt.replace(/'/g, "\\'")}')" class="px-3 py-1.5 rounded-xl bg-purple-950/70 hover:bg-purple-800 active:scale-95 border border-purple-500/40 text-purple-100 text-xs font-semibold transition flex items-center gap-1.5 shadow-xs group text-left">
+                    <i data-lucide="arrow-right-circle" class="w-3.5 h-3.5 text-purple-400 group-hover:translate-x-0.5 transition shrink-0"></i>
+                    <span>${opt}</span>
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        }
+
         if (isUser) {
           msgDiv.innerHTML = `
             <div class="max-w-[85%] bg-brand-700 text-white p-3 rounded-2xl rounded-tr-xs shadow-sm">
               ${mediaHtml}
-              <div class="text-xs leading-relaxed whitespace-pre-wrap">${formatMarkdown(msg.text)}</div>
+              <div class="chat-prose text-white">${formatMarkdown(msg.text)}</div>
               <div class="text-[9px] text-brand-200 mt-1 text-right">${msg.timestamp || ''}</div>
             </div>
             <div class="w-7 h-7 rounded-full bg-brand-600 text-white flex items-center justify-center font-bold text-[11px] shrink-0 shadow-xs">
@@ -2305,14 +2431,15 @@ Tap any prompt below or send me your first instruction!`,
             <div class="w-7 h-7 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white flex items-center justify-center shrink-0 shadow-xs mt-0.5">
               <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-300"></i>
             </div>
-            <div class="max-w-[85%] bg-slate-800 text-slate-100 p-3 rounded-2xl rounded-tl-xs border border-slate-700/70 shadow-sm">
+            <div class="max-w-[88%] bg-slate-800 text-slate-100 p-3.5 rounded-2xl rounded-tl-xs border border-slate-700/70 shadow-sm">
               ${mediaHtml}
-              <div class="text-xs leading-relaxed text-slate-200 space-y-1">${formatMarkdown(msg.text)}</div>
+              <div class="chat-prose">${formatMarkdown(msg.text)}</div>
               ${actionCardsHtml}
-              <div class="text-[9px] text-slate-400 mt-1.5 flex items-center justify-between">
+              ${questionsHtml}
+              <div class="text-[9px] text-slate-400 mt-2 flex items-center justify-between pt-1 border-t border-slate-700/40">
                 <span class="flex items-center gap-1">
                   <span>Indra AI</span>
-                  <span class="text-[8px] px-1 py-0.2 rounded bg-slate-700 text-brand-300 font-mono">3.5 Flash</span>
+                  <span class="text-[8px] px-1 py-0.2 rounded bg-slate-700 text-brand-300 font-mono">ReAct</span>
                 </span>
                 <span>${msg.timestamp || ''}</span>
               </div>
@@ -2335,7 +2462,7 @@ Tap any prompt below or send me your first instruction!`,
             <span class="w-2 h-2 rounded-full bg-brand-400 animate-bounce"></span>
             <span class="w-2 h-2 rounded-full bg-indigo-400 animate-bounce [animation-delay:0.2s]"></span>
             <span class="w-2 h-2 rounded-full bg-purple-400 animate-bounce [animation-delay:0.4s]"></span>
-            <span class="ml-2 text-[11px] text-slate-300 font-medium">Site Engineer reasoning in progress...</span>
+            <span class="ml-2 text-[11px] text-slate-300 font-medium">ReAct Reasoning & Execution...</span>
           </div>
         `;
         container.appendChild(typingDiv);
@@ -2502,7 +2629,7 @@ Tap any prompt below or send me your first instruction!`,
       renderStagedMediaBar();
       if (input) input.value = '';
 
-      addChatMessage('user', text, attachedMedia, []);
+      addChatMessage('user', text, attachedMedia, [], []);
 
       isChatGenerating = true;
       renderChatMessages();
@@ -2512,7 +2639,7 @@ Tap any prompt below or send me your first instruction!`,
         await executeGeminiTurn(text, attachedMedia, apiKey);
       } catch (err) {
         console.error('Gemini error:', err);
-        addChatMessage('assistant', `⚠️ **AI Error**: ${err.message || 'Failed to communicate with Gemini API.'}\n\nPlease check your connection or test the API key in settings.`);
+        addChatMessage('assistant', `⚠️ **AI Error**: ${err.message || 'Failed to communicate with Gemini API.'}\n\nPlease check your connection or test the API key in settings.`, [], [], ['Retry last message', 'Check API Key in Settings']);
       } finally {
         isChatGenerating = false;
         renderChatMessages();
@@ -2520,11 +2647,28 @@ Tap any prompt below or send me your first instruction!`,
       }
     }
 
-    // Upgraded Tool Declarations with batching & full control
+    // ReAct Tool Declarations: includes ask_question
     function getGeminiToolDeclarations() {
       return [
         {
           functionDeclarations: [
+            {
+              name: 'ask_question',
+              description: 'Ask the user a clarifying question with 2 to 5 one-tap clickable choices when user instructions are ambiguous (e.g. room unspecified, contractor unclear, approval required) or when asking what to do next.',
+              parameters: {
+                type: 'OBJECT',
+                properties: {
+                  question: { type: 'STRING', description: 'The question to ask the user' },
+                  options: {
+                    type: 'ARRAY',
+                    items: { type: 'STRING' },
+                    description: '2 to 5 short, selectable answer choices or actions for the user to tap (e.g. ["Master Bedroom", "Kitchen", "Living Hall"])'
+                  },
+                  reason: { type: 'STRING', description: 'Why this clarification is needed before proceeding' }
+                },
+                required: ['question', 'options']
+              }
+            },
             {
               name: 'create_task',
               description: 'Create a single renovation task with priority, assigned room, assigned contractor, target date, and professional civil engineering checklist subtasks.',
@@ -2542,14 +2686,16 @@ Tap any prompt below or send me your first instruction!`,
                     type: 'ARRAY',
                     items: { type: 'STRING' },
                     description: '2 to 5 specific, measurable civil/interior checklist items to finish this task'
-                  }
+                  },
+                  followup_question: { type: 'STRING', description: 'Optional follow-up question for the user' },
+                  followup_options: { type: 'ARRAY', items: { type: 'STRING' }, description: 'One-tap options for follow-up question' }
                 },
                 required: ['title']
               }
             },
             {
               name: 'batch_create_tasks',
-              description: 'Create multiple renovation tasks simultaneously when planning a room or multiple trades.',
+              description: 'Create multiple renovation tasks simultaneously when planning a whole room or multiple trade milestones.',
               parameters: {
                 type: 'OBJECT',
                 properties: {
@@ -2570,7 +2716,9 @@ Tap any prompt below or send me your first instruction!`,
                       required: ['title']
                     },
                     description: 'Array of tasks to create'
-                  }
+                  },
+                  followup_question: { type: 'STRING', description: 'Optional follow-up question' },
+                  followup_options: { type: 'ARRAY', items: { type: 'STRING' } }
                 },
                 required: ['tasks']
               }
@@ -2597,7 +2745,9 @@ Tap any prompt below or send me your first instruction!`,
                     type: 'ARRAY',
                     items: { type: 'STRING' },
                     description: 'Subtask names or keywords to mark as completed'
-                  }
+                  },
+                  followup_question: { type: 'STRING' },
+                  followup_options: { type: 'ARRAY', items: { type: 'STRING' } }
                 },
                 required: ['task_id']
               }
@@ -2664,7 +2814,6 @@ Tap any prompt below or send me your first instruction!`,
     }
 
     async function executeGeminiTurn(userText, attachedMedia, apiKey) {
-      // Build comprehensive snapshot of live state
       const totalTasks = tasks.length;
       const doneTasks = tasks.filter(t => t.status === 'completed').length;
       const blockedTasks = tasks.filter(t => t.status === 'blocked').length;
@@ -2716,35 +2865,31 @@ Tap any prompt below or send me your first instruction!`,
         }))
       };
 
-      const systemInstruction = `You are Indra AI, the Senior Renovation Project Director and Site Engineer for Sidhu's apartment at Indra Heights.
-You have the technical precision, engineering depth, and architectural rigor of a veteran civil contractor.
+      const systemInstruction = `You are Indra AI, the Senior Renovation Project Director & Site Engineer for Sidhu's apartment at Indra Heights.
+You operate under the **ReAct (Reasoning + Acting + Interactive Clarification)** framework.
 
-CORE OPERATIONAL RULES:
-1. Tool Execution: You have direct tools to create, update, delete, batch-create tasks, manage rooms/epics, register vendors, and archive photos/videos to the vault. When the user requests or implies any board change, DO NOT just describe it—EXECUTE the tool call immediately.
-2. Smart Intent & Context Deduction:
-   - When user asks to create a task:
-     * Room/Epic: Match to best epic ID (e.g. if "kitchen", pick kitchen epic ID).
-     * Vendor/Contractor: Match to best trade (e.g. plumbing -> Plumber, wiring -> Electrician, tiles -> Mason, wood -> Carpenter).
-     * Priority: Concealed plumbing/wiring, structural issues, or items blocking next trades must be 'high' or 'urgent'.
-     * Checklist Subtasks: Break down into 2-5 professional civil/interior checklist items with inspection criteria.
-   - When user says "Mason finished plastering":
-     * Call update_task to mark that task 'completed' and complete its subtasks.
-   - When user asks "What is our progress?":
-     * Provide a clear executive summary with metrics (overall %, room-by-room breakdown, blocked items, upcoming milestones).
-   - When user asks "What is blocked?":
-     * Detail each blocked task, the assigned vendor, and specific engineering recommendations to unblock it.
+REACT OPERATIONAL DIRECTIVES:
+1. REASONING & GAP EVALUATION:
+   - For every user query, evaluate if you have enough information to take decisive action.
+   - If crucial information is missing or ambiguous (e.g. user says "Add painting task" or "Order new tiles" without specifying room, material, or contractor):
+     -> DO NOT guess blindly or create incomplete work.
+     -> Invoke the 'ask_question' tool with 2 to 4 recommended one-tap options!
+   - If the request has sufficient details, ACT DECISIVELY: call 'create_task', 'update_task', 'batch_create_tasks', etc.
 
-3. Multimodal Media Analysis:
-   - When photos/videos are attached:
-     * Inspect carefully: look for conduit alignment, pipe gradients, joint cement, damp patches, wall plumbness, tile leveling.
-     * Auto-save the photo/video using save_media under the right stage ('pre', 'in_progress', 'post').
-     * Automatically generate the follow-up task with specific observations.
+2. PROACTIVE FOLLOW-UPS:
+   - After executing an action, anticipate the NEXT civil or interior milestone (e.g. after concealed pipe laying comes pressure testing, then waterproofing, then plastering).
+   - In your follow-up, provide 'followup_question' with 2 to 3 one-tap 'followup_options' so the user can easily guide the next step.
 
-4. Formatting:
-   - Use clean, structured Markdown with bolding, lists, and status indicators.
-   - Keep prose crisp and action-oriented.
+3. MULTIMODAL SITE INSPECTION:
+   - When photos/videos are attached, diagnose technical features: pipe diameters, mortar ratios, conduit depth, dampness, tile leveling.
+   - Save proof with 'save_media' and log the necessary follow-up tasks.
 
-LIVE APARTMENT RENOVATION STATE:
+4. CRISP FORMATTING (Markdown):
+   - You MUST format responses in clean GitHub Flavored Markdown (GFM).
+   - Use bolding, tables, bullet points, blockquotes for alerts, and clear headers (##, ###).
+   - Do NOT use raw HTML tags.
+
+CURRENT WORKSPACE SNAPSHOT:
 ${JSON.stringify(boardSnapshot)}`;
 
       const currentParts = [];
@@ -2763,7 +2908,14 @@ ${JSON.stringify(boardSnapshot)}`;
         });
       });
 
+      // Build conversation history (last 6 messages for context)
+      const recentHistory = chatMessages.slice(-6).map(m => ({
+        role: m.role === 'user' ? 'user' : 'model',
+        parts: [{ text: m.text || (m.role === 'user' ? 'User action' : 'Assistant response') }]
+      }));
+
       const contents = [
+        ...recentHistory,
         {
           role: 'user',
           parts: currentParts
@@ -2802,6 +2954,7 @@ ${JSON.stringify(boardSnapshot)}`;
       const textParts = parts.filter(p => p.text).map(p => p.text).join('\n');
 
       const actionCards = [];
+      let gatheredQuestionOptions = [];
 
       if (functionCalls.length > 0) {
         const functionResponses = [];
@@ -2819,8 +2972,12 @@ ${JSON.stringify(boardSnapshot)}`;
           } else if (result.card) {
             actionCards.push(result.card);
           }
+          if (result.questionOptions && Array.isArray(result.questionOptions)) {
+            gatheredQuestionOptions.push(...result.questionOptions);
+          }
         }
 
+        // Send second turn to Gemini to get conversational summary
         const secondTurnContents = [
           ...contents,
           candidate.content,
@@ -2845,7 +3002,7 @@ ${JSON.stringify(boardSnapshot)}`;
             const secondCand = secondData.candidates && secondData.candidates[0];
             if (secondCand && secondCand.content && secondCand.content.parts) {
               const summaryText = secondCand.content.parts.filter(p => p.text).map(p => p.text).join('\n');
-              addChatMessage('assistant', summaryText || textParts || 'I have completed the requested actions.', [], actionCards);
+              addChatMessage('assistant', summaryText || textParts || 'I have completed the requested actions.', [], actionCards, gatheredQuestionOptions);
               return;
             }
           }
@@ -2855,11 +3012,25 @@ ${JSON.stringify(boardSnapshot)}`;
       }
 
       const finalText = textParts || (actionCards.length > 0 ? 'Actions executed successfully on your board.' : 'Ready for your instructions.');
-      addChatMessage('assistant', finalText, [], actionCards);
+      addChatMessage('assistant', finalText, [], actionCards, gatheredQuestionOptions);
     }
 
-    // Local Tool Execution Logic (Upgraded)
+    // Local Tool Execution Logic with ReAct
     function executeAgentTool(name, args, attachedMedia) {
+      if (name === 'ask_question') {
+        return {
+          status: 'question',
+          message: args.question,
+          data: { question: args.question, options: args.options },
+          questionOptions: args.options || [],
+          card: {
+            icon: 'help-circle',
+            title: args.question,
+            subtitle: args.reason || 'Select an option to proceed'
+          }
+        };
+      }
+
       if (name === 'create_task') {
         const taskId = 't-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4);
         const subtasks = (args.subtasks || []).map((st, i) => ({
@@ -2909,6 +3080,7 @@ ${JSON.stringify(boardSnapshot)}`;
           status: 'success',
           message: `Created task "${newTask.title}" (ID: ${newTask.id})`,
           data: { id: newTask.id, title: newTask.title, status: newTask.status },
+          questionOptions: args.followup_options || [],
           card: {
             icon: 'check-square',
             title: newTask.title,
@@ -2967,7 +3139,8 @@ ${JSON.stringify(boardSnapshot)}`;
           status: 'success',
           message: `Created ${createdTasks.length} tasks successfully`,
           data: { count: createdTasks.length },
-          cards: createdCards
+          cards: createdCards,
+          questionOptions: args.followup_options || []
         };
       }
 
@@ -3016,6 +3189,7 @@ ${JSON.stringify(boardSnapshot)}`;
           status: 'success',
           message: `Updated task "${task.title}"`,
           data: { id: task.id, title: task.title, status: task.status },
+          questionOptions: args.followup_options || [],
           card: {
             icon: 'refresh-cw',
             title: `Updated: ${task.title}`,
