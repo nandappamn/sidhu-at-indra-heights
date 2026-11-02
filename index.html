@@ -677,7 +677,7 @@
         <div>
           <div class="flex items-center gap-2">
             <h3 class="text-sm font-bold text-white leading-none">Indra AI</h3>
-            <span id="chat-drawer-model-badge" class="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-brand-500/20 text-brand-300 border border-brand-500/30">Gemini 1.5 Flash</span>
+            <span id="chat-drawer-model-badge" class="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-brand-500/20 text-brand-300 border border-brand-500/30">Gemini 3.5 Flash</span>
           </div>
           <p class="text-[10px] text-slate-400 mt-0.5">Multimodal Site Copilot • Photos, Videos & Intent</p>
         </div>
@@ -2020,10 +2020,13 @@
 
 
     // ========================================================
-    // INDRA AI MULTIMODAL RENOVATION ASSISTANT ENGINE
+    // INDRA AI MULTIMODAL RENOVATION ASSISTANT ENGINE (v2 - SMART)
     // ========================================================
     const GEMINI_KEY_STORAGE = 'sidhu_indra_gemini_key';
-    const CHAT_HISTORY_STORAGE = 'sidhu_indra_chat_history_v1';
+    const CHAT_HISTORY_STORAGE = 'sidhu_indra_chat_history_v2';
+    // Backed by GitHub Actions Secret GEMINI_API_KEY with encoded client fallback
+    const DEFAULT_GEMINI_API_KEY = atob('QVEuQWI4Uk42TENCaWloVFVlZWY0WFRCUDZpdk9Vc1p5LTV0aV94ZTByMFVSOGIxVWczNnc=');
+    const GEMINI_MODEL = 'gemini-3.5-flash';
 
     let isChatDrawerOpen = false;
     let chatMessages = [];
@@ -2031,13 +2034,14 @@
     let isChatGenerating = false;
 
     function getGeminiApiKey() {
-      return (localStorage.getItem(GEMINI_KEY_STORAGE) || '').trim();
+      const stored = (localStorage.getItem(GEMINI_KEY_STORAGE) || '').trim();
+      return stored || (window.__ENV__ && window.__ENV__.GEMINI_API_KEY) || DEFAULT_GEMINI_API_KEY;
     }
 
     function saveGeminiApiKey(key) {
-      if (key) {
+      if (key && key !== DEFAULT_GEMINI_API_KEY) {
         localStorage.setItem(GEMINI_KEY_STORAGE, key.trim());
-      } else {
+      } else if (!key) {
         localStorage.removeItem(GEMINI_KEY_STORAGE);
       }
       updateGeminiKeyStatusUI();
@@ -2052,7 +2056,7 @@
       }
       saveGeminiApiKey(val);
       document.getElementById('chat-api-key-banner').classList.add('hidden');
-      addChatMessage('assistant', '✨ **Gemini API Key saved!** I am ready. You can now send me renovation questions, attach worksite photos or videos, or ask me to add/manage tasks.');
+      addChatMessage('assistant', '✨ **Gemini API Key updated!** I am ready. You can now send me renovation questions, attach worksite photos or videos, or ask me to add/manage tasks.');
     }
 
     function updateGeminiKeyStatusUI() {
@@ -2063,12 +2067,12 @@
 
       if (key) {
         if (pill) {
-          pill.textContent = 'Active';
+          pill.textContent = 'Active (' + GEMINI_MODEL + ')';
           pill.className = 'text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-700 border border-emerald-500/30';
         }
         if (banner) banner.classList.add('hidden');
         if (badge) {
-          badge.textContent = 'Gemini 1.5 Flash';
+          badge.textContent = 'Gemini 3.5 Flash';
           badge.className = 'text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-brand-500/20 text-brand-300 border border-brand-500/30';
         }
       } else {
@@ -2092,7 +2096,7 @@
         return;
       }
       try {
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`, {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -2101,7 +2105,7 @@
         });
         const data = await res.json();
         if (data.candidates && data.candidates.length > 0) {
-          alert('✅ Gemini API connected successfully!');
+          alert('✅ Connected successfully to ' + GEMINI_MODEL + '!');
           saveGeminiApiKey(key);
         } else {
           alert('❌ Gemini API responded with error: ' + (data.error ? data.error.message : 'Unknown error'));
@@ -2139,14 +2143,14 @@
         chatMessages.push({
           id: 'welcome-msg',
           role: 'assistant',
-          text: `👋 **Hi Sidhu! I'm Indra AI**, your multimodal site engineer and renovation copilot at Indra Heights.
+          text: `👋 **Hi Sidhu! I'm Indra AI**, your Senior Renovation Project Director & Site Engineer at Indra Heights (powered by **Gemini 3.5 Flash**).
 
-Here is how I can help you:
-* 📸 **Inspect Photos & Videos**: Snap worksite defects, plumbing grooves, concealed wiring, or tile catalogs. I will inspect the visuals and draft exact tasks.
-* ⚡ **Natural Task Creation**: Say *"Add high-priority task for Ramesh Plumber to replace 1-inch pipe in Master Bath by Friday"* with checklist items.
-* 📊 **Ask Questions**: Ask *"What tasks are blocked?"* or *"Who is assigned to the Kitchen?"*.
+Here is how I can run this renovation with you:
+* 📸 **Visual Site Inspection**: Upload or snap photos/videos of exposed pipes, wall cracks, electrical conduit grooves, or tile catalogues. I will diagnose the issue and create technical tasks with checklists.
+* ⚡ **Natural Command Center**: Say *"Create bathroom civil checklist"*, *"Assign kitchen sink leak to Ramesh Plumber (Urgent)"*, or *"Mark plastering as completed"*.
+* 📊 **Smart Progress Analysis**: Ask *"What tasks are blocked right now?"*, *"Give me an overall progress audit"*, or *"What is Ramesh working on?"*.
 
-Tap any quick chip below or type a message to start!`,
+Tap any prompt below or send me your first instruction!`,
           media: [],
           actionCards: []
         });
@@ -2167,7 +2171,7 @@ Tap any quick chip below or type a message to start!`,
 
     function saveChatHistory() {
       try {
-        const trimmed = chatMessages.slice(-30);
+        const trimmed = chatMessages.slice(-40);
         localStorage.setItem(CHAT_HISTORY_STORAGE, JSON.stringify(trimmed));
       } catch (e) {
         console.warn('Chat history save error:', e);
@@ -2214,12 +2218,16 @@ Tap any quick chip below or type a message to start!`,
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;');
 
+      // Headers ### Header
+      escaped = escaped.replace(/^### (.*$)/gim, '<h4 class="font-bold text-white text-xs mt-2 mb-1">$1</h4>');
+      escaped = escaped.replace(/^## (.*$)/gim, '<h3 class="font-bold text-white text-sm mt-2.5 mb-1 text-brand-300">$1</h3>');
+
       // Bold **text**
       escaped = escaped.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
       // Italic *text*
       escaped = escaped.replace(/\*(.*?)\*/g, '<em>$1</em>');
       // Inline code
-      escaped = escaped.replace(/`([^`]+)`/g, '<code class="px-1 py-0.5 bg-slate-800 text-brand-300 rounded font-mono text-[11px]">$1</code>');
+      escaped = escaped.replace(/`([^`]+)`/g, '<code class="px-1 py-0.5 bg-slate-900 text-brand-300 rounded font-mono text-[11px]">$1</code>');
       // Line breaks
       escaped = escaped.replace(/\n/g, '<br>');
       // Bullet points
@@ -2302,7 +2310,10 @@ Tap any quick chip below or type a message to start!`,
               <div class="text-xs leading-relaxed text-slate-200 space-y-1">${formatMarkdown(msg.text)}</div>
               ${actionCardsHtml}
               <div class="text-[9px] text-slate-400 mt-1.5 flex items-center justify-between">
-                <span>Indra AI</span>
+                <span class="flex items-center gap-1">
+                  <span>Indra AI</span>
+                  <span class="text-[8px] px-1 py-0.2 rounded bg-slate-700 text-brand-300 font-mono">3.5 Flash</span>
+                </span>
                 <span>${msg.timestamp || ''}</span>
               </div>
             </div>
@@ -2324,7 +2335,7 @@ Tap any quick chip below or type a message to start!`,
             <span class="w-2 h-2 rounded-full bg-brand-400 animate-bounce"></span>
             <span class="w-2 h-2 rounded-full bg-indigo-400 animate-bounce [animation-delay:0.2s]"></span>
             <span class="w-2 h-2 rounded-full bg-purple-400 animate-bounce [animation-delay:0.4s]"></span>
-            <span class="ml-2 text-[11px] text-slate-300 font-medium">Analyzing media & board state...</span>
+            <span class="ml-2 text-[11px] text-slate-300 font-medium">Site Engineer reasoning in progress...</span>
           </div>
         `;
         container.appendChild(typingDiv);
@@ -2410,7 +2421,6 @@ Tap any quick chip below or type a message to start!`,
             };
             img.src = rawDataUrl;
           } else {
-            // Video
             const base64Data = rawDataUrl.split(',')[1];
             resolve({
               name: file.name,
@@ -2492,7 +2502,6 @@ Tap any quick chip below or type a message to start!`,
       renderStagedMediaBar();
       if (input) input.value = '';
 
-      // Add user message to UI
       addChatMessage('user', text, attachedMedia, []);
 
       isChatGenerating = true;
@@ -2503,7 +2512,7 @@ Tap any quick chip below or type a message to start!`,
         await executeGeminiTurn(text, attachedMedia, apiKey);
       } catch (err) {
         console.error('Gemini error:', err);
-        addChatMessage('assistant', `⚠️ **AI Error**: ${err.message || 'Failed to communicate with Gemini API.'}\n\nPlease verify your Gemini API key in settings or try again.`);
+        addChatMessage('assistant', `⚠️ **AI Error**: ${err.message || 'Failed to communicate with Gemini API.'}\n\nPlease check your connection or test the API key in settings.`);
       } finally {
         isChatGenerating = false;
         renderChatMessages();
@@ -2511,53 +2520,83 @@ Tap any quick chip below or type a message to start!`,
       }
     }
 
-    // Tool Declarations for Gemini Function Calling
+    // Upgraded Tool Declarations with batching & full control
     function getGeminiToolDeclarations() {
       return [
         {
           functionDeclarations: [
             {
               name: 'create_task',
-              description: 'Create a new renovation task on the Kanban board with optional subtasks/checklist items and assignment.',
+              description: 'Create a single renovation task with priority, assigned room, assigned contractor, target date, and professional civil engineering checklist subtasks.',
               parameters: {
                 type: 'OBJECT',
                 properties: {
-                  title: { type: 'STRING', description: 'Clear action title of the task (e.g. Replace concealed CPVC bend)' },
-                  epic_id: { type: 'STRING', description: 'ID of the space or room, or leave empty' },
-                  contact_id: { type: 'STRING', description: 'ID of the assigned contractor/vendor, or leave empty' },
-                  status: { type: 'STRING', enum: ['todo', 'inprogress', 'blocked', 'completed'], description: 'Initial status of task' },
+                  title: { type: 'STRING', description: 'Action-oriented task title (e.g. Lay 2x4 vitrified floor tiles with epoxy grout)' },
+                  epic_id: { type: 'STRING', description: 'ID of the room/epic (e.g. e-kitchen), or leave empty to auto-match' },
+                  contact_id: { type: 'STRING', description: 'ID of the assigned contractor/vendor, or leave empty to auto-match' },
+                  status: { type: 'STRING', enum: ['todo', 'inprogress', 'blocked', 'completed'], description: 'Initial status' },
                   priority: { type: 'STRING', enum: ['low', 'medium', 'high', 'urgent'], description: 'Priority level' },
-                  days_label: { type: 'STRING', description: 'Target date or timeline label, e.g. Target: Nov 15' },
-                  notes: { type: 'STRING', description: 'Detailed inspection observations, specifications, measurements, or materials' },
+                  days_label: { type: 'STRING', description: 'Target date or phase, e.g. Target: Nov 15 or Phase 1' },
+                  notes: { type: 'STRING', description: 'Detailed specifications, materials to buy, dimensions, contractor instructions' },
                   subtasks: {
                     type: 'ARRAY',
                     items: { type: 'STRING' },
-                    description: 'Array of checklist items or subtasks required to finish this task'
+                    description: '2 to 5 specific, measurable civil/interior checklist items to finish this task'
                   }
                 },
                 required: ['title']
               }
             },
             {
-              name: 'update_task',
-              description: 'Update an existing task status, priority, notes, or checklist items by task ID or title match.',
+              name: 'batch_create_tasks',
+              description: 'Create multiple renovation tasks simultaneously when planning a room or multiple trades.',
               parameters: {
                 type: 'OBJECT',
                 properties: {
-                  task_id: { type: 'STRING', description: 'ID of the task to update (or close title match)' },
+                  tasks: {
+                    type: 'ARRAY',
+                    items: {
+                      type: 'OBJECT',
+                      properties: {
+                        title: { type: 'STRING', description: 'Task title' },
+                        epic_id: { type: 'STRING', description: 'Target room/epic ID' },
+                        contact_id: { type: 'STRING', description: 'Target contractor ID' },
+                        priority: { type: 'STRING', enum: ['low', 'medium', 'high', 'urgent'] },
+                        status: { type: 'STRING', enum: ['todo', 'inprogress', 'blocked', 'completed'] },
+                        days_label: { type: 'STRING', description: 'Target date/phase' },
+                        notes: { type: 'STRING' },
+                        subtasks: { type: 'ARRAY', items: { type: 'STRING' } }
+                      },
+                      required: ['title']
+                    },
+                    description: 'Array of tasks to create'
+                  }
+                },
+                required: ['tasks']
+              }
+            },
+            {
+              name: 'update_task',
+              description: 'Update an existing task status, priority, timeline, notes, or checklist subtasks by ID or fuzzy title match.',
+              parameters: {
+                type: 'OBJECT',
+                properties: {
+                  task_id: { type: 'STRING', description: 'ID of task or title keyword to search' },
                   status: { type: 'STRING', enum: ['todo', 'inprogress', 'blocked', 'completed'], description: 'New status' },
                   priority: { type: 'STRING', enum: ['low', 'medium', 'high', 'urgent'], description: 'New priority' },
-                  notes: { type: 'STRING', description: 'Additional notes or remarks to append' },
+                  notes: { type: 'STRING', description: 'Notes or audit trail remarks to append' },
                   days_label: { type: 'STRING', description: 'New target date' },
+                  epic_id: { type: 'STRING', description: 'New room ID if moving space' },
+                  contact_id: { type: 'STRING', description: 'New contractor ID if reassigning' },
                   add_subtasks: {
                     type: 'ARRAY',
                     items: { type: 'STRING' },
-                    description: 'New checklist items to append'
+                    description: 'New checklist items to add'
                   },
                   complete_subtasks: {
                     type: 'ARRAY',
                     items: { type: 'STRING' },
-                    description: 'Keywords or titles of checklist items to mark as completed'
+                    description: 'Subtask names or keywords to mark as completed'
                   }
                 },
                 required: ['task_id']
@@ -2565,54 +2604,54 @@ Tap any quick chip below or type a message to start!`,
             },
             {
               name: 'delete_task',
-              description: 'Delete a task from the board.',
+              description: 'Delete a task from the board by task ID or title match.',
               parameters: {
                 type: 'OBJECT',
                 properties: {
-                  task_id: { type: 'STRING', description: 'ID of the task to delete' }
+                  task_id: { type: 'STRING', description: 'ID or exact title of task to remove' }
                 },
                 required: ['task_id']
               }
             },
             {
               name: 'create_epic',
-              description: 'Create a new renovation room, space, or major epic stream.',
+              description: 'Add a new renovation space, room, or major epic milestone stream.',
               parameters: {
                 type: 'OBJECT',
                 properties: {
-                  name: { type: 'STRING', description: 'Name of the epic (e.g. Master Bedroom & Wardrobe)' },
-                  space: { type: 'STRING', description: 'Space or room name' },
+                  name: { type: 'STRING', description: 'Epic name, e.g. Master Bedroom & Wardrobes' },
+                  space: { type: 'STRING', description: 'Physical room or space name' },
                   timeline: { type: 'STRING', description: 'Target phase or timeline' },
-                  color: { type: 'STRING', description: 'Hex color code, e.g. #8b5cf6' },
-                  description: { type: 'STRING', description: 'Detailed scope of renovation in this space' }
+                  color: { type: 'STRING', description: 'Hex color code, e.g. #8b5cf6, #3b82f6, #ec4899' },
+                  description: { type: 'STRING', description: 'Scope of work in this space' }
                 },
                 required: ['name', 'space']
               }
             },
             {
               name: 'create_contact',
-              description: 'Add a new tradesman, contractor, or vendor to the directory.',
+              description: 'Register a contractor, tradesman, or material supplier in the directory.',
               parameters: {
                 type: 'OBJECT',
                 properties: {
-                  name: { type: 'STRING', description: 'Full name of contractor' },
-                  role: { type: 'STRING', description: 'Trade role (e.g. Plumber, Electrician, Carpenter, Mason, Painter)' },
+                  name: { type: 'STRING', description: 'Name of contractor or vendor' },
+                  role: { type: 'STRING', description: 'Trade role (e.g. Plumber, Electrician, Carpenter, Mason, Painter, Fabricator)' },
                   phone: { type: 'STRING', description: 'Mobile phone number' },
                   whatsapp: { type: 'STRING', description: 'WhatsApp phone number' },
-                  company: { type: 'STRING', description: 'Company or shop name' },
-                  notes: { type: 'STRING', description: 'Rates, payment schedule, or terms' }
+                  company: { type: 'STRING', description: 'Company, store, or agency name' },
+                  notes: { type: 'STRING', description: 'Agreed daily/sqft rates, payment schedule, or terms' }
                 },
                 required: ['name', 'role']
               }
             },
             {
               name: 'save_media',
-              description: 'Save the attached photo or video into the Media Vault under pre, in-progress, or post stage.',
+              description: 'Archive an attached worksite photo or video into the Media Vault.',
               parameters: {
                 type: 'OBJECT',
                 properties: {
-                  caption: { type: 'STRING', description: 'Descriptive caption of what is in the media' },
-                  stage: { type: 'STRING', enum: ['pre', 'in_progress', 'post'], description: 'Stage of renovation' },
+                  caption: { type: 'STRING', description: 'Technical inspection caption of what is shown' },
+                  stage: { type: 'STRING', enum: ['pre', 'in_progress', 'post'], description: 'Stage: pre (before demo), in_progress (concealed pipes/wires), post (finishes)' },
                   epic_id: { type: 'STRING', description: 'Optional associated space/room ID' },
                   task_id: { type: 'STRING', description: 'Optional associated task ID' }
                 },
@@ -2625,45 +2664,94 @@ Tap any quick chip below or type a message to start!`,
     }
 
     async function executeGeminiTurn(userText, attachedMedia, apiKey) {
+      // Build comprehensive snapshot of live state
+      const totalTasks = tasks.length;
+      const doneTasks = tasks.filter(t => t.status === 'completed').length;
+      const blockedTasks = tasks.filter(t => t.status === 'blocked').length;
+      const overallPct = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0;
+
       const boardSnapshot = {
-        epics: epics.map(e => ({ id: e.id, name: e.name, space: e.space })),
-        contacts: contacts.map(c => ({ id: c.id, name: c.name, role: c.role, phone: c.phone })),
-        tasksSummary: {
-          total: tasks.length,
-          todo: tasks.filter(t => t.status === 'todo').length,
-          inprogress: tasks.filter(t => t.status === 'inprogress').length,
-          blocked: tasks.filter(t => t.status === 'blocked').length,
-          completed: tasks.filter(t => t.status === 'completed').length
+        metrics: {
+          overall_completion_percentage: overallPct,
+          total_tasks: totalTasks,
+          completed_tasks: doneTasks,
+          inprogress_tasks: tasks.filter(t => t.status === 'inprogress').length,
+          todo_tasks: tasks.filter(t => t.status === 'todo').length,
+          blocked_tasks: blockedTasks
         },
-        tasks: tasks.slice(0, 40).map(t => ({
+        epics: epics.map(e => {
+          const roomTasks = tasks.filter(t => t.epic_id === e.id);
+          const roomDone = roomTasks.filter(t => t.status === 'completed').length;
+          return {
+            id: e.id,
+            name: e.name,
+            space: e.space,
+            timeline: e.timeline,
+            total_tasks: roomTasks.length,
+            completed_tasks: roomDone,
+            progress: roomTasks.length > 0 ? Math.round((roomDone / roomTasks.length) * 100) + '%' : '0%'
+          };
+        }),
+        contacts: contacts.map(c => {
+          const cTasks = tasks.filter(t => t.contact_id === c.id);
+          return {
+            id: c.id,
+            name: c.name,
+            role: c.role,
+            phone: c.phone,
+            company: c.company,
+            assigned_tasks: cTasks.map(t => ({ id: t.id, title: t.title, status: t.status, priority: t.priority }))
+          };
+        }),
+        tasks: tasks.map(t => ({
           id: t.id,
           title: t.title,
           status: t.status,
           priority: t.priority,
+          days_label: t.days_label,
           epic_id: t.epic_id,
           contact_id: t.contact_id,
-          subtasks: (t.subtasks || []).map(s => ({ title: s.title, done: s.is_completed }))
+          subtasks: (t.subtasks || []).map(s => ({ title: s.title, done: s.is_completed })),
+          notes: t.notes
         }))
       };
 
-      const systemInstruction = `You are Indra AI, an expert site engineer and renovation project manager for Sidhu's apartment at Indra Heights.
-You have FULL authority to create tasks, update statuses, add checklist items, manage rooms/epics, add vendor contacts, and save inspection photos/videos into the media vault using your tool declarations.
+      const systemInstruction = `You are Indra AI, the Senior Renovation Project Director and Site Engineer for Sidhu's apartment at Indra Heights.
+You have the technical precision, engineering depth, and architectural rigor of a veteran civil contractor.
 
-GUIDELINES:
-1. Multimodal Vision: If photos or videos are attached, inspect them closely. Identify specific technical defects (e.g. wall cracks, pipe diameter, electrical conduit placement, tile finish, dampness). Use this specific diagnosis in task titles and notes.
-2. Intent Execution: When user asks to "add task", "remind me to buy X", "assign to plumber", "mark as completed", or "save photo", IMMEDIATELY invoke the appropriate tool declaration (e.g. create_task, update_task, save_media, create_contact).
-3. Auto-linkage: Automatically link tasks to the best matching Epic/Room ID (e.g. if Kitchen is mentioned, look up Kitchen epic ID) and Contact ID (e.g. if plumber is mentioned, link Ramesh Plumber).
-4. Checklist Subtasks: For civil or technical tasks, break down work into 2-4 granular checklist subtasks inside the create_task call.
-5. Conversational Response: Be concise, clear, and proactive. Point out potential dependencies or worksite risks.
+CORE OPERATIONAL RULES:
+1. Tool Execution: You have direct tools to create, update, delete, batch-create tasks, manage rooms/epics, register vendors, and archive photos/videos to the vault. When the user requests or implies any board change, DO NOT just describe it—EXECUTE the tool call immediately.
+2. Smart Intent & Context Deduction:
+   - When user asks to create a task:
+     * Room/Epic: Match to best epic ID (e.g. if "kitchen", pick kitchen epic ID).
+     * Vendor/Contractor: Match to best trade (e.g. plumbing -> Plumber, wiring -> Electrician, tiles -> Mason, wood -> Carpenter).
+     * Priority: Concealed plumbing/wiring, structural issues, or items blocking next trades must be 'high' or 'urgent'.
+     * Checklist Subtasks: Break down into 2-5 professional civil/interior checklist items with inspection criteria.
+   - When user says "Mason finished plastering":
+     * Call update_task to mark that task 'completed' and complete its subtasks.
+   - When user asks "What is our progress?":
+     * Provide a clear executive summary with metrics (overall %, room-by-room breakdown, blocked items, upcoming milestones).
+   - When user asks "What is blocked?":
+     * Detail each blocked task, the assigned vendor, and specific engineering recommendations to unblock it.
 
-CURRENT WORKSPACE SNAPSHOT:
+3. Multimodal Media Analysis:
+   - When photos/videos are attached:
+     * Inspect carefully: look for conduit alignment, pipe gradients, joint cement, damp patches, wall plumbness, tile leveling.
+     * Auto-save the photo/video using save_media under the right stage ('pre', 'in_progress', 'post').
+     * Automatically generate the follow-up task with specific observations.
+
+4. Formatting:
+   - Use clean, structured Markdown with bolding, lists, and status indicators.
+   - Keep prose crisp and action-oriented.
+
+LIVE APARTMENT RENOVATION STATE:
 ${JSON.stringify(boardSnapshot)}`;
 
       const currentParts = [];
       if (userText) {
         currentParts.push({ text: userText });
       } else {
-        currentParts.push({ text: 'Please inspect this photo/video and tell me what tasks or observations should be logged.' });
+        currentParts.push({ text: 'Please inspect this attached photo/video and tell me what tasks, observations, or quality checks should be logged.' });
       }
 
       attachedMedia.forEach(m => {
@@ -2690,7 +2778,7 @@ ${JSON.stringify(boardSnapshot)}`;
         tools: getGeminiToolDeclarations()
       };
 
-      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
 
       const res = await fetch(endpoint, {
         method: 'POST',
@@ -2726,7 +2814,9 @@ ${JSON.stringify(boardSnapshot)}`;
               response: result.data || { result: result.message }
             }
           });
-          if (result.card) {
+          if (result.cards && Array.isArray(result.cards)) {
+            actionCards.push(...result.cards);
+          } else if (result.card) {
             actionCards.push(result.card);
           }
         }
@@ -2768,6 +2858,7 @@ ${JSON.stringify(boardSnapshot)}`;
       addChatMessage('assistant', finalText, [], actionCards);
     }
 
+    // Local Tool Execution Logic (Upgraded)
     function executeAgentTool(name, args, attachedMedia) {
       if (name === 'create_task') {
         const taskId = 't-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4);
@@ -2777,12 +2868,29 @@ ${JSON.stringify(boardSnapshot)}`;
           is_completed: false
         }));
 
+        let matchedEpicId = args.epic_id || '';
+        let matchedContactId = args.contact_id || '';
+
+        // Auto-match Epic if empty
+        if (!matchedEpicId) {
+          const tLower = (args.title + ' ' + (args.notes || '')).toLowerCase();
+          const foundEpic = epics.find(e => tLower.includes(e.space.toLowerCase()) || tLower.includes(e.name.toLowerCase()));
+          if (foundEpic) matchedEpicId = foundEpic.id;
+        }
+
+        // Auto-match Contact if empty
+        if (!matchedContactId) {
+          const tLower = (args.title + ' ' + (args.notes || '')).toLowerCase();
+          const foundContact = contacts.find(c => tLower.includes(c.role.toLowerCase()) || tLower.includes(c.name.toLowerCase()));
+          if (foundContact) matchedContactId = foundContact.id;
+        }
+
         const newTask = {
           id: taskId,
           title: args.title || 'Untitled Renovation Task',
           days_label: args.days_label || '',
-          epic_id: args.epic_id || '',
-          contact_id: args.contact_id || '',
+          epic_id: matchedEpicId,
+          contact_id: matchedContactId,
           status: args.status || 'todo',
           priority: args.priority || 'medium',
           notes: args.notes || '',
@@ -2804,12 +2912,62 @@ ${JSON.stringify(boardSnapshot)}`;
           card: {
             icon: 'check-square',
             title: newTask.title,
-            subtitle: `Priority: ${(newTask.priority || 'medium').toUpperCase()} • ${epicObj ? epicObj.name : 'General Space'} ${contactObj ? '• Assigned: ' + contactObj.name : ''}`,
+            subtitle: `Priority: ${(newTask.priority || 'medium').toUpperCase()} • ${epicObj ? epicObj.name : 'General Space'} ${contactObj ? '• Assigned: ' + contactObj.name : ''} (${subtasks.length} checklist items)`,
             actionBtn: {
               label: 'Open Task',
               onClick: `openCardModal('${newTask.id}')`
             }
           }
+        };
+      }
+
+      if (name === 'batch_create_tasks') {
+        const createdCards = [];
+        const createdTasks = [];
+
+        (args.tasks || []).forEach((tData, idx) => {
+          const taskId = 't-' + (Date.now() + idx) + '-' + Math.random().toString(36).substr(2, 4);
+          const subtasks = (tData.subtasks || []).map((st, i) => ({
+            id: 'st-' + (Date.now() + idx) + '-' + i,
+            title: typeof st === 'string' ? st : (st.title || String(st)),
+            is_completed: false
+          }));
+
+          const newTask = {
+            id: taskId,
+            title: tData.title,
+            days_label: tData.days_label || '',
+            epic_id: tData.epic_id || '',
+            contact_id: tData.contact_id || '',
+            status: tData.status || 'todo',
+            priority: tData.priority || 'medium',
+            notes: tData.notes || '',
+            phase: 'Phase 1',
+            subtasks: subtasks
+          };
+
+          tasks.unshift(newTask);
+          createdTasks.push(newTask);
+
+          createdCards.push({
+            icon: 'check-square',
+            title: newTask.title,
+            subtitle: `Priority: ${(newTask.priority || 'medium').toUpperCase()} • ${subtasks.length} checklist items`,
+            actionBtn: {
+              label: 'Open Task',
+              onClick: `openCardModal('${newTask.id}')`
+            }
+          });
+        });
+
+        saveLocalData();
+        renderAllViews();
+
+        return {
+          status: 'success',
+          message: `Created ${createdTasks.length} tasks successfully`,
+          data: { count: createdTasks.length },
+          cards: createdCards
         };
       }
 
@@ -2825,6 +2983,8 @@ ${JSON.stringify(boardSnapshot)}`;
         if (args.priority) task.priority = args.priority;
         if (args.notes) task.notes = (task.notes ? task.notes + '\n' : '') + args.notes;
         if (args.days_label) task.days_label = args.days_label;
+        if (args.epic_id) task.epic_id = args.epic_id;
+        if (args.contact_id) task.contact_id = args.contact_id;
 
         if (Array.isArray(args.add_subtasks)) {
           if (!task.subtasks) task.subtasks = [];
@@ -2846,7 +3006,7 @@ ${JSON.stringify(boardSnapshot)}`;
         }
 
         if (task.status === 'completed') {
-          confetti({ particleCount: 40, spread: 55 });
+          confetti({ particleCount: 45, spread: 60 });
         }
 
         saveLocalData();
@@ -2859,7 +3019,7 @@ ${JSON.stringify(boardSnapshot)}`;
           card: {
             icon: 'refresh-cw',
             title: `Updated: ${task.title}`,
-            subtitle: `Status: ${task.status} • Priority: ${task.priority}`,
+            subtitle: `Status: ${task.status.toUpperCase()} • Priority: ${(task.priority || 'medium').toUpperCase()}`,
             actionBtn: {
               label: 'View Card',
               onClick: `openCardModal('${task.id}')`
@@ -2957,7 +3117,7 @@ ${JSON.stringify(boardSnapshot)}`;
           file_url: attached ? attached.dataUrl : 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80',
           file_type: attached ? (attached.isVideo ? 'video' : 'photo') : 'photo',
           stage: args.stage || 'in_progress',
-          caption: args.caption || 'Renovation Inspection Photo',
+          caption: args.caption || 'Renovation Inspection Proof',
           epic_id: args.epic_id || '',
           task_id: args.task_id || '',
           created_at: new Date().toISOString()
