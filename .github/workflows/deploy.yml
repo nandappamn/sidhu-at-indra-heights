@@ -1,0 +1,66 @@
+name: Deploy Sidhu @ Indra Heights to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Inject GitHub Secrets into env.js
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          node -e '
+          const fs = require("fs");
+          const env = {
+            SUPABASE_URL: (process.env.SUPABASE_URL || "").trim(),
+            SUPABASE_ANON_KEY: (process.env.SUPABASE_ANON_KEY || "").trim(),
+            GEMINI_API_KEY: (process.env.GEMINI_API_KEY || "").trim()
+          };
+          fs.writeFileSync("env.js", "window.__ENV__ = " + JSON.stringify(env) + ";\n");
+          console.log("env.js generated for GitHub Pages deployment.");
+          console.log("SUPABASE_URL present:", !!env.SUPABASE_URL);
+          console.log("SUPABASE_ANON_KEY present:", !!env.SUPABASE_ANON_KEY);
+          console.log("GEMINI_API_KEY present:", !!env.GEMINI_API_KEY);
+          '
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+

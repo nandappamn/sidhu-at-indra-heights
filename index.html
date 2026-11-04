@@ -1433,6 +1433,8 @@
         }
         confetti({ particleCount: 40, spread: 60, origin: { y: 0.7 } });
         checkAuthSession();
+        await loadData();
+        renderAllViews();
       } else {
         errorBanner.classList.remove('hidden');
         errorText.textContent = 'Incorrect password. Please verify or ask Sidhu for access.';
@@ -1623,14 +1625,14 @@
       });
     }
 
-    async function saveMediaBlobToIDB(id, blob, mimeType) {
+    async function saveMediaBlobToIDB(id, blob, mimeType, meta = {}) {
       try {
         const db = await openMediaDB();
         if (!db) return false;
         return new Promise((resolve) => {
           const tx = db.transaction(IDB_STORE, 'readwrite');
           const store = tx.objectStore(IDB_STORE);
-          store.put({ id, blob, mimeType, savedAt: Date.now() });
+          store.put({ id, blob, mimeType, meta, savedAt: Date.now() });
           tx.oncomplete = () => resolve(true);
           tx.onerror = () => resolve(false);
         });
@@ -1652,6 +1654,22 @@
         });
       } catch (e) {
         return null;
+      }
+    }
+
+    async function getAllMediaRecordsFromIDB() {
+      try {
+        const db = await openMediaDB();
+        if (!db) return [];
+        return new Promise((resolve) => {
+          const tx = db.transaction(IDB_STORE, 'readonly');
+          const store = tx.objectStore(IDB_STORE);
+          const req = store.getAll();
+          req.onsuccess = () => resolve(req.result || []);
+          req.onerror = () => resolve([]);
+        });
+      } catch (e) {
+        return [];
       }
     }
 
@@ -1932,13 +1950,36 @@
               }))
             }));
 
-            media = mediaRes.data || [];
+            const cloudMedia = mediaRes.data || [];
+            // Preserve any local offline media that hasn't synced to cloud yet
+            const cloudIds = new Set(cloudMedia.map(m => m.id));
+            const localOnly = media.filter(m => !cloudIds.has(m.id));
+            media = [...localOnly, ...cloudMedia];
 
-            // Restore any local IndexedDB media blobs if needed
+            // Reconstruct any media blobs from IndexedDB
             for (const m of media) {
               if (!m.file_url || m.file_url.startsWith('blob:') || m.file_url === '') {
                 const blob = await getMediaBlobFromIDB(m.id);
                 if (blob) m.file_url = URL.createObjectURL(blob);
+              }
+            }
+
+            // Also check if IndexedDB has any offline records not in media
+            const idbRecords = await getAllMediaRecordsFromIDB();
+            const currentIds = new Set(media.map(m => m.id));
+            for (const rec of idbRecords) {
+              if (!currentIds.has(rec.id) && rec.blob && rec.meta) {
+                media.unshift({
+                  id: rec.id,
+                  task_id: rec.meta.task_id || null,
+                  file_url: URL.createObjectURL(rec.blob),
+                  file_type: rec.meta.file_type || (rec.mimeType?.startsWith('video') ? 'video' : 'image'),
+                  stage: rec.meta.stage || 'in_progress',
+                  caption: rec.meta.caption || 'Site Media Proof',
+                  room_tag: rec.meta.room_tag || 'Entire Flat',
+                  uploaded_at: rec.meta.uploaded_at || new Date(rec.savedAt).toISOString()
+                });
+                currentIds.add(rec.id);
               }
             }
 
@@ -1950,7 +1991,7 @@
         }
       }
 
-      // Local storage
+      // Local storage fallback
       const saved = localStorage.getItem(LOCAL_DATA_KEY);
       if (saved) {
         try {
@@ -1959,24 +2000,43 @@
           contacts = parsed.contacts || JSON.parse(JSON.stringify(DEFAULT_STARTER_CONTACTS));
           tasks = parsed.tasks || [];
           media = parsed.media || [];
-
-          // Restore local media blobs from IndexedDB
-          for (const m of media) {
-            if (!m.file_url || m.file_url.startsWith('blob:') || m.file_url === '') {
-              const blob = await getMediaBlobFromIDB(m.id);
-              if (blob) m.file_url = URL.createObjectURL(blob);
-            }
-          }
-          return;
         } catch (e) {}
+      } else {
+        epics = JSON.parse(JSON.stringify(DEFAULT_STARTER_EPICS));
+        contacts = JSON.parse(JSON.stringify(DEFAULT_STARTER_CONTACTS));
+        tasks = [];
+        media = [];
       }
 
-      // Fresh start with 0 tasks, clean starter epics
-      epics = JSON.parse(JSON.stringify(DEFAULT_STARTER_EPICS));
-      contacts = JSON.parse(JSON.stringify(DEFAULT_STARTER_CONTACTS));
-      tasks = [];
-      media = [];
+      // Reconstruct local media blobs from IndexedDB
+      for (const m of media) {
+        if (!m.file_url || m.file_url.startsWith('blob:') || m.file_url === '') {
+          const blob = await getMediaBlobFromIDB(m.id);
+          if (blob) m.file_url = URL.createObjectURL(blob);
+        }
+      }
+
+      // Recover any records from IndexedDB in case localStorage was purged
+      const idbRecords = await getAllMediaRecordsFromIDB();
+      const currentIds = new Set(media.map(m => m.id));
+      for (const rec of idbRecords) {
+        if (!currentIds.has(rec.id) && rec.blob && rec.meta) {
+          media.unshift({
+            id: rec.id,
+            task_id: rec.meta.task_id || null,
+            file_url: URL.createObjectURL(rec.blob),
+            file_type: rec.meta.file_type || (rec.mimeType?.startsWith('video') ? 'video' : 'image'),
+            stage: rec.meta.stage || 'in_progress',
+            caption: rec.meta.caption || 'Site Media Proof',
+            room_tag: rec.meta.room_tag || 'Entire Flat',
+            uploaded_at: rec.meta.uploaded_at || new Date(rec.savedAt).toISOString()
+          });
+          currentIds.add(rec.id);
+        }
+      }
+
       saveLocalData();
+      return;
     }
 
     function saveLocalData() {
@@ -3271,9 +3331,17 @@
           }
         }
 
-        // 2. If not uploaded to cloud or offline, store binary blob in IndexedDB (avoids 5MB localStorage crash)
+        // 2. Always store binary blob and metadata in IndexedDB for reliable offline persistence
+        await saveMediaBlobToIDB(mediaId, fileToStore, fileToStore.type, {
+          task_id: taskId || null,
+          stage: stage,
+          caption: caption || (isVideo ? 'Site Video Proof' : 'Site Photo Proof'),
+          room_tag: room,
+          file_type: isVideo ? 'video' : 'image',
+          uploaded_at: new Date().toISOString()
+        });
+
         if (!uploadedToSupabase) {
-          await saveMediaBlobToIDB(mediaId, fileToStore);
           fileUrl = URL.createObjectURL(fileToStore);
         }
 
