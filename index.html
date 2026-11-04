@@ -1741,6 +1741,50 @@
       });
     }
 
+    // Convert file/blob to Base64 Data URL for direct database cloud synchronization
+    function blobToDataUrl(blob) {
+      return new Promise((resolve, reject) => {
+        if (!blob) return resolve('');
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = (e) => reject(e);
+        reader.readAsDataURL(blob);
+      });
+    }
+
+    // Background auto-sync of local offline media records to Supabase Cloud
+    async function syncLocalMediaRecordToSupabase(rec) {
+      if (!supabaseClient || !rec || !rec.blob) return;
+      try {
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+        const validId = (rec.id && uuidRegex.test(rec.id)) ? rec.id : generateUUID();
+        const isVideo = (rec.mimeType || '').startsWith('video') || (rec.meta && rec.meta.file_type === 'video');
+        const ext = isVideo ? 'mp4' : 'jpg';
+        const cleanRoom = ((rec.meta && rec.meta.room_tag) || 'general').toLowerCase().replace(/[^a-z0-9]/g, '_');
+        const filePath = `database_sync/${cleanRoom}/${Date.now()}_${Math.random().toString(36).substring(2, 7)}.${ext}`;
+        const dataUrl = await blobToDataUrl(rec.blob);
+        if (!dataUrl) return;
+
+        const { error } = await supabaseClient.from('media').insert([{
+          id: validId,
+          task_id: (rec.meta && rec.meta.task_id) || null,
+          file_url: dataUrl,
+          storage_path: filePath,
+          file_type: isVideo ? 'video' : 'image',
+          stage: (rec.meta && rec.meta.stage) || 'in_progress',
+          caption: (rec.meta && rec.meta.caption) || (isVideo ? 'Site Video Proof' : 'Site Photo Proof'),
+          room_tag: (rec.meta && rec.meta.room_tag) || 'Entire Flat'
+        }]);
+        if (!error) {
+          console.info(`Background-synced offline media ${validId} to Supabase cloud!`);
+        } else {
+          console.warn('Background sync error for media:', error);
+        }
+      } catch (err) {
+        console.warn('Auto-sync local media error:', err);
+      }
+    }
+
     // Clean initial starter room categories with valid PostgreSQL UUIDs
     const DEFAULT_STARTER_EPICS = [
       { id: '11111111-1111-4111-8111-111111111111', title: 'Kitchen Renovation', space: 'Kitchen', status: 'planning', description: 'Cabinets, platform, tiling, sink and appliances' },
@@ -1779,6 +1823,22 @@
             statusPill.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1';
           }
           if (statusText) statusText.textContent = 'Supabase Cloud';
+
+          // Multi-device realtime subscription for media vault synchronization
+          try {
+            supabaseClient.channel('realtime-media-sync')
+              .on('postgres_changes', { event: '*', schema: 'public', table: 'media' }, async () => {
+                const { data } = await supabaseClient.from('media').select('*').order('uploaded_at', { ascending: false });
+                if (data) {
+                  media = data;
+                  renderMediaGallery();
+                  updateMetrics();
+                }
+              })
+              .subscribe();
+          } catch (rtErr) {
+            console.warn('Realtime subscription skipped:', rtErr);
+          }
         } catch (e) {
           console.warn('Supabase init error, fallback to sandbox:', e);
           supabaseClient = null;
@@ -1951,25 +2011,14 @@
             }));
 
             const cloudMedia = mediaRes.data || [];
-            // Preserve any local offline media that hasn't synced to cloud yet
             const cloudIds = new Set(cloudMedia.map(m => m.id));
-            const localOnly = media.filter(m => !cloudIds.has(m.id));
-            media = [...localOnly, ...cloudMedia];
-
-            // Reconstruct any media blobs from IndexedDB
-            for (const m of media) {
-              if (!m.file_url || m.file_url.startsWith('blob:') || m.file_url === '') {
-                const blob = await getMediaBlobFromIDB(m.id);
-                if (blob) m.file_url = URL.createObjectURL(blob);
-              }
-            }
-
-            // Also check if IndexedDB has any offline records not in media
             const idbRecords = await getAllMediaRecordsFromIDB();
-            const currentIds = new Set(media.map(m => m.id));
+            const currentMedia = [...cloudMedia];
+
+            // Reconstruct or restore any local-only media from IndexedDB
             for (const rec of idbRecords) {
-              if (!currentIds.has(rec.id) && rec.blob && rec.meta) {
-                media.unshift({
+              if (!cloudIds.has(rec.id) && rec.blob && rec.meta) {
+                currentMedia.unshift({
                   id: rec.id,
                   task_id: rec.meta.task_id || null,
                   file_url: URL.createObjectURL(rec.blob),
@@ -1979,9 +2028,22 @@
                   room_tag: rec.meta.room_tag || 'Entire Flat',
                   uploaded_at: rec.meta.uploaded_at || new Date(rec.savedAt).toISOString()
                 });
-                currentIds.add(rec.id);
+                cloudIds.add(rec.id);
+
+                // Auto-sync local offline record up to Supabase cloud database in background
+                syncLocalMediaRecordToSupabase(rec).catch(e => console.warn('Background sync error:', e));
               }
             }
+
+            // Restore any missing file_urls from IndexedDB if needed
+            for (const m of currentMedia) {
+              if (!m.file_url || m.file_url === '') {
+                const blob = await getMediaBlobFromIDB(m.id);
+                if (blob) m.file_url = URL.createObjectURL(blob);
+              }
+            }
+
+            media = currentMedia;
 
             saveLocalData();
             return;
@@ -2088,6 +2150,17 @@
 
       renderAllViews();
       lucide.createIcons();
+
+      // Proactively refresh cloud media when switching to media vault
+      if (tabId === 'media' && supabaseClient) {
+        supabaseClient.from('media').select('*').order('uploaded_at', { ascending: false }).then(({ data }) => {
+          if (data && Array.isArray(data)) {
+            media = data;
+            renderMediaGallery();
+            updateMetrics();
+          }
+        }).catch(() => {});
+      }
     }
 
     function toggleMobileActionSheet() {
@@ -3293,11 +3366,11 @@
         // 1. Try Supabase Storage upload
         let uploadedToSupabase = false;
         if (supabaseClient) {
-          try {
-            const ext = (fileToStore.name || '').split('.').pop() || (isVideo ? 'mp4' : 'jpg');
-            const cleanRoom = (room || 'general').toLowerCase().replace(/[^a-z0-9]/g, '_');
-            const filePath = `${cleanRoom}/${Date.now()}_${Math.random().toString(36).substring(2, 7)}.${ext}`;
+          const ext = (fileToStore.name || '').split('.').pop() || (isVideo ? 'mp4' : 'jpg');
+          const cleanRoom = (room || 'general').toLowerCase().replace(/[^a-z0-9]/g, '_');
+          const filePath = `${cleanRoom}/${Date.now()}_${Math.random().toString(36).substring(2, 7)}.${ext}`;
 
+          try {
             const { error: uploadError } = await supabaseClient.storage
               .from('renovation-media')
               .upload(filePath, fileToStore, { cacheControl: '3600', upsert: true });
@@ -3309,10 +3382,7 @@
 
               if (publicUrl) {
                 fileUrl = publicUrl;
-                uploadedToSupabase = true;
-
-                // Insert into Supabase table
-                await supabaseClient.from('media').insert([{
+                const { error: insertErr } = await supabaseClient.from('media').insert([{
                   id: mediaId,
                   task_id: taskId || null,
                   file_url: fileUrl,
@@ -3322,12 +3392,50 @@
                   caption: caption || (isVideo ? 'Site Video Proof' : 'Site Photo Proof'),
                   room_tag: room
                 }]);
+                if (!insertErr) {
+                  uploadedToSupabase = true;
+                } else {
+                  console.warn('Supabase media table insert error with storage URL:', insertErr);
+                }
               }
             } else {
               console.warn('Supabase storage upload error:', uploadError);
             }
           } catch (supaErr) {
             console.warn('Supabase upload exception:', supaErr);
+          }
+
+          // Fallback: If storage bucket upload failed (bucket missing or unconfigured),
+          // sync optimized media directly into Supabase PostgreSQL database as a base64 Data URL.
+          // This ensures instant multi-device & incognito cross-session synchronization!
+          if (!uploadedToSupabase) {
+            try {
+              console.info('Supabase storage bucket unconfigured; falling back to direct cloud database sync...');
+              const dataUrl = await blobToDataUrl(fileToStore);
+              if (dataUrl) {
+                const dbSyncPath = `database_sync/${filePath}`;
+                const { error: dbError } = await supabaseClient.from('media').insert([{
+                  id: mediaId,
+                  task_id: taskId || null,
+                  file_url: dataUrl,
+                  storage_path: dbSyncPath,
+                  file_type: isVideo ? 'video' : 'image',
+                  stage: stage,
+                  caption: caption || (isVideo ? 'Site Video Proof' : 'Site Photo Proof'),
+                  room_tag: room
+                }]);
+
+                if (!dbError) {
+                  fileUrl = dataUrl;
+                  uploadedToSupabase = true;
+                  console.info('Successfully saved and synced media directly to Supabase cloud database!');
+                } else {
+                  console.error('Supabase cloud database insert error:', dbError);
+                }
+              }
+            } catch (dbFallbackErr) {
+              console.error('Cloud database sync fallback error:', dbFallbackErr);
+            }
           }
         }
 
