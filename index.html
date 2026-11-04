@@ -3027,11 +3027,11 @@
       currentPreviewItem = null;
     }
 
-    function handlePreviewDelete() {
+    async function handlePreviewDelete() {
       if (!currentPreviewItem) return;
       const id = currentPreviewItem.id;
       closeMediaPreviewModal();
-      deleteMedia(id);
+      await deleteMedia(id);
     }
 
     // --- STAGED MEDIA UPLOAD CONTROLLER ---
